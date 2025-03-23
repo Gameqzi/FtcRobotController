@@ -16,6 +16,7 @@ public class TestScript extends LinearOpMode {
 
         while (opModeIsActive()) {
             telemetry.addData("Test", null);
+            telemetry.addData("Test2", null);
         }
     }
 }
