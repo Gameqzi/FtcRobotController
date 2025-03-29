@@ -1,22 +1,34 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp
-public class TestScript extends LinearOpMode {
+public class TestScript extends OpMode {
     private DcMotorEx Test;
 
     @Override
-    public void runOpMode() {
+    public void init() {
         Test = hardwareMap.get(DcMotorEx.class, "Motor");
+    }
 
-        waitForStart();
+    @Override
+    public void init_loop() {
+        telemetry.addData("Please start the script", null);
+        telemetry.update();
+        Test.setPower(-0.5);
+    }
 
-        while (opModeIsActive()) {
-            telemetry.addData("Test", null);
-            telemetry.addData("Test2", null);
-        }
+    @Override
+    public void start() {
+        telemetry.clear();
+    }
+
+    @Override
+    public void loop() {
+        telemetry.addData("Thank you", null);
+        telemetry.update();
+        Test.setPower(0.5);
     }
 }
