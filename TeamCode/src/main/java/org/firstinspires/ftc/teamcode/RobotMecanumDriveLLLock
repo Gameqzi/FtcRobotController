@@ -1,0 +1,121 @@
+// IMPORT [FTC]
+package org.firstinspires.ftc.teamcode;
+
+// IMPORT [REV]
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+// IMPORT [LIMELIGHT 3A]
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+
+@TeleOp(name="Drive LL LOCK", group="TeleOp")
+public class DriveLLLOCK extends OpMode {
+
+    private DcMotorEx frontLeft, frontRight, backLeft, backRight;
+    private boolean lockMode = false;
+    private boolean lastAState = false;
+    private Limelight3A limelight;
+
+    @Override
+    public void init() {
+        // [SETUP] Hardware Map
+        frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
+        backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
+
+        // [SETUP] Motor Config.
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
+        // [SETUP] Limelight3A
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(100); // Set data polling rate
+        limelight.start(); // Start tracking
+        limelight.pipelineSwitch(0); // Set initial pipeline
+
+        // [DEBUG] ScriptStatus
+        telemetry.addData("Status", "Initialized");
+    }
+
+    @Override
+    public void loop() {
+        // [INPUT] Lock Mode (TOGGLE, 'A')
+        if (gamepad1.a && !lastAState) {
+            lockMode = !lockMode;
+        }
+        lastAState = gamepad1.a;
+
+        // [INPUT] Drive (DOUBLE, Jstick)
+        double drive  = gamepad1.left_stick_y;  // Forward/Backward
+        double strafe = -gamepad1.left_stick_x; // Left/Right
+        double rotate = -gamepad1.right_stick_x; // Rotation
+
+        // [SCRIPT] Lock Mode
+        if (lockMode) {
+            drive *= 0.5;
+            strafe *= 0.5;
+            rotate *= 0.5;
+            double[] movementAdjustments = getAlignMovement();
+            strafe += movementAdjustments[0];
+            drive += movementAdjustments[1];
+            rotate += movementAdjustments[2];
+        }
+
+        // [SCRIPT] Movement Calc (DRIVE: MECANUM)
+        double frontLeftPower  = drive + strafe + rotate;
+        double frontRightPower = drive - strafe - rotate;
+        double backLeftPower   = drive - strafe + rotate;
+        double backRightPower  = drive + strafe - rotate;
+
+        // [OUTPUT] Motor Movement(s)
+        frontLeft.setPower(frontLeftPower);
+        frontRight.setPower(frontRightPower);
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
+
+        // [DEBUG] LockModeStatus, MotorPowers
+        telemetry.addData("Lock Mode", lockMode ? "ON" : "OFF");
+        telemetry.addData("Front Left Power", frontLeftPower);
+        telemetry.addData("Front Right Power", frontRightPower);
+        telemetry.addData("Back Left Power", backLeftPower);
+        telemetry.addData("Back Right Power", backRightPower);
+        telemetry.update();
+    }
+
+    @Override
+    // [HELPER-END] Stop all motors
+    public void stop() {
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+    }
+
+    // [FUNCTION] LL Align
+    private double[] getAlignMovement() {
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            double tx = result.getTx(); // Left/Right offset
+            double ty = result.getTy(); // Up/Down offset
+            double ta = result.getTa(); // Target area (size)
+            
+            double strafeAdjust = tx * 0.02;  // Move Side/Side (X Offset)
+            double driveAdjust = (10 - ta) * 0.01; // Move Forward/Backward
+            double rotateAdjust = tx * 0.015; // Rotate
+            
+            telemetry.addData("Target X", tx);
+            telemetry.addData("Target Y", ty);
+            telemetry.addData("Target Area", ta);
+            return new double[]{strafeAdjust, driveAdjust, rotateAdjust};
+        } else {
+            telemetry.addData("Limelight", "No Targets");
+            return new double[]{0, 0, 0};
+        }
+    }
+}
