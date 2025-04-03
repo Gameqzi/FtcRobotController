@@ -95,6 +95,7 @@ public class DriveLLLOCK extends OpMode {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+        limelight.stop(); // stop limelight when script stopped
     }
 
     // [FUNCTION] LL Align
