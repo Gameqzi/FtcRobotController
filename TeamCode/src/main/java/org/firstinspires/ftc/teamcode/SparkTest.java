@@ -13,20 +13,20 @@ public class SparkTest extends OpMode {
 	SparkFunOTOS myOtos;
 		
 	@Override
-	public void init(){
-		myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+	public void init() {
+	myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
         configureOtos();
 	}
 	
 	@Override
-	public void loop(){
+	public void loop() {
 		SparkFunOTOS.Pose2D pos = myOtos.getPosition();
-        if (gamepad1.y) {
-            myOtos.resetTracking();
-        }
-        if (gamepad1.x) {
-            myOtos.calibrateImu();
-        }
+        	if (gamepad1.y) {
+            		myOtos.resetTracking();
+        	}
+        	if (gamepad1.x) {
+            		myOtos.calibrateImu();
+        	}
 	}
 	
 	private void configureOtos() {
