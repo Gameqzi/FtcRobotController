@@ -1,7 +1,10 @@
-// [IMPORT] FTC
+// Java package declaration
 package org.firstinspires.ftc.teamcode;
 
-// [IMPORT] REV
+// [IMPORT] FTC
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -9,10 +12,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 // [IMPORT] LIMELIGHT 3A
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
+@Config
 @TeleOp(name="Drive LL LOCK", group="TeleOp")
 public class RobotMecanumDriveLLLock extends OpMode {
 
@@ -20,7 +22,7 @@ public class RobotMecanumDriveLLLock extends OpMode {
     private boolean lockMode = false;
     private boolean lastLockModeState = false;
     private Limelight3A limelight;
-    private double speedMult = 1;
+    private final double speedMult = 0.8;
 
     @Override
     public void init() {
@@ -43,15 +45,16 @@ public class RobotMecanumDriveLLLock extends OpMode {
         // [DEBUG] ScriptStatus
         telemetry.addData("Status:", "Initialized");
         telemetry.addData("!WARNING!:", "Potential robot spazzing, as this is a test");
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
     public void loop() {
         // [INPUT] Lock Mode (BOOLEAN, 'A')
-        if (gamepad1.a && !lastLockModeState) {
+        if (gamepad1.triangle && !lastLockModeState) {
             lockMode = !lockMode;
         }
-        lastLockModeState = gamepad1.a;
+        lastLockModeState = gamepad1.triangle;
 
         // [INPUT] Drive (DOUBLE, Jstick)
         double drive  = gamepad1.left_stick_y * speedMult;  // Forward/Backward
@@ -108,10 +111,10 @@ public class RobotMecanumDriveLLLock extends OpMode {
             double ty = result.getTy(); // Up/Down Offset
             double ta = result.getTa(); // Target Area (Size)
             
-            double strafeAdjust = tx * 0.02;  // Side/Side (X)
-            double driveAdjust = (10 - ta) * 0.01; // Forward/Backward
-            double rotateAdjust = tx * 0.015; // Rotate
-            
+            double strafeAdjust = tx * -0.02;  // Side/Side (X)
+            double driveAdjust = (10 - ta) * -0.02; // Forward/Backward
+            double rotateAdjust = tx * -0.015; // Rotate
+
             telemetry.addData("Target X", tx);
             telemetry.addData("Target Y", ty);
             telemetry.addData("Target Area", ta);
