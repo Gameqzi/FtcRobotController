@@ -14,7 +14,7 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 @TeleOp(name="Drive LL LOCK", group="TeleOp")
-public class DriveLLLOCK extends OpMode {
+public class RobotMecanumDriveLLLock extends OpMode {
 
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
     private boolean lockMode = false;
