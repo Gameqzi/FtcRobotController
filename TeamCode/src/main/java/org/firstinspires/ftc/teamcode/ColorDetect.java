@@ -1,17 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
-import static android.os.SystemClock.sleep;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
 @Config
-@Autonomous
+@TeleOp
 public class ColorDetect extends OpMode {
     private ColorSensor colorSensor;
     private CRServo Servo1;
@@ -40,9 +38,13 @@ public class ColorDetect extends OpMode {
         Intake();
 
         if (blue > 45) {
-            Dir = false;
-            sleep(1000);
-            Dir = true;
+            Out();
+            telemetry.addData("BLUE!!1!!1!", blue);
+        }
+
+        if (blue < 36) {
+            In();
+            telemetry.addData("NO BLUE!!1!!1!", blue);
         }
     }
 
@@ -52,8 +54,18 @@ public class ColorDetect extends OpMode {
             Servo2.setPower(-0.1);
         }
         else if (Dir == false) {
-            Servo1.setPower(-0.1);
-            Servo2.setPower(0.1);
+            Servo1.setPower(-2);
+            Servo2.setPower(2);
         }
+    }
+
+    private void Out() {
+        telemetry.addData("Out is running", Dir);
+        Dir = false;
+    }
+
+    private void In() {
+        telemetry.addData("In is running", Dir);
+        Dir = true;
     }
 }
