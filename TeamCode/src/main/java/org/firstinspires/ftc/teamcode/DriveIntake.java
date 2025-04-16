@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -17,7 +16,7 @@ public class DriveIntake extends OpMode {
     private ColorSensor colorSensor;
     private CRServo Servo1;
     private CRServo Servo2;
-    boolean Dir;
+    int Dir = 3;
 
     @Override
     public void init() {
@@ -31,8 +30,8 @@ public class DriveIntake extends OpMode {
         Servo2 = hardwareMap.get(CRServo.class, "Servo2");
 
         // Reverse right side motors if needed to ensure proper direction
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight.setDirection(DcMotorEx.Direction.REVERSE);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
@@ -60,13 +59,14 @@ public class DriveIntake extends OpMode {
 
         Intake();
 
-        if (gamepad1.triangle) {
-            Dir = true;
+        if (gamepad1.cross) {
+            Dir = 1;
             if (blue > 45) {
                 Out();
             }
-        } else {
-            Dir = null;
+        }
+        else {
+            Dir = 3;
         }
 
         // Set the calculated power to each motor
@@ -74,28 +74,25 @@ public class DriveIntake extends OpMode {
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
-
-        // Send telemetry data for debugging and feedback
-        telemetry.addData("Front Left Power", frontLeftPower);
-        telemetry.addData("Front Right Power", frontRightPower);
-        telemetry.addData("Back Left Power", backLeftPower);
-        telemetry.addData("Back Right Power", backRightPower);
-        telemetry.update();
     }
 
     private void Intake() {
-        if (Dir == true) {
-            Servo1.setPower(0.1);
-            Servo2.setPower(-0.1);
+        if (Dir == 1) {
+            Servo1.setPower(0.25);
+            Servo2.setPower(-0.25);
         }
-        else if (Dir == false) {
+        else if (Dir == 2) {
             Servo1.setPower(-2);
             Servo2.setPower(2);
+        }
+        else if (Dir == 3) {
+            Servo1.setPower(0);
+            Servo2.setPower(0);
         }
     }
 
     private void Out() {
-        Dir = false;
+        Dir = 2;
     }
 
     @Override

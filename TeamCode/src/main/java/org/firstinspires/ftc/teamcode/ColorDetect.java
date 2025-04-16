@@ -42,7 +42,7 @@ public class ColorDetect extends OpMode {
             telemetry.addData("BLUE!!1!!1!", blue);
         }
 
-        if (blue < 36) {
+        if (blue < 40) {
             In();
             telemetry.addData("NO BLUE!!1!!1!", blue);
         }

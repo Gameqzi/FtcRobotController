@@ -7,6 +7,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -23,6 +25,10 @@ public class RobotMecanumDriveLLLock extends OpMode {
     private boolean lastLockModeState = false;
     private Limelight3A limelight;
     private final double speedMult = 0.8;
+    private ColorSensor colorSensor;
+    private CRServo Servo1;
+    private CRServo Servo2;
+    int Dir = 1;
 
     @Override
     public void init() {
@@ -31,6 +37,9 @@ public class RobotMecanumDriveLLLock extends OpMode {
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
+        colorSensor = hardwareMap.colorSensor.get("ColorSensor");
+        Servo1 = hardwareMap.get(CRServo.class, "Servo1");
+        Servo2 = hardwareMap.get(CRServo.class, "Servo2");
 
         // [SETUP] Motor Config.
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -78,11 +87,25 @@ public class RobotMecanumDriveLLLock extends OpMode {
         double backLeftPower   = drive - strafe + rotate;
         double backRightPower  = drive + strafe - rotate;
 
+        float red = colorSensor.red();
+        float green = colorSensor.green();
+        float blue = colorSensor.blue();
+
         // [OUTPUT] Motor Movement(s)
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
+
+        Intake();
+
+        if (blue > 45) {
+            Out();
+        }
+
+        if (blue < 40) {
+            In();
+        }
 
         // [DEBUG] LockModeStatus, MotorPowers (Tele)
         telemetry.addData("Lock Mode", lockMode ? "ON" : "OFF");
@@ -102,6 +125,30 @@ public class RobotMecanumDriveLLLock extends OpMode {
         backRight.setPower(0);
         limelight.stop();
     }
+
+    private void Intake() {
+        if (Dir == 1) {
+            Servo1.setPower(0.25);
+            Servo2.setPower(-0.25);
+        }
+        else if (Dir == 2) {
+            Servo1.setPower(-2);
+            Servo2.setPower(2);
+        }
+        else if (Dir == 3) {
+            Servo1.setPower(0);
+            Servo2.setPower(0);
+        }
+    }
+
+    private void In() {
+        Dir = 1;
+    }
+
+    private void Out() {
+        Dir = 2;
+    }
+
 
     // [FUNCTION] Alignment Calc (Limelight) (WITH DEBUG: TELE)
     private double[] getAlignMovement() {
