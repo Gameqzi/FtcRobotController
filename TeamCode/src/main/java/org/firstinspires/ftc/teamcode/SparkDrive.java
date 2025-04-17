@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class SparkDrive extends OpMode {
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
 
-    SparkFunOTOS myOtos;
+    SparkFunOTOS SparkFun;
 
     @Override
     public void init() {
@@ -26,7 +26,7 @@ public class SparkDrive extends OpMode {
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
-        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
         frontRight.setDirection(DcMotorEx.Direction.REVERSE);
         backRight.setDirection(DcMotorEx.Direction.REVERSE);
@@ -54,16 +54,16 @@ public class SparkDrive extends OpMode {
 
         // Get the latest position, which includes the x and y coordinates, plus the
         // heading angle
-        SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+        SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
 
         // Reset the tracking if the user requests it
         if (gamepad1.triangle) {
-            myOtos.resetTracking();
+            SparkFun.resetTracking();
         }
 
         // Re-calibrate the IMU if the user requests it
         if (gamepad1.square) {
-            myOtos.calibrateImu();
+            SparkFun.calibrateImu();
         }
 
         // Inform user of available controls
@@ -90,10 +90,10 @@ public class SparkDrive extends OpMode {
         // set, the default is inches and degrees. Note that this setting is not
         // persisted in the sensor, so you need to set at the start of all your
         // OpModes if using the non-default value.
-        // myOtos.setLinearUnit(DistanceUnit.METER);
-        myOtos.setLinearUnit(DistanceUnit.INCH);
-        // myOtos.setAngularUnit(AnguleUnit.RADIANS);
-        myOtos.setAngularUnit(AngleUnit.DEGREES);
+        // SparkFun.setLinearUnit(DistanceUnit.METER);
+        SparkFun.setLinearUnit(DistanceUnit.INCH);
+        // SparkFun.setAngularUnit(AnguleUnit.RADIANS);
+        SparkFun.setAngularUnit(AngleUnit.DEGREES);
 
         // Assuming you've mounted your sensor to a robot and it's not centered,
         // you can specify the offset for the sensor relative to the center of the
@@ -107,7 +107,7 @@ public class SparkDrive extends OpMode {
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
         //SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0);
-        //myOtos.setOffset(offset);
+        //SparkFun.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
         // scaling issues with the sensor measurements. Note that as of firmware
@@ -125,8 +125,8 @@ public class SparkDrive extends OpMode {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        myOtos.setLinearScalar(1.0);
-        myOtos.setAngularScalar(1.0);
+        SparkFun.setLinearScalar(1.0);
+        SparkFun.setAngularScalar(1.0);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
@@ -138,23 +138,23 @@ public class SparkDrive extends OpMode {
         // to wait until the calibration is complete. If no parameters are provided,
         // it will take 255 samples and wait until done; each sample takes about
         // 2.4ms, so about 612ms total
-        myOtos.calibrateImu();
+        SparkFun.calibrateImu();
 
         // Reset the tracking algorithm - this resets the position to the origin,
         // but can also be used to recover from some rare tracking errors
-        myOtos.resetTracking();
+        SparkFun.resetTracking();
 
         // After resetting the tracking, the OTOS will report that the robot is at
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
-        myOtos.setPosition(currentPosition);
+        SparkFun.setPosition(currentPosition);
 
         // Get the hardware and firmware version
         SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
         SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
-        myOtos.getVersionInfo(hwVersion, fwVersion);
+        SparkFun.getVersionInfo(hwVersion, fwVersion);
 
         telemetry.addLine("OTOS configured! Press start to get position data!");
         telemetry.addLine();
