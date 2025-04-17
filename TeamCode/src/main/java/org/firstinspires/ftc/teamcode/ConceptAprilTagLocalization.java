@@ -66,6 +66,10 @@ public class ConceptAprilTagLocalization extends OpMode {
         } else if (gamepad1.dpad_up) {
             visionPortal.resumeStreaming();
         }
+
+        if (det.id == 17) {
+            telemetry.addline("Basket", null);
+        }
     }
 
     @Override
