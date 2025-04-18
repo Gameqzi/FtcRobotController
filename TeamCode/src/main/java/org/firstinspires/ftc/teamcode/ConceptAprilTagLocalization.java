@@ -16,7 +16,6 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Config
@@ -99,6 +98,12 @@ public class ConceptAprilTagLocalization extends OpMode {
     private void telemetryAprilTag() {
         List<AprilTagDetection> detections = aprilTag.getDetections();
         telemetry.addData("# Tags", detections.size());
+
+        for (AprilTagDetection det : detections) {
+            if (det.id == 17) {
+                telemetry.addData("Basket in view", null);
+            }
+        }
 
         for (AprilTagDetection det : detections) {
             if (det.metadata != null) {
