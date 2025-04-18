@@ -16,6 +16,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Config
@@ -65,10 +66,6 @@ public class ConceptAprilTagLocalization extends OpMode {
             visionPortal.stopStreaming();
         } else if (gamepad1.dpad_up) {
             visionPortal.resumeStreaming();
-        }
-
-        if (det.id == 17) {
-            telemetry.addline("Basket", null);
         }
     }
 
