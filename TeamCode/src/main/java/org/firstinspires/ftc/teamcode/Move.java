@@ -6,64 +6,33 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
-@TeleOp
-public class SparkDrive extends OpMode {
+@Autonomous
+public class Move extends OpMode {
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
 
     SparkFunOTOS SparkFun;
-
-    @Override
-    public void init() {
+    @Override public void init() {
         frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-        //frontRight.setDirection(DcMotorEx.Direction.REVERSE);
-        //backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        telemetry.clear();
         configureOtos();
     }
 
-    @Override
-    public void loop() {
-        double drive  = gamepad1.left_stick_y;  // Forward/backward (inverted as necessary)
-        double strafe = -gamepad1.right_stick_x;     // Left/right
-        double rotate = gamepad1.left_trigger - gamepad1.right_trigger;     // Rotation
-
-        // Calculate motor powers for mecanum drive
-        double frontLeftPower  = drive + strafe + rotate;
-        double frontRightPower = drive - strafe - rotate;
-        double backLeftPower   = drive - strafe + rotate;
-        double backRightPower  = drive + strafe - rotate;
-
-        // Set the calculated power to each motor
-        frontLeft.setPower(frontLeftPower/2);
-        frontRight.setPower(-frontRightPower/2);
-        backLeft.setPower(backLeftPower/2);
-        backRight.setPower(-backRightPower/2);
-
-        // Get the latest position, which includes the x and y coordinates, plus the
-        // heading angle
+    @Override public void loop() {
         SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
 
         // Reset the tracking if the user requests it
@@ -76,6 +45,39 @@ public class SparkDrive extends OpMode {
             SparkFun.calibrateImu();
         }
 
+        double frontLeftpower = 0;
+        double frontRightpower = 0;
+        double backLeftpower = 0;
+        double backRightpower = 0;
+
+        if (pos.h < 0) {
+            frontLeftpower += 0.1;
+            frontRightpower += 0.1;
+            backLeftpower += 0.1;
+            backRightpower += 0.1;
+        } else if (pos.h > 0) {
+            frontLeftpower -= 0.1;
+            frontRightpower -= 0.1;
+            backLeftpower -= 0.1;
+            backRightpower -= 0.1;
+        }
+        if (pos.x < 48) {
+            frontLeftpower -= 0.2;
+            frontRightpower -= 0.2;
+            backLeftpower -= 0.2;
+            backRightpower -= 0.2;
+        } else if (pos.x > 48) {
+            frontLeftpower += 0.2;
+            frontRightpower += 0.2;
+            backLeftpower += 0.2;
+            backRightpower += 0.2;
+        }
+
+        frontLeft.setPower(frontLeftpower);
+        frontRight.setPower(frontRightpower);
+        backLeft.setPower(backLeftpower);
+        backRight.setPower(backRightpower);
+
         // Inform user of available controls
         telemetry.addLine("Press triangle on Gamepad to reset tracking");
         telemetry.addLine("Press square on Gamepad to calibrate the IMU");
@@ -85,10 +87,6 @@ public class SparkDrive extends OpMode {
         telemetry.addData("X coordinate", pos.x);
         telemetry.addData("Y coordinate", pos.y);
         telemetry.addData("Heading angle", pos.h);
-        telemetry.addData("Front Left", frontLeft.getCurrentPosition());
-        telemetry.addData("Front Right", frontRight.getCurrentPosition());
-        telemetry.addData("Back right", backRight.getCurrentPosition());
-        telemetry.addData("Back left", backLeft.getCurrentPosition());
 
         // Update the telemetry on the driver station
         telemetry.update();
@@ -177,8 +175,7 @@ public class SparkDrive extends OpMode {
         telemetry.update();
     }
 
-    @Override
-    public void stop() {
+    @Override public void stop() {
         // Optionally, stop all motors when the opmode is stopped.
         frontLeft.setPower(0);
         frontRight.setPower(0);
