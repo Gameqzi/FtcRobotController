@@ -26,8 +26,13 @@ public class Move extends OpMode {
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
+        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
         backRight.setDirection(DcMotorEx.Direction.REVERSE);
-        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
+        int TargetX = 30;
+        int TargetY = 30;
+        int TargetH = 0;
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         configureOtos();
     }
@@ -50,27 +55,40 @@ public class Move extends OpMode {
         double backLeftpower = 0;
         double backRightpower = 0;
 
-        if (pos.h < 0) {
+        if (pos.h < TargetH) {
             frontLeftpower += 0.1;
-            frontRightpower += 0.1;
-            backLeftpower += 0.1;
-            backRightpower += 0.1;
-        } else if (pos.h > 0) {
-            frontLeftpower -= 0.1;
             frontRightpower -= 0.1;
-            backLeftpower -= 0.1;
+            backLeftpower += 0.1;
             backRightpower -= 0.1;
+        } else if (pos.h > TargetH) {
+            frontLeftpower -= 0.1;
+            frontRightpower += 0.1;
+            backLeftpower -= 0.1;
+            backRightpower += 0.1;
         }
-        if (pos.x < 48) {
+
+        if (pos.x < TargetX) {
             frontLeftpower -= 0.2;
+            frontRightpower += 0.2;
+            backLeftpower += 0.2;
+            backRightpower +-= 0.2;
+        } else if (pos.x > TargetX) {
+            frontLeftpower += 0.2;
             frontRightpower -= 0.2;
             backLeftpower -= 0.2;
-            backRightpower -= 0.2;
-        } else if (pos.x > 48) {
+            backRightpower += 0.2;
+        }
+
+        if (pos.y < TargetY) {
             frontLeftpower += 0.2;
             frontRightpower += 0.2;
             backLeftpower += 0.2;
             backRightpower += 0.2;
+        } else if (pos.y > TargetY) {
+            frontLeftpower -= 0.2;
+            frontRightpower -= 0.2;
+            backLeftpower -= 0.2;
+            backRightpower -= 0.2;
         }
 
         frontLeft.setPower(frontLeftpower);
