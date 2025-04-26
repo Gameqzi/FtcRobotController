@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -28,17 +29,17 @@ public class SparkDrive extends OpMode {
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //frontRight.setDirection(DcMotorEx.Direction.REVERSE);
-        //backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        //frontRight.setDirection(DcMotor.Direction.REVERSE);
+        //backRight.setDirection(DcMotor.Direction.REVERSE);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.clear();
         configureOtos();
@@ -57,10 +58,10 @@ public class SparkDrive extends OpMode {
         double backRightPower  = drive + strafe - rotate;
 
         // Set the calculated power to each motor
-        frontLeft.setPower(frontLeftPower/2);
-        frontRight.setPower(-frontRightPower/2);
-        backLeft.setPower(backLeftPower/2);
-        backRight.setPower(-backRightPower/2);
+        frontLeft.setVelocity(frontLeftPower*1000);
+        frontRight.setVelocity(-frontRightPower*1000);
+        backLeft.setVelocity(backLeftPower*1000);
+        backRight.setVelocity(-backRightPower*1000);
 
         // Get the latest position, which includes the x and y coordinates, plus the
         // heading angle
@@ -89,6 +90,10 @@ public class SparkDrive extends OpMode {
         telemetry.addData("Front Right", frontRight.getCurrentPosition());
         telemetry.addData("Back right", backRight.getCurrentPosition());
         telemetry.addData("Back left", backLeft.getCurrentPosition());
+        telemetry.addData("Front Left Velocity", frontLeft.getVelocity());
+        telemetry.addData("Front Right Velocity", frontRight.getVelocity());
+        telemetry.addData("Back Right Velocity", backRight.getVelocity());
+        telemetry.addData("Back Left Velocity", backLeft.getVelocity());
 
         // Update the telemetry on the driver station
         telemetry.update();

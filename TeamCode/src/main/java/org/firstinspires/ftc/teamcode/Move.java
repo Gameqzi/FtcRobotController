@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -26,18 +27,34 @@ public class Move extends OpMode {
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setDirection(DcMotorEx.Direction.REVERSE);
-
-        int TargetX = 30;
-        int TargetY = 30;
-        int TargetH = 0;
-
+        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         configureOtos();
     }
 
     @Override public void loop() {
+        int TargetPosition = frontLeft.getCurrentPosition();
+        frontRight.setTargetPosition(TargetPosition);
+        backRight.setTargetPosition(TargetPosition);
+        backLeft.setTargetPosition(TargetPosition);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        int FrontLeftPosition = frontLeft.getCurrentPosition();
+        int FrontRightPosition = frontRight.getCurrentPosition();
+        int BackLeftPosition = backLeft.getCurrentPosition();
+        int BackRightPosition = backRight.getCurrentPosition();
+
         SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
 
         // Reset the tracking if the user requests it
@@ -50,51 +67,17 @@ public class Move extends OpMode {
             SparkFun.calibrateImu();
         }
 
-        double frontLeftpower = 0;
-        double frontRightpower = 0;
-        double backLeftpower = 0;
-        double backRightpower = 0;
-
-        if (pos.h < TargetH) {
-            frontLeftpower += 0.1;
-            frontRightpower -= 0.1;
-            backLeftpower += 0.1;
-            backRightpower -= 0.1;
-        } else if (pos.h > TargetH) {
-            frontLeftpower -= 0.1;
-            frontRightpower += 0.1;
-            backLeftpower -= 0.1;
-            backRightpower += 0.1;
+        if (pos.x < 24) {
+            frontLeft.setPower(-0.2);
+            frontRight.setPower(-0.2);
+            backLeft.setPower(-0.2);
+            backRight.setPower(-0.2);
+        } else if (pos.x > 24) {
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
         }
-
-        if (pos.x < TargetX) {
-            frontLeftpower -= 0.2;
-            frontRightpower += 0.2;
-            backLeftpower += 0.2;
-            backRightpower +-= 0.2;
-        } else if (pos.x > TargetX) {
-            frontLeftpower += 0.2;
-            frontRightpower -= 0.2;
-            backLeftpower -= 0.2;
-            backRightpower += 0.2;
-        }
-
-        if (pos.y < TargetY) {
-            frontLeftpower += 0.2;
-            frontRightpower += 0.2;
-            backLeftpower += 0.2;
-            backRightpower += 0.2;
-        } else if (pos.y > TargetY) {
-            frontLeftpower -= 0.2;
-            frontRightpower -= 0.2;
-            backLeftpower -= 0.2;
-            backRightpower -= 0.2;
-        }
-
-        frontLeft.setPower(frontLeftpower);
-        frontRight.setPower(frontRightpower);
-        backLeft.setPower(backLeftpower);
-        backRight.setPower(backRightpower);
 
         // Inform user of available controls
         telemetry.addLine("Press triangle on Gamepad to reset tracking");
@@ -105,7 +88,10 @@ public class Move extends OpMode {
         telemetry.addData("X coordinate", pos.x);
         telemetry.addData("Y coordinate", pos.y);
         telemetry.addData("Heading angle", pos.h);
-
+        telemetry.addData("frontLeft", FrontLeftPosition);
+        telemetry.addData("frontRight", FrontRightPosition);
+        telemetry.addData("backLeft", BackLeftPosition);
+        telemetry.addData("backRight", BackRightPosition);
         // Update the telemetry on the driver station
         telemetry.update();
     }
