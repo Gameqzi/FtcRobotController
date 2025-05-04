@@ -15,7 +15,7 @@ public class MotorVolRun extends OpMode {
 
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
 
-    public static int P, I, D, F;
+    public static int P, I, D, F; //P = 10, I = 3, D = 0, F = 8
 
     @Override public void init() {
         frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -26,6 +26,16 @@ public class MotorVolRun extends OpMode {
         ElapsedTime time = new ElapsedTime();
 
         ResetEncoders();
+
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        frontRight.setVelocityPIDFCoefficients(P, I, D, F);
+        backRight.setVelocityPIDFCoefficients(P, I, D, F);
+        frontLeft.setVelocityPIDFCoefficients(P, I, D, F);
+        backLeft.setVelocityPIDFCoefficients(P, I, D, F);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.clearAll();
@@ -40,7 +50,7 @@ public class MotorVolRun extends OpMode {
         telemetry.addData("Front Left Position", frontLeft.getCurrentPosition());
         telemetry.addData("Front Right Position", frontRight.getCurrentPosition());
         telemetry.addData("Back Left Position", backLeft.getCurrentPosition());
-        telemetry.addData("Back Right", backRight.getCurrentPosition());
+        telemetry.addData("Back Right Position", backRight.getCurrentPosition());
 
         telemetry.addData("Time", time);
 
