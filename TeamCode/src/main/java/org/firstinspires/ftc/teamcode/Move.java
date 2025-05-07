@@ -8,7 +8,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,6 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Move extends OpMode {
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
 
+    public static int P, I, D, F; //P = 10, I = 3, D = 0, F = 8
+
     SparkFunOTOS SparkFun;
     @Override public void init() {
         frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -27,29 +28,27 @@ public class Move extends OpMode {
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         backRight.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
+        frontRight.setVelocityPIDFCoefficients(P, I, D, F);
+        backRight.setVelocityPIDFCoefficients(P, I, D, F);
+        frontLeft.setVelocityPIDFCoefficients(P, I, D, F);
+        backLeft.setVelocityPIDFCoefficients(P, I, D, F);
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         configureOtos();
     }
 
     @Override public void loop() {
-        int TargetPosition = frontLeft.getCurrentPosition();
-        frontRight.setTargetPosition(TargetPosition);
-        backRight.setTargetPosition(TargetPosition);
-        backLeft.setTargetPosition(TargetPosition);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         int FrontLeftPosition = frontLeft.getCurrentPosition();
         int FrontRightPosition = frontRight.getCurrentPosition();
         int BackLeftPosition = backLeft.getCurrentPosition();
@@ -67,16 +66,16 @@ public class Move extends OpMode {
             SparkFun.calibrateImu();
         }
 
-        if (pos.x < 24) {
-            frontLeft.setPower(-0.2);
-            frontRight.setPower(-0.2);
-            backLeft.setPower(-0.2);
-            backRight.setPower(-0.2);
-        } else if (pos.x > 24) {
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
+        if (pos.x < 72) {
+            frontLeft.setVelocity(-0.2*2000);
+            frontRight.setVelocity(-0.2*2000);
+            backLeft.setVelocity(-0.2*2000);
+            backRight.setVelocity(-0.2*2000);
+        } else if (pos.x > 72) {
+            frontLeft.setVelocity(0);
+            frontRight.setVelocity(0);
+            backLeft.setVelocity(0);
+            backRight.setVelocity(0);
         }
 
         // Inform user of available controls

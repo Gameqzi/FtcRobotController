@@ -54,7 +54,7 @@ public class MotorVolRun extends OpMode {
 
         telemetry.addData("Time", time);
 
-        if (time >= 10) {
+        if (frontLeft.getCurrentPosition() >= 6000) {
             requestOpModeStop();
         }
     }
@@ -68,12 +68,20 @@ public class MotorVolRun extends OpMode {
 
     private void ResetEncoders() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setTargetPosition(6000);
+        frontRight.setTargetPosition(6000);
+        backLeft.setTargetPosition(6000);
+        backRight.setTargetPosition(6000);
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }
