@@ -23,7 +23,6 @@ public class MotorVolRun extends OpMode {
         backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
 
-
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
