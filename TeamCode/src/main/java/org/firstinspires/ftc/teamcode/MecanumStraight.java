@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.RobotLog;
+import android.util.Log;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -27,10 +28,10 @@ public class MecanumStraight extends OpMode {
     public static double kD_HEADING = 0.10;
 
     /*  NEW motor feed-forward gains – paste these four numbers  */
-    public static double kF_FL = 9.18;   // was  9.90   (-7 %)
-    public static double kF_FR = 10.71;  // was 10.54   (+2 %)
-    public static double kF_BL = 11.34;  // was 10.45   (+8 %)
-    public static double kF_BR =  9.49;  // was  9.75   (-3 %)
+    public static double kF_FL = 7.5;
+    public static double kF_FR = 10.8;
+    public static double kF_BL = 13.6;
+    public static double kF_BR =  9.8;
     public static double kP_MOTOR = 0.12;  // small P helps resist load change
 
     /* ──────────────────────────────────────────────────────────────
@@ -92,6 +93,7 @@ public class MecanumStraight extends OpMode {
         br.setVelocity(rightTPS);
 
         RobotLog.dd("Strafe", "FrontLeft=%d  FrontRight=%d BackLeft=%d BackRight=%d", fl.getCurrentPosition(), fr.getCurrentPosition(), bl.getCurrentPosition(), br.getCurrentPosition());
+        Log.w("test", "test");
 
         /* 5) Telemetry for live tuning */
         telemetry.addData("Yaw (°)", yaw);
