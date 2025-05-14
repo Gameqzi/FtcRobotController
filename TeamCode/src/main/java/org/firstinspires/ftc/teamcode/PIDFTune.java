@@ -33,10 +33,10 @@ public class PIDFTune extends OpMode {
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight.setDirection(DcMotorEx.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft.setDirection(DcMotorEx.Direction.FORWARD);
 
         ElapsedTime timer = new ElapsedTime();
 
@@ -52,6 +52,7 @@ public class PIDFTune extends OpMode {
         configureOtos();
     }
 
+    boolean started = false;
     @Override public void loop() {
         int FrontLeftPos = frontLeft.getCurrentPosition();
         int FrontRightPos = frontRight.getCurrentPosition();
@@ -65,19 +66,15 @@ public class PIDFTune extends OpMode {
 
         SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
 
-        if (pos.x < 48) {
-            frontRight.setVelocity(1000);
-            frontLeft.setVelocity(1000);
-            backLeft.setVelocity(1000);
-            backRight.setVelocity(1000);
+        if (!started) {
+            started = true;
+            setAllVelocity(1000);
         } else if (pos.x > 48) {
-            backLeft.setPower(0);
-            backRight.setPower(0);
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
+            setAllVelocity(0);
         }
 
         RobotLog.dd("PIDFTune", "FrontLeft=%d  FrontRight=%d BackLeft=%d BackRight=%d", FrontLeftPos, FrontRightPos, BackLeftPos, BackRightPos);
+        RobotLog.dd("XH", "X=%f H=%f", pos.x, pos.h);
 
         telemetry.addData("Front Left Position", FrontLeftPos);
         telemetry.addData("Front Right Position", FrontRightPos);
@@ -93,6 +90,13 @@ public class PIDFTune extends OpMode {
         frontRight.setVelocity(0);
         backLeft.setVelocity(0);
         backRight.setVelocity(0);
+    }
+
+    private void setAllVelocity(double velocity) {
+        backLeft.setVelocity(velocity);
+        backRight.setVelocity(velocity);
+        frontRight.setVelocity(velocity);
+        frontLeft.setVelocity(velocity);
     }
 
     @SuppressLint("DefaultLocale")
