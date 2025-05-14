@@ -21,16 +21,16 @@ public class MecanumStraight extends OpMode {
     /* ──────────────────────────────────────────────────────────────
      * 1) Dashboard-tunable constants
      * ────────────────────────────────────────────────────────────── */
-    public static double TARGET_TPS = 600;       // ticks / second forward
+    public static double TARGET_TPS  = 600;   // keep as-is for now
     public static double kP_HEADING = 1.1;
     public static double kI_HEADING = 0.0;
-    public static double kD_HEADING = 0.1;
+    public static double kD_HEADING = 0.10;
 
-    // Per-motor velocity gains (find with max-TPS test; see notes)
-    public static double kF_FL = 10.20;
-    public static double kF_FR = 10.50;
-    public static double kF_BL =  9.80;
-    public static double kF_BR = 10.10;
+    /*  NEW motor feed-forward gains – paste these four numbers  */
+    public static double kF_FL = 9.18;   // was  9.90   (-7 %)
+    public static double kF_FR = 10.71;  // was 10.54   (+2 %)
+    public static double kF_BL = 11.34;  // was 10.45   (+8 %)
+    public static double kF_BR =  9.49;  // was  9.75   (-3 %)
     public static double kP_MOTOR = 0.12;  // small P helps resist load change
 
     /* ──────────────────────────────────────────────────────────────
