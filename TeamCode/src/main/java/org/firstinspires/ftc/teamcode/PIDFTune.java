@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,10 +14,11 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 @Config
 @TeleOp
-public class PIDFTune extends OpMode {
+public class PIDFTune extends ThreadOpMode {
 
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
 
@@ -26,7 +26,7 @@ public class PIDFTune extends OpMode {
 
     public static double P, I, D, F; //P = 10, I = 3, D = 0, F = 8
 
-    @Override public void init() {
+    @Override public void mainInit() {
         frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
@@ -53,7 +53,7 @@ public class PIDFTune extends OpMode {
     }
 
     boolean started = false;
-    @Override public void loop() {
+    @Override public void mainLoop() {
         int FrontLeftPos = frontLeft.getCurrentPosition();
         int FrontRightPos = frontRight.getCurrentPosition();
         int BackLeftPos = backLeft.getCurrentPosition();
@@ -83,13 +83,6 @@ public class PIDFTune extends OpMode {
         telemetry.addData("X", pos.x);
         telemetry.addData("Y", pos.y);
         telemetry.addData("H", pos.h);
-    }
-
-    @Override public void stop() {
-        frontLeft.setVelocity(0);
-        frontRight.setVelocity(0);
-        backLeft.setVelocity(0);
-        backRight.setVelocity(0);
     }
 
     private void setAllVelocity(double velocity) {
