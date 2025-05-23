@@ -30,6 +30,7 @@ public class LiftMove extends ThreadOpMode {
     }
 
     private void resetEncoders() {
+        // Reset the encoders for each motor
         lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
     }

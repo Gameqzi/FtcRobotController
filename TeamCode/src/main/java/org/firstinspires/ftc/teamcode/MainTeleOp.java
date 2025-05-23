@@ -41,6 +41,7 @@ public class MainTeleOp extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
+        // Add PIDF coefficients to each motor
         frontRight.setVelocityPIDFCoefficients(P, I, D, F);
         backRight.setVelocityPIDFCoefficients(P, I, D, F);
         frontLeft.setVelocityPIDFCoefficients(P, I, D, F);
