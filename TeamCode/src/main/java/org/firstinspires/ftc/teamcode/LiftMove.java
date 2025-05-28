@@ -23,7 +23,6 @@ public class LiftMove extends ThreadOpMode {
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         resetEncoders();
 
-
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.clearAll();
     }
@@ -33,16 +32,16 @@ public class LiftMove extends ThreadOpMode {
         lift.setVelocityPIDFCoefficients(LP, LI, LD, LF);
         if (gamepad1.cross && Math.abs(lift.getCurrentPosition()) < 2900) {
             if (Math.abs(LiftPos) > 2900) {
-                LiftPos += 10;
+                LiftPos += 15;
             } else {
-                LiftPos -= 10;
+                LiftPos -= 15;
             }
-            lift.setVelocity(-1500);
+            lift.setVelocity(-1750);
         } else if (gamepad1.circle && lift.getCurrentPosition() < -10) {
             if (LiftPos > -10) {
-                LiftPos -= 20;
+                LiftPos -= 25;
             } else {
-                LiftPos += 20;
+                LiftPos += 25;
             }
             lift.setVelocity(1000);
         } else {
@@ -53,6 +52,7 @@ public class LiftMove extends ThreadOpMode {
 
         telemetry.addData("ticks", lift.getCurrentPosition());
         telemetry.addData("LiftPos", LiftPos);
+        telemetry.update();
     }
 
     private void resetEncoders() {

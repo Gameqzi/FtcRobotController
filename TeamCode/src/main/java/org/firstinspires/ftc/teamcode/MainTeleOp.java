@@ -19,6 +19,8 @@ public class MainTeleOp extends ThreadOpMode {
 
     public static double LP = 10, LI = 3, LD = 0, LF = 8;
 
+    int LiftPos = 0;
+
     @Override
     public void mainInit() {
         frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -64,12 +66,28 @@ public class MainTeleOp extends ThreadOpMode {
         backRight.setVelocity(-backRightPower*1000);
 
         if (gamepad1.cross && Math.abs(lift.getCurrentPosition()) < 2900) {
-            lift.setVelocity(-500);
+            if (Math.abs(LiftPos) > 2900) {
+                LiftPos += 15;
+            } else {
+                LiftPos -= 15;
+            }
+            lift.setVelocity(-1750);
         } else if (gamepad1.circle && lift.getCurrentPosition() < -10) {
-            lift.setVelocity(500);
+            if (LiftPos > -10) {
+                LiftPos -= 25;
+            } else {
+                LiftPos += 25;
+            }
+            lift.setVelocity(1000);
         } else {
             lift.setVelocity(0);
         }
+        lift.setTargetPosition(LiftPos);
+        lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+
+        telemetry.addData("ticks", lift.getCurrentPosition());
+        telemetry.addData("LiftPos", LiftPos);
+        telemetry.update();
     }
 
 
@@ -87,6 +105,5 @@ public class MainTeleOp extends ThreadOpMode {
         backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }
