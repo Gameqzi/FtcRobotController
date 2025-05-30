@@ -37,14 +37,14 @@ public class ColorDetect extends OpMode {
 
         Intake();
 
-        if (blue > 45) {
+        if (red > 190) {
             Out();
-            telemetry.addData("BLUE!!1!!1!", blue);
+            telemetry.addData("RED!!1!!1!", red);
         }
 
-        if (blue < 40) {
+        if (red < 170) {
             In();
-            telemetry.addData("NO BLUE!!1!!1!", blue);
+            telemetry.addData("NO RED!!1!!1!", red);
         }
     }
 
@@ -54,8 +54,8 @@ public class ColorDetect extends OpMode {
             Servo2.setPower(-0.1);
         }
         else if (Dir == false) {
-            Servo1.setPower(-2);
-            Servo2.setPower(2);
+            Servo1.setPower(0);
+            Servo2.setPower(0);
         }
     }
 
