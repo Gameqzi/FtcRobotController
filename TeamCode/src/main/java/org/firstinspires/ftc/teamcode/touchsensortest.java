@@ -24,7 +24,11 @@ public class touchsensortest extends ThreadOpMode {
             Servo2.setPower(-0.5);
             telemetry.addData("Touched", null);
             telemetry.update();
+        } else {
+            Servo1.setPower(0);
+            Servo2.setPower(0);
+            telemetry.addData("Not Touched", null);
+            telemetry.update();
         }
-
     }
 }
