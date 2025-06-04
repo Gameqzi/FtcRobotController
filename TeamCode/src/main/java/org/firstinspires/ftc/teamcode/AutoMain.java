@@ -63,6 +63,7 @@ public class AutoMain extends ThreadOpMode {
             backRight.setPower(0);
             frontLeft.setPower(0);
             frontRight.setPower(0);
+            ForWardDone = false;
             StrafeDone = true;
         }
 

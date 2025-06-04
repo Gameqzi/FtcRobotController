@@ -20,7 +20,7 @@ public class StrafeTest extends ThreadOpMode {
 
     SparkFunOTOS SparkFun;
 
-    public boolean right = true;
+    public boolean right = false;
 
     @Override
     public void mainInit() {
