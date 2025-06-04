@@ -13,6 +13,10 @@ public class MotorUtils {
      * @param backRight Back right motor
      */
     public static void StrafeLeft(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if(!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
         frontLeft.setPower(-power);
         frontRight.setPower(-power);
         backLeft.setPower(power);
@@ -28,6 +32,10 @@ public class MotorUtils {
      * @param backRight Back right motor
      */
     public static void StrafeRight(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if(!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
         frontLeft.setPower(power);
         frontRight.setPower(power);
         backLeft.setPower(-power);
@@ -43,6 +51,10 @@ public class MotorUtils {
      * @param backRight - Back right motor
      */
     public static void RotateLeft(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if(!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
         frontLeft.setPower(-power);
         frontRight.setPower(power);
         backLeft.setPower(-power);
@@ -58,6 +70,10 @@ public class MotorUtils {
      * @param backRight - Back right motor
      */
     public static void RotateRight(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if(!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
         frontLeft.setPower(power);
         frontRight.setPower(-power);
         backLeft.setPower(power);
@@ -73,6 +89,10 @@ public class MotorUtils {
      * @param backRight Back right motor
      */
     public static void MoveForward(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if(!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
         frontLeft.setPower(power);
         frontRight.setPower(power);
         backLeft.setPower(power);
@@ -88,6 +108,10 @@ public class MotorUtils {
      * @param backRight Back right motor
      */
     public static void MoveBackward(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if(!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
         frontLeft.setPower(-power);
         frontRight.setPower(-power);
         backLeft.setPower(-power);
@@ -106,5 +130,9 @@ public class MotorUtils {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+    }
+
+    private static boolean isValidPower(double power) {
+        return power >= -1.0 && power <= 1.0;
     }
 }
