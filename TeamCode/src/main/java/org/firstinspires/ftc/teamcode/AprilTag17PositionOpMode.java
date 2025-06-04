@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -10,14 +10,14 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @TeleOp(name = "AprilTag‑Screen‑Position", group = "Vision")
-public class AprilTag17PositionOpMode extends OpMode {
+public class AprilTag17PositionOpMode extends ThreadOpMode {
 
     private VisionPortal  visionPortal;
     private AprilTagProcessor tagProcessor;
     private static final int TARGET_TAG_ID = 17;      // 36h11‑17
 
     @Override
-    public void init() {
+    public void mainInit() {
 
         // 1) Make an AprilTag processor (default tag‑size = 6 in; change in builder if needed)
         tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
@@ -35,7 +35,7 @@ public class AprilTag17PositionOpMode extends OpMode {
     }
 
     @Override
-    public void loop() {
+    public void mainLoop() {
 
         List<AprilTagDetection> detections = tagProcessor.getDetections();
 
@@ -51,17 +51,12 @@ public class AprilTag17PositionOpMode extends OpMode {
                 double centerY = det.center.y;          // vertical pixel
 
                 telemetry.addLine("AprilTag 17 FOUND on‑screen");
-                telemetry.addData("Center (px)",  "[%d , %d]", centerX, centerY);
+                telemetry.addData("Center (px)",  "[%f , %f]", centerX, centerY);
             }
         }
 
         if (!found) telemetry.addLine("AprilTag 17 NOT visible");
 
         telemetry.update();
-    }
-
-    @Override
-    public void stop() {
-        if (visionPortal != null) visionPortal.close();
     }
 }

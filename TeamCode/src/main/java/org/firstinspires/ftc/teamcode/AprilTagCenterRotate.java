@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -25,10 +24,10 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  * </ul>
  */
 @TeleOp(name = "AprilTagCenterRotate", group = "Concept")
-public class AprilTagCenterRotate extends OpMode {
+public class AprilTagCenterRotate extends ThreadOpMode {
 
     // ==================== Hardware ====================
-    private DcMotor lf, rf, lr, rr;
+    private DcMotorEx lf, rf, lr, rr;
 
     // ==================== Tunables ====================
     private static final int    TARGET_TAG_ID = 17;          // 36h11 family
@@ -57,15 +56,15 @@ public class AprilTagCenterRotate extends OpMode {
     private AprilTagProcessor tagProcessor;
 
     // -------------------- Init --------------------
-    @Override public void init() {
-        lf = hardwareMap.get(DcMotor.class, "frontLeft");
-        rf = hardwareMap.get(DcMotor.class, "frontRight");
-        lr = hardwareMap.get(DcMotor.class, "backLeft");
-        rr = hardwareMap.get(DcMotor.class, "backRight");
+    @Override public void mainInit() {
+        lf = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        rf = hardwareMap.get(DcMotorEx.class, "frontRight");
+        lr = hardwareMap.get(DcMotorEx.class, "backLeft");
+        rr = hardwareMap.get(DcMotorEx.class, "backRight");
 
         // Make +power drive forward (reverse left side)
-        lf.setDirection(DcMotorSimple.Direction.REVERSE);
-        lr.setDirection(DcMotorSimple.Direction.REVERSE);
+        lf.setDirection(DcMotorEx.Direction.REVERSE);
+        lr.setDirection(DcMotorEx.Direction.REVERSE);
 
         tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         visionPortal = VisionPortal.easyCreateWithDefaults(
@@ -77,7 +76,7 @@ public class AprilTagCenterRotate extends OpMode {
     }
 
     // -------------------- Main loop --------------------
-    @Override public void loop() {
+    @Override public void mainLoop() {
         double rotate = 0, forward = 0, strafe = 0;
 
         // Locate our target tag
@@ -136,11 +135,6 @@ public class AprilTagCenterRotate extends OpMode {
         telemetry.addData("strafe",  "%.2f", strafe);
         telemetry.addData("rotate",  "%.2f", rotate);
         telemetry.update();
-    }
-
-    // -------------------- Shutdown --------------------
-    @Override public void stop() {
-        if (visionPortal != null) visionPortal.close();
     }
 
     private double clip(double v, double min, double max) {
