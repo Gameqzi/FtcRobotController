@@ -55,9 +55,9 @@ public class MotorUtils {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeft.setPower(-power);
+        frontLeft.setPower(power);
         frontRight.setPower(power);
-        backLeft.setPower(-power);
+        backLeft.setPower(power);
         backRight.setPower(power);
     }
 
@@ -74,9 +74,9 @@ public class MotorUtils {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeft.setPower(power);
+        frontLeft.setPower(-power);
         frontRight.setPower(-power);
-        backLeft.setPower(power);
+        backLeft.setPower(-power);
         backRight.setPower(-power);
     }
 
