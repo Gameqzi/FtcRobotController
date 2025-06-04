@@ -34,6 +34,14 @@ public class MotorUtils {
         backRight.setPower(-power);
     }
 
+    /**
+     * Rotate left using mecanum drive.
+     * @param power - The power level to set for the motors, typically between -1.0 and 1.0.
+     * @param frontLeft - Front left motor
+     * @param frontRight - Front right motor
+     * @param backLeft - Back left motor
+     * @param backRight - Back right motor
+     */
     public static void RotateLeft(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
         frontLeft.setPower(-power);
         frontRight.setPower(power);
@@ -41,6 +49,14 @@ public class MotorUtils {
         backRight.setPower(power);
     }
 
+    /**
+     * Rotate right using mecanum drive.
+     * @param power - The power level to set for the motors, typically between -1.0 and 1.0.
+     * @param frontLeft - Front left motor
+     * @param frontRight - Front right motor
+     * @param backLeft - Back left motor
+     * @param backRight - Back right motor
+     */
     public static void RotateRight(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
         frontLeft.setPower(power);
         frontRight.setPower(-power);
