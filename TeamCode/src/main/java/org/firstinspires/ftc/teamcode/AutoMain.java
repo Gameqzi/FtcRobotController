@@ -20,6 +20,10 @@ public class AutoMain extends ThreadOpMode {
 
     SparkFunOTOS SparkFun;
 
+    boolean ForWardDone = false;
+
+    boolean StrafeDone = false;
+
     @Override public void mainInit() {
         frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
@@ -27,8 +31,11 @@ public class AutoMain extends ThreadOpMode {
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
-        backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         configureOtos();
     }
@@ -37,11 +44,31 @@ public class AutoMain extends ThreadOpMode {
         SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
 
         if (pos.y < 12) {
-            backLeft.setPower(-0.5);
-            backRight.setPower(-0.5);
-            frontLeft.setPower(-0.5);
-            frontRight.setPower(-0.5);
+            backLeft.setPower(-0.25);
+            backRight.setPower(0.25);
+            frontLeft.setPower(-0.25);
+            frontRight.setPower(0.25);
         } else if (pos.y > 12) {
+            backLeft.setPower(0);
+            backRight.setPower(0);
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            ForWardDone = true;
+        }
+
+        if (pos.x < 12 && ForWardDone == true) {
+            MotorUtils.StrafeRight(0.45, frontLeft, frontRight, backLeft, backRight);
+        } else if (pos.x > 12) {
+            backLeft.setPower(0);
+            backRight.setPower(0);
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            StrafeDone = true;
+        }
+
+        if (pos.h < 45 && StrafeDone == true) {
+            MotorUtils.RotateRight(0.25, frontLeft, frontRight, backLeft, backRight);
+        } else if (pos.h > 45) {
             backLeft.setPower(0);
             backRight.setPower(0);
             frontLeft.setPower(0);
