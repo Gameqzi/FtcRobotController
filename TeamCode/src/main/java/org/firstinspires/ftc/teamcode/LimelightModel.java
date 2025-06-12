@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 import java.util.List;
@@ -21,7 +20,6 @@ public class LimelightModel extends ThreadOpMode {
     Limelight3A limelight;
 
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
-    private final double speedMult = 0.8;
 
     double frontLeftPower;
     double frontRightPower;
@@ -56,10 +54,6 @@ public class LimelightModel extends ThreadOpMode {
 
         LLResult result = limelight.getLatestResult();
         if (result != null) {
-            Pose3D botpose = result.getBotpose();
-            double captureLatency = result.getCaptureLatency();
-            double targetingLatency = result.getTargetingLatency();
-            double parseLatency = result.getParseLatency();
             List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
             for (LLResultTypes.DetectorResult dr : detectorResults) {
                 telemetry.addData("Detector", "Class: %s, Area: %.2f, X: %.2f, Y: %.2f", dr.getClassName(), dr.getTargetArea(), dr.getTargetXPixels(), dr.getTargetYPixels());
@@ -70,6 +64,7 @@ public class LimelightModel extends ThreadOpMode {
         // [SCRIPT] Lock Mode
         if (Objects.equals(blockColor, "red")) {
             double[] movementAdjustments = getAlignMovement();
+            double speedMult = 0.8;
             double drive = movementAdjustments[1] * speedMult;  // Forward/Backward
             double strafe = movementAdjustments[0] * speedMult; // Left/Right
             double rotate = movementAdjustments[2] * speedMult; // Rotation
