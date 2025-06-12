@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 import java.util.List;
+import java.util.Objects;
 
 @TeleOp
 public class LimelightModel extends ThreadOpMode {
@@ -67,7 +68,7 @@ public class LimelightModel extends ThreadOpMode {
         }
 
         // [SCRIPT] Lock Mode
-        if (blockColor == "red") {
+        if (Objects.equals(blockColor, "red")) {
             double[] movementAdjustments = getAlignMovement();
             double drive = movementAdjustments[1] * speedMult;  // Forward/Backward
             double strafe = movementAdjustments[0] * speedMult; // Left/Right
