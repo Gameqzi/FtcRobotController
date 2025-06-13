@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
+
+import java.util.List;
+import java.util.Objects;
 
 @TeleOp
 public class LimelightModel extends ThreadOpMode {
@@ -16,6 +21,7 @@ public class LimelightModel extends ThreadOpMode {
     Limelight3A limelight;
 
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
+    private final double speedMult = 1;
 
     double frontLeftPower;
     double frontRightPower;
@@ -23,8 +29,6 @@ public class LimelightModel extends ThreadOpMode {
     double backRightPower;
 
     String blockColor;
-
-    LLResult result = null;
 
     @Override
     public void mainInit() {
@@ -41,39 +45,62 @@ public class LimelightModel extends ThreadOpMode {
         // [SETUP] Motor Config.
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
+
     }
 
     @Override
     public void mainLoop() {
         LLStatus status = limelight.getStatus();
-
-        result = limelight.getLatestResult();
-
         telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
                 status.getTemp(), status.getCpu(),(int)status.getFps());
 
+        LLResult result = limelight.getLatestResult();
         if (result != null) {
-            blockColor.getClass();
-
-            if (blockColor == "red") {
-                // [SCRIPT] Lock Mode
-                double[] movementAdjustments = getAlignMovement();
-                double speedMult = 0.8;
-                double drive = movementAdjustments[1] * speedMult;  // Forward/Backward
-                double strafe = movementAdjustments[0] * speedMult; // Left/Right
-                double rotate = movementAdjustments[2] * speedMult; // Rotation
-
-                // [SCRIPT] Movement Calc (DRIVE: MECANUM)
-                frontLeftPower = drive + strafe + rotate;
-                frontRightPower = drive - strafe - rotate;
-                backLeftPower = drive - strafe + rotate;
-                backRightPower = drive + strafe - rotate;
+            Pose3D botpose = result.getBotpose();
+            double captureLatency = result.getCaptureLatency();
+            double targetingLatency = result.getTargetingLatency();
+            double parseLatency = result.getParseLatency();
+            List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
+            for (LLResultTypes.DetectorResult dr : detectorResults) {
+                telemetry.addData("Detector", "Class: %s, Area: %.2f, X: %.2f, Y: %.2f", dr.getClassName(), dr.getTargetArea(), dr.getTargetXPixels(), dr.getTargetYPixels());
+                blockColor = dr.getClassName();
             }
         }
+
+        // [SCRIPT] Lock Mode
+        if (Objects.equals(blockColor, "red")) {
+            double[] movementAdjustments = getAlignMovement();
+            double drive = movementAdjustments[1] * speedMult;  // Forward/Backward
+            double strafe = movementAdjustments[0] * speedMult; // Left/Right
+            double rotate = movementAdjustments[2] * speedMult; // Rotation
+
+            // [SCRIPT] Movement Calc (DRIVE: MECANUM)
+            frontLeftPower = drive + strafe + rotate;
+            frontRightPower = drive - strafe - rotate;
+            backLeftPower = drive - strafe + rotate;
+            backRightPower = drive + strafe - rotate;
+
+            frontLeft.setPower(frontLeftPower);
+            frontRight.setPower(frontRightPower);
+            backLeft.setPower(backLeftPower);
+            backRight.setPower(backRightPower);
+        } else {
+
+            // [OUTPUT] Motor Movement(s)
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+        }
+
+
+
+        // End-Lock-Mode
     }
 
     // [FUNCTION] Alignment Calc (Limelight) (WITH DEBUG: TELE)
-    public double[] getAlignMovement() {
+    private double[] getAlignMovement() {
+        LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             double tx = result.getTx(); // Left/Right Offset
             double ty = result.getTy(); // Up/Down Offset
@@ -93,6 +120,4 @@ public class LimelightModel extends ThreadOpMode {
         }
     }
 
-
-    // End-Lock-Mode
 }
