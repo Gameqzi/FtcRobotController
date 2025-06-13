@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 import java.util.List;
-import java.util.Objects;
 
 @TeleOp
 public class LimelightModel extends ThreadOpMode {
@@ -58,30 +57,22 @@ public class LimelightModel extends ThreadOpMode {
             for (LLResultTypes.DetectorResult dr : detectorResults) {
                 telemetry.addData("Detector", "Class: %s, Area: %.2f, X: %.2f, Y: %.2f", dr.getClassName(), dr.getTargetArea(), dr.getTargetXPixels(), dr.getTargetYPixels());
                 blockColor = dr.getClassName();
+                // [SCRIPT] Lock Mode
+                    double[] movementAdjustments = getAlignMovement();
+                    double speedMult = 0.8;
+                    double drive = movementAdjustments[1] * speedMult;  // Forward/Backward
+                    double strafe = movementAdjustments[0] * speedMult; // Left/Right
+                    double rotate = movementAdjustments[2] * speedMult; // Rotation
+
+                    // [SCRIPT] Movement Calc (DRIVE: MECANUM)
+                    frontLeftPower = drive + strafe + rotate;
+                    frontRightPower = drive - strafe - rotate;
+                    backLeftPower = drive - strafe + rotate;
+                    backRightPower = drive + strafe - rotate;
             }
         }
 
-        // [SCRIPT] Lock Mode
-        if (Objects.equals(blockColor, "red")) {
-            double[] movementAdjustments = getAlignMovement();
-            double speedMult = 0.8;
-            double drive = movementAdjustments[1] * speedMult;  // Forward/Backward
-            double strafe = movementAdjustments[0] * speedMult; // Left/Right
-            double rotate = movementAdjustments[2] * speedMult; // Rotation
 
-            // [SCRIPT] Movement Calc (DRIVE: MECANUM)
-            frontLeftPower = drive + strafe + rotate;
-            frontRightPower = drive - strafe - rotate;
-            backLeftPower = drive - strafe + rotate;
-            backRightPower = drive + strafe - rotate;
-        } else {
-
-            // [OUTPUT] Motor Movement(s)
-            frontLeft.setPower(frontLeftPower);
-            frontRight.setPower(frontRightPower);
-            backLeft.setPower(backLeftPower);
-            backRight.setPower(backRightPower);
-        }
 
 
         // End-Lock-Mode
