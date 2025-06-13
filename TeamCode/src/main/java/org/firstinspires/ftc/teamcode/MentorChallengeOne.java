@@ -34,7 +34,7 @@ public class MentorChallengeOne extends ThreadOpMode {
     float YT;
 
     SparkFunOTOS SparkFun;
-    SparkFunOTOS.Pose2D pos;
+    SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
 
     @Override
     public void mainInit() {
@@ -106,7 +106,7 @@ public class MentorChallengeOne extends ThreadOpMode {
             MotorUtils.RotateRight(0.8, frontLeft, frontRight, backLeft, backRight);
             pos = SparkFun.getPosition();
         }
-        
+
         X1 = (float) pos.x;
         Y1 = (float) pos.y;
 
