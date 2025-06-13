@@ -34,8 +34,7 @@ public class MentorChallengeOne extends ThreadOpMode {
     float YT;
 
     SparkFunOTOS SparkFun;
-    SparkFunOTOS.Pose2D pos = SparkFun.getPosition();
-
+    SparkFunOTOS.Pose2D pos;
     @Override
     public void mainInit() {
 
@@ -60,6 +59,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         configureOtos();
+        pos = SparkFun.getPosition();
 
         // End Int
 
