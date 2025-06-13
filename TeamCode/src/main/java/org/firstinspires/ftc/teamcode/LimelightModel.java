@@ -69,6 +69,7 @@ public class LimelightModel extends ThreadOpMode {
                     frontRightPower = drive - strafe - rotate;
                     backLeftPower = drive - strafe + rotate;
                     backRightPower = drive + strafe - rotate;
+
             }
         }
 
