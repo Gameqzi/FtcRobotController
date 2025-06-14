@@ -35,6 +35,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     SparkFunOTOS SparkFun;
     SparkFunOTOS.Pose2D pos;
+
     @Override
     public void mainInit() {
 
@@ -59,9 +60,12 @@ public class MentorChallengeOne extends ThreadOpMode {
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         configureOtos();
+
+        // waitForStart(); // Incorrect?
+
         pos = SparkFun.getPosition();
 
-        // End Int
+        // End Int //
 
         TriangulateBasketPos();
 
@@ -92,23 +96,54 @@ public class MentorChallengeOne extends ThreadOpMode {
     }
 
     public void TriangulateBasketPos() {
-        while (pos.y < 12) {
-            MotorUtils.MoveForward(0.8, frontLeft, frontRight, backLeft, backRight);
-            pos = SparkFun.getPosition();
-        }
+        MotorUtils.MoveDis(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeDis(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.RotateTo(0.8, 45, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeDis(0.8, -6, SparkFun, frontLeft, frontRight, backLeft, backRight);
 
-        while (pos.x < 12) {
-            MotorUtils.StrafeRight(0.8, frontLeft, frontRight, backLeft, backRight);
-            pos = SparkFun.getPosition();
-        }
-
-        while (pos.h < 45) {
-            MotorUtils.RotateRight(0.8, frontLeft, frontRight, backLeft, backRight);
-            pos = SparkFun.getPosition();
-        }
-
+        pos = SparkFun.getPosition();
         X1 = (float) pos.x;
         Y1 = (float) pos.y;
+
+        CenterTag(13);
+        pos = SparkFun.getPosition();
+        H1 = (float) Math.toRadians(pos.h);
+
+        MotorUtils.RotateTo(0.8, 45, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeDis(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
+
+        pos = SparkFun.getPosition();
+        X2 = (float) pos.x;
+        Y2 = (float) pos.y;
+
+        CenterTag(13);
+        pos = SparkFun.getPosition();
+        H2 = (float) Math.toRadians(pos.h);
+
+        telemetry.addData("X1:", X1);
+        telemetry.addData("Y1:", Y1);
+        telemetry.addData("H1 (RAD):", "%.10f", H1);
+        telemetry.addLine();
+
+        telemetry.addData("X2:", X2);
+        telemetry.addData("Y2:", Y2);
+        telemetry.addData("H2 (RAD):", "%.10f", H2);
+        telemetry.addLine();
+
+        telemetry.addLine("Mathing...");
+        telemetry.addLine(" -Be Aware: Could divide by 0 or <1e-6, very unlikely though-"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 or <1e-6!!! IDK: How to fix/If even issue
+        telemetry.update();
+
+        XT = (float) ((Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2)));
+        YT = (float) (Math.tan(H1) * (XT - X1) + Y1);
+
+        telemetry.addLine();
+        telemetry.addLine("Done Mathing!");
+        telemetry.addData("XT", XT);
+        telemetry.addData("YT", YT);
+    }
+
+    public void CenterTag(int tagID) {
 
     }
 
