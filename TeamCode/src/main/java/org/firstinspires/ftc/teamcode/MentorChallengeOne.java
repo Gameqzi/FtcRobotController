@@ -118,10 +118,8 @@ public class MentorChallengeOne extends ThreadOpMode {
 
 
     public void TriangulateBasketPos() {
-        MotorUtils.MoveDis(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
-        MotorUtils.StrafeDis(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
-        MotorUtils.RotateTo(0.8, 45, SparkFun, frontLeft, frontRight, backLeft, backRight);
-        MotorUtils.StrafeDis(0.8, -6, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.GoTo(0.8, "12", "12", "45", SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeRelDist(0.8, -6, SparkFun, frontLeft, frontRight, backLeft, backRight);
 
         pos = SparkFun.getPosition();
         X1 = (float) pos.x;
@@ -132,7 +130,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         H1 = (float) Math.toRadians(pos.h);
 
         MotorUtils.RotateTo(0.8, 45, SparkFun, frontLeft, frontRight, backLeft, backRight);
-        MotorUtils.StrafeDis(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeRelDist(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
 
         pos = SparkFun.getPosition();
         X2 = (float) pos.x;
@@ -153,7 +151,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         telemetry.addLine();
 
         telemetry.addLine("Mathing...");
-        telemetry.addLine(" -Be Aware: Could divide by 0 or <1e-6, very unlikely though-"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!!! IDK: How to fix/If even issue
+        telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!!! IDK: How to fix/If even issue
         telemetry.update();
 
         XT = (float) ((Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2)));
