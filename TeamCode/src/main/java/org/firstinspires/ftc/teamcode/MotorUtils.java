@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+/**
+ * @deprecated This class is obsolete. Use the Robot class for all robot movement and utility methods.
+ */
+@Deprecated
 public class MotorUtils {
 
 
