@@ -20,9 +20,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @TeleOp
 public class MentorChallengeOne extends ThreadOpMode {
 
-    // Change this to a region so you can collapse it in the editor. -NP
-    //region START GLOBAL VARIABLES
-
     // WebCam Globals:
     private static final double camWidthPX = 640;
     private static final double camHeightPX = 480;
@@ -32,13 +29,10 @@ public class MentorChallengeOne extends ThreadOpMode {
     private Robot robot;
 
     // Trig [Triangulation] Globals:
-    // TODO: Can this be marked final? Could help with compilation folding. :) (https://ondrej-kvasnovsky.medium.com/constant-folding-in-the-jvm-08437d879a45) -NP
-    int basketRange = 5; // Inches
+    private static final int basketRange = 5; // Inches
     float X1, Y1, H1;
     float X2, Y2, H2;
     float XT, YT;
-
-// START INIT-{
 
     @Override
     public void mainInit() {
@@ -47,7 +41,6 @@ public class MentorChallengeOne extends ThreadOpMode {
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "Webcam 1"), tagProcessor);
 
-        // Changed these to locals instead of class variables. -NP
         DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
         DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
@@ -74,15 +67,8 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         configureOtos();
 
-// }-END INIT
-
-// START MAIN SCRIPT-{
-
-        // waitForStart(); // Incorrect Use? - Fix Please
+        // waitForStart(); // ToDo: Incorrect Use? - Please Fix
         telemetry.clearAll();
-
-        // TODO: With the changes made, I'm not sure if this is needed anymore. -NP
-        // pos = robot.getImu().getPosition();
 
         TriangulateBasketPos();
 
@@ -104,7 +90,6 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         HomePos();
 
-// }-END MAIN SCRIPT
     }
 
     @Override
@@ -147,7 +132,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         telemetry.addLine();
 
         telemetry.addLine("Mathing...");
-        telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!!! IDK: How to fix/If even issue
+        telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!
         telemetry.update();
 
         XT = (float) ((Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2)));
