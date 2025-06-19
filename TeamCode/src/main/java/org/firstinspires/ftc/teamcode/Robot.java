@@ -281,7 +281,7 @@ public class Robot {
     }
     //endregion
 
-    //region ADVANCED GLOBAL ROBOT  MOVEMENT COMMANDS:
+    //region ADVANCED GLOBAL ROBOT MOVEMENT COMMANDS:
     /**
      * Rotate to a set global angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
