@@ -20,19 +20,35 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @TeleOp
 public class MentorChallengeOne extends ThreadOpMode {
 
+// START GLOBAL VARIABLES-{
+
     // WebCam Globals:
-    private static final double camWidthPX = 640;
+    private static final double camWidthPX  = 640;
     private static final double camHeightPX = 480;
     private VisionPortal visionPortal;
     private AprilTagProcessor tagProcessor;
 
-    private Robot robot;
+    // Generic [Robot] Globals:
+    private DcMotorEx frontLeft, frontRight, backLeft, backRight;
 
     // Trig [Triangulation] Globals:
-    private static final int basketRange = 5; // Inches
-    float X1, Y1, H1;
-    float X2, Y2, H2;
-    float XT, YT;
+    int basketRange = 5; // Inches
+    float X1;
+    float Y1;
+    float H1;
+    float X2;
+    float Y2;
+    float H2;
+    float XT;
+    float YT;
+
+    // SparkFunOTOS Globals:
+    SparkFunOTOS SparkFun;
+    SparkFunOTOS.Pose2D pos;
+
+//  }-END GLOBAL VARIABLES
+
+// START INIT-{
 
     @Override
     public void mainInit() {
@@ -41,11 +57,11 @@ public class MentorChallengeOne extends ThreadOpMode {
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "Webcam 1"), tagProcessor);
 
-        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
-        SparkFunOTOS sparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        frontLeft  = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
+        backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
+        SparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -61,14 +77,16 @@ public class MentorChallengeOne extends ThreadOpMode {
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        robot = Robot
-                .getInstance(frontLeft, frontRight, backLeft, backRight)
-                .setImu(sparkFun);
-
         configureOtos();
 
-        // waitForStart(); // ToDo: Incorrect Use? - Please Fix
+// }-END INIT
+
+// START MAIN SCRIPT-{
+
+        // waitForStart(); // Incorrect Use? - Fix Please
         telemetry.clearAll();
+
+        pos = SparkFun.getPosition();
 
         TriangulateBasketPos();
 
@@ -90,6 +108,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         HomePos();
 
+// }-END MAIN SCRIPT
     }
 
     @Override
@@ -99,26 +118,26 @@ public class MentorChallengeOne extends ThreadOpMode {
 
 
     public void TriangulateBasketPos() {
-        robot.goTo(0.8, "12", "12", "45");
-        robot.strafeRelDist(0.8, -6);
+        MotorUtils.GoTo(0.8, "12", "12", "45", SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeRelDist(0.8, -6, SparkFun, frontLeft, frontRight, backLeft, backRight);
 
-        SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
+        pos = SparkFun.getPosition();
         X1 = (float) pos.x;
         Y1 = (float) pos.y;
 
         CenterTag(17);
-        pos = robot.getImu().getPosition();
+        pos = SparkFun.getPosition();
         H1 = (float) Math.toRadians(pos.h);
 
-        robot.rotateTo(0.8, 45);
-        robot.strafeRelDist(0.8, 12);
+        MotorUtils.RotateTo(0.8, 45, SparkFun, frontLeft, frontRight, backLeft, backRight);
+        MotorUtils.StrafeRelDist(0.8, 12, SparkFun, frontLeft, frontRight, backLeft, backRight);
 
-        pos = robot.getImu().getPosition();
+        pos = SparkFun.getPosition();
         X2 = (float) pos.x;
         Y2 = (float) pos.y;
 
         CenterTag(17);
-        pos = robot.getImu().getPosition();
+        pos = SparkFun.getPosition();
         H2 = (float) Math.toRadians(pos.h);
 
         telemetry.addData("X1:", X1);
@@ -132,7 +151,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         telemetry.addLine();
 
         telemetry.addLine("Mathing...");
-        telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!
+        telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!!! IDK: How to fix/If even issue
         telemetry.update();
 
         XT = (float) ((Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2)));
@@ -158,17 +177,13 @@ public class MentorChallengeOne extends ThreadOpMode {
                         break;
                     }
                 }
-                robot.rotateTo(0.5, ((float) (robot.getImu().getPosition().h + 15)));
+                MotorUtils.RotateTo(0.5, ((float) (pos.h + 15)), SparkFun, frontLeft, frontRight, backLeft, backRight);
             }
             targetError = target.center.x - (camWidthPX / 2.0);
-            if (targetError > 0) {
-                robot.rotateRight(0.5);
-            }
-            if (targetError < 0) {
-                robot.rotateLeft(0.5);
-            }
+            if (targetError > 0) {MotorUtils.RotateRight(0.5, frontLeft, frontRight, backLeft, backRight);}
+            if (targetError < 0) {MotorUtils.RotateLeft(0.5, frontLeft, frontRight, backLeft, backRight);}
         }
-        robot.stopMotors();
+        MotorUtils.StopMotors(frontLeft, frontRight, backLeft, backRight);
     }
 
 
@@ -199,9 +214,9 @@ public class MentorChallengeOne extends ThreadOpMode {
         // persisted in the sensor, so you need to set at the start of all your
         // OpModes if using the non-default value.
         // SparkFun.setLinearUnit(DistanceUnit.METER);
-        robot.getImu().setLinearUnit(DistanceUnit.INCH);
+        SparkFun.setLinearUnit(DistanceUnit.INCH);
         // SparkFun.setAngularUnit(AngleUnit.RADIANS);
-        robot.getImu().setAngularUnit(AngleUnit.DEGREES);
+        SparkFun.setAngularUnit(AngleUnit.DEGREES);
 
         // Assuming you've mounted your sensor to a robot and it's not centered,
         // you can specify the offset for the sensor relative to the center of the
@@ -233,8 +248,8 @@ public class MentorChallengeOne extends ThreadOpMode {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        robot.getImu().setLinearScalar(1.0);
-        robot.getImu().setAngularScalar(1.0);
+        SparkFun.setLinearScalar(1.0);
+        SparkFun.setAngularScalar(1.0);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
@@ -246,23 +261,23 @@ public class MentorChallengeOne extends ThreadOpMode {
         // to wait until the calibration is complete. If no parameters are provided,
         // it will take 255 samples and wait until done; each sample takes about
         // 2.4ms, so about 612ms total
-        robot.getImu().calibrateImu();
+        SparkFun.calibrateImu();
 
         // Reset the tracking algorithm - this resets the position to the origin,
         // but can also be used to recover from some rare tracking errors
-        robot.getImu().resetTracking();
+        SparkFun.resetTracking();
 
         // After resetting the tracking, the OTOS will report that the robot is at
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
-        robot.getImu().setPosition(currentPosition);
+        SparkFun.setPosition(currentPosition);
 
         // Get the hardware and firmware version
         SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
         SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
-        robot.getImu().getVersionInfo(hwVersion, fwVersion);
+        SparkFun.getVersionInfo(hwVersion, fwVersion);
 
         telemetry.addLine("OTOS configured! Press start to get position data!");
         telemetry.addLine();
