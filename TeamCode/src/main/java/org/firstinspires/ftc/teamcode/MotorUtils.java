@@ -122,10 +122,10 @@ public class MotorUtils {
             turnPower *= scale;
         }
 
-        double frontLeftPower = YSpeed + XSpeed + turnPower;
-        double frontRightPower = YSpeed - XSpeed - turnPower;
-        double backLeftPower = YSpeed - XSpeed + turnPower;
-        double backRightPower = YSpeed + XSpeed - turnPower;
+        double frontLeftPower = YSpeed + XSpeed;
+        double frontRightPower = YSpeed - XSpeed;
+        double backLeftPower = YSpeed - XSpeed;
+        double backRightPower = YSpeed + XSpeed;
 
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);

@@ -114,7 +114,6 @@ public class MentorChallengeOne extends ThreadOpMode {
 
 
     public void TriangulateBasketPos() {
-        MotorUtils.GoTo(0.8, "12", "12", "45", SparkFun, frontLeft, frontRight, backLeft, backRight);
         MotorUtils.StrafeRelDist(0.8, -6, SparkFun, frontLeft, frontRight, backLeft, backRight);
 
         pos = SparkFun.getPosition();
