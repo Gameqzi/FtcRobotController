@@ -131,7 +131,124 @@ public class MotorUtils {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+    }public static void GoTo(double power, String TX, String TY, String H, SparkFunOTOS imu,
+                        DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+    if (!isValidPower(power)) {
+        throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
     }
+
+    final double acceptableDistError = 0.5;
+    final double acceptableAngleError = 2.0;
+
+    boolean moveX = !TX.equals("~");
+    boolean moveY = !TY.equals("~");
+    boolean rotate = !H.equals("~");
+
+    double targetX = moveX ? Double.parseDouble(TX) : 0;
+    double targetY = moveY ? Double.parseDouble(TY) : 0;
+    double targetHeading = rotate ? Double.parseDouble(H) : 0;
+
+    // Prioritize moving to position first, then rotating
+    boolean positionReached = false;
+    boolean headingReached = false;
+
+    // Movement phase: Go to X, Y
+    while (!positionReached) {
+        SparkFunOTOS.Pose2D pos = imu.getPosition();
+
+        double dx = targetX - pos.x;
+        double dy = targetY - pos.y;
+        double distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
+
+        if (distanceRemaining <= acceptableDistError || (!moveX && !moveY)) {
+            positionReached = true;
+            break;
+        }
+
+        double moveAngle = Math.atan2(dy, dx);
+        double movePower = Math.min(power, distanceRemaining * 0.1 + 0.2);
+
+        // Field-oriented control
+        double HR = Math.toRadians(pos.h);
+        double xSpeed = Math.cos(moveAngle) * movePower;
+        double ySpeed = Math.sin(moveAngle) * movePower;
+
+        double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
+        double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+
+        // No turning during this phase
+        double frontLeftPower = YSpeed + XSpeed;
+        double frontRightPower = YSpeed - XSpeed;
+        double backLeftPower = YSpeed - XSpeed;
+        double backRightPower = YSpeed + XSpeed;
+
+        // Normalize power
+        double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
+                                   Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+
+        if (maxPower > 1.0) {
+            frontLeftPower /= maxPower;
+            frontRightPower /= maxPower;
+            backLeftPower /= maxPower;
+            backRightPower /= maxPower;
+        }
+
+        frontLeft.setPower(frontLeftPower);
+        frontRight.setPower(frontRightPower);
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
+
+        // Small delay to prevent loop hammering
+        sleep(30);
+    }
+
+    // Stop before rotating
+    stopMotors(frontLeft, frontRight, backLeft, backRight);
+    sleep(100);
+
+    // Rotation phase: Rotate to heading
+    while (!headingReached && rotate) {
+        SparkFunOTOS.Pose2D pos = imu.getPosition();
+        double headingError = targetHeading - pos.h;
+
+        // Normalize angle to -180 to 180
+        while (headingError > 180) headingError -= 360;
+        while (headingError < -180) headingError += 360;
+
+        if (Math.abs(headingError) <= acceptableAngleError) {
+            headingReached = true;
+            break;
+        }
+
+        double turnPower = Math.signum(headingError) * Math.max(0.1, Math.min(0.5, Math.abs(headingError) * 0.01));
+
+        frontLeft.setPower(turnPower);
+        frontRight.setPower(-turnPower);
+        backLeft.setPower(turnPower);
+        backRight.setPower(-turnPower);
+
+        sleep(30);
+    }
+
+    // Stop motors at end
+    stopMotors(frontLeft, frontRight, backLeft, backRight);
+}
+
+private static void stopMotors(DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+    frontLeft.setPower(0);
+    frontRight.setPower(0);
+    backLeft.setPower(0);
+    backRight.setPower(0);
+}
+
+private static void sleep(long millis) {
+    try {
+        Thread.sleep(millis);
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
+}
+
 
 
 
