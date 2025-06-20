@@ -78,7 +78,7 @@ public class MotorUtils {
 
         double headingError = rotate ? targetHeading - pos.h : 0;
 
-        // Normalize heading error to [-180, 180]
+        // Normalize heading error
         while (headingError > 180) headingError -= 360;
         while (headingError < -180) headingError += 360;
 
@@ -88,18 +88,32 @@ public class MotorUtils {
         double moveAngle = Math.atan2(dy, dx);
         double movePower = positionReached ? 0 : Math.min(power, distanceRemaining * 0.1 + 0.2);
 
-        // Calculate robot-oriented speeds (field-centric control)
-        double HR = Math.toRadians(pos.h);
         double xSpeed = moveX ? Math.cos(moveAngle) * movePower : 0;
         double ySpeed = moveY ? Math.sin(moveAngle) * movePower : 0;
 
-        double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
-        double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
-
-        // Smooth rotation power based on heading error
+        // Smooth rotation power
         double turnPower = rotate ? headingError * 0.01 : 0;
 
-        // Balance rotational and translational power
+        // 🔥 NEW: Blending factor based on heading error
+        // When heading error is large, trust robot-centric more.
+        // When heading error is small, trust field-centric more.
+        double headingErrorMagnitude = Math.abs(headingError);
+        double blendingFactor = Math.max(0, Math.min(1, (30 - headingErrorMagnitude) / 30.0)); // Blends out over 30 degrees
+
+        // Field-centric speeds
+        double HR = Math.toRadians(pos.h);
+        double fieldXSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
+        double fieldYSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+
+        // Robot-centric speeds
+        double robotXSpeed = xSpeed;
+        double robotYSpeed = ySpeed;
+
+        // Blended speeds
+        double XSpeed = fieldXSpeed * blendingFactor + robotXSpeed * (1 - blendingFactor);
+        double YSpeed = fieldYSpeed * blendingFactor + robotYSpeed * (1 - blendingFactor);
+
+        // Normalize if needed
         double totalPower = Math.abs(XSpeed) + Math.abs(YSpeed) + Math.abs(turnPower);
         if (totalPower > power) {
             double scale = power / totalPower;
@@ -118,7 +132,6 @@ public class MotorUtils {
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
 
-        // Delay to prevent CPU overload and allow IMU updates
         try { Thread.sleep(30); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
@@ -128,8 +141,6 @@ public class MotorUtils {
     backLeft.setPower(0);
     backRight.setPower(0);
 }
-
-
 
 
     // ADVANCED RELATIVE ROBOT MOVEMENT COMMANDS:
