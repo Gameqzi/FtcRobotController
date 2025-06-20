@@ -48,124 +48,90 @@ public class MotorUtils {
     }
 
 
-    public static void GoTo(double power, String TX, String TY, String H, SparkFunOTOS imu,
-                        DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
-    if (!isValidPower(power)) {
-        throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
-    }
-
-    final double acceptableDistError = 0.5;
-    final double acceptableAngleError = 2.0;
-
-    boolean moveX = !TX.equals("~");
-    boolean moveY = !TY.equals("~");
-    boolean rotate = !H.equals("~");
-
-    double targetX = moveX ? Double.parseDouble(TX) : 0;
-    double targetY = moveY ? Double.parseDouble(TY) : 0;
-    double targetHeading = rotate ? Double.parseDouble(H) : 0;
-
-    // Prioritize moving to position first, then rotating
-    boolean positionReached = false;
-    boolean headingReached = false;
-
-    // Movement phase: Go to X, Y
-    while (!positionReached) {
-        SparkFunOTOS.Pose2D pos = imu.getPosition();
-
-        double dx = targetX - pos.x;
-        double dy = targetY - pos.y;
-        double distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
-
-        if (distanceRemaining <= acceptableDistError || (!moveX && !moveY)) {
-            positionReached = true;
-            break;
+    /**
+     * Move to a set global X & Y coordinate, as well as a set heading angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
+     * @param power The power level to set for the motors, typically between -1.0 and 1.0.
+     * @param TX The desired X coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param TY The desired Y coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param H The desired heading angle in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param imu The name of the used IMU, so it can be called inside the function.
+     * @param frontLeft Front left motor
+     * @param frontRight Front right motor
+     * @param backLeft Back left motor
+     * @param backRight Back right motor
+     */
+    public static void GoTo(double power, String TX, String TY, String H, SparkFunOTOS imu, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        if (!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        double moveAngle = Math.atan2(dy, dx);
-        double movePower = Math.min(power, distanceRemaining * 0.1 + 0.2);
+        final double acceptableDistError = 0.5;
+        final double acceptableAngleError = 2.0;
+        final double rotSpeed = 0.01;
 
-        // Field-oriented control
-        double HR = Math.toRadians(pos.h);
-        double xSpeed = Math.cos(moveAngle) * movePower;
-        double ySpeed = Math.sin(moveAngle) * movePower;
+        boolean moveX = !TX.equals("~");
+        boolean moveY = !TY.equals("~");
+        boolean rotate = !H.equals("~");
 
-        double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
-        double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+        double targetX = moveX ? Double.parseDouble(TX) : 0;
+        double targetY = moveY ? Double.parseDouble(TY) : 0;
+        double targetHeading = rotate ? Double.parseDouble(H) : 0;
 
-        // No turning during this phase
-        double frontLeftPower = YSpeed + XSpeed;
-        double frontRightPower = YSpeed - XSpeed;
-        double backLeftPower = YSpeed - XSpeed;
-        double backRightPower = YSpeed + XSpeed;
+        boolean positionReached = false;
+        boolean headingReached = false;
 
-        // Normalize power
-        double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
-                                   Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+        while (!positionReached || !headingReached) {
+            SparkFunOTOS.Pose2D pos = imu.getPosition();
 
-        if (maxPower > 1.0) {
-            frontLeftPower /= maxPower;
-            frontRightPower /= maxPower;
-            backLeftPower /= maxPower;
-            backRightPower /= maxPower;
+            double dx = targetX - pos.x;
+            double dy = targetY - pos.y;
+
+            double distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
+
+            double headingError = rotate ? targetHeading - pos.h : 0;
+
+            while (headingError > 180) {headingError -= 360;}
+            while (headingError < -180) {headingError += 360;}
+
+            positionReached = (!moveX && !moveY) || distanceRemaining <= acceptableDistError;
+            headingReached = !rotate || Math.abs(headingError) <= acceptableAngleError;
+
+            double moveAngle = Math.atan2(dy, dx);
+            double movePower = Math.min(power, distanceRemaining * 0.1 + 0.2);
+
+            double xSpeed = moveX ? Math.cos(moveAngle) * movePower : 0;
+            double ySpeed = moveY ? Math.sin(moveAngle) * movePower : 0;
+
+            double turnPower = rotate ? headingError * rotSpeed : 0;
+
+            double HR = Math.toRadians(pos.h);
+            double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
+            double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+
+            double frontLeftPower = YSpeed + XSpeed + turnPower;
+            double frontRightPower = YSpeed - XSpeed - turnPower;
+            double backLeftPower = YSpeed - XSpeed + turnPower;
+            double backRightPower = YSpeed + XSpeed - turnPower;
+
+            double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
+                    Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+
+            if (maxPower > 1.0) {
+                frontLeftPower /= maxPower;
+                frontRightPower /= maxPower;
+                backLeftPower /= maxPower;
+                backRightPower /= maxPower;
+            }
+            frontLeft.setPower(frontLeftPower);
+            frontRight.setPower(frontRightPower);
+            backLeft.setPower(backLeftPower);
+            backRight.setPower(backRightPower);
         }
-
-        frontLeft.setPower(frontLeftPower);
-        frontRight.setPower(frontRightPower);
-        backLeft.setPower(backLeftPower);
-        backRight.setPower(backRightPower);
-
-        // Small delay to prevent loop hammering
-        sleep(30);
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
     }
-
-    // Stop before rotating
-    stopMotors(frontLeft, frontRight, backLeft, backRight);
-    sleep(100);
-
-    // Rotation phase: Rotate to heading
-    while (!headingReached && rotate) {
-        SparkFunOTOS.Pose2D pos = imu.getPosition();
-        double headingError = targetHeading - pos.h;
-
-        // Normalize angle to -180 to 180
-        while (headingError > 180) headingError -= 360;
-        while (headingError < -180) headingError += 360;
-
-        if (Math.abs(headingError) <= acceptableAngleError) {
-            headingReached = true;
-            break;
-        }
-
-        double turnPower = Math.signum(headingError) * Math.max(0.1, Math.min(0.5, Math.abs(headingError) * 0.01));
-
-        frontLeft.setPower(turnPower);
-        frontRight.setPower(-turnPower);
-        backLeft.setPower(turnPower);
-        backRight.setPower(-turnPower);
-
-        sleep(30);
-    }
-
-    // Stop motors at end
-    stopMotors(frontLeft, frontRight, backLeft, backRight);
-}
-
-private static void stopMotors(DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
-    frontLeft.setPower(0);
-    frontRight.setPower(0);
-    backLeft.setPower(0);
-    backRight.setPower(0);
-}
-
-private static void sleep(long millis) {
-    try {
-        Thread.sleep(millis);
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-    }
-}
-
 
 
 
