@@ -80,10 +80,11 @@ public class MentorChallengeOne extends ThreadOpMode {
         configureOtos();
 
 // }-END INIT
+    }
 
-// START MAIN SCRIPT-{
+    @Override
+    public void mainLoop() {
 
-        // waitForStart(); // Incorrect Use? - Fix Please
         telemetry.clearAll();
 
         pos = SparkFun.getPosition();
@@ -108,12 +109,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         HomePos();
 
-// }-END MAIN SCRIPT
-    }
-
-    @Override
-    public void mainLoop() {
-        // Nothing Here
+        requestOpModeStop();
     }
 
 
