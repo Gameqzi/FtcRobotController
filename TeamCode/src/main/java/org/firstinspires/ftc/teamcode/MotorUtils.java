@@ -48,90 +48,87 @@ public class MotorUtils {
     }
 
 
-    /**
-     * Move to a set global X & Y coordinate, as well as a set heading angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
-     * @param power The power level to set for the motors, typically between -1.0 and 1.0.
-     * @param TX The desired X coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param TY The desired Y coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param H The desired heading angle in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param imu The name of the used IMU, so it can be called inside the function.
-     * @param frontLeft Front left motor
-     * @param frontRight Front right motor
-     * @param backLeft Back left motor
-     * @param backRight Back right motor
-     */
-    public static void GoTo(double power, String TX, String TY, String H, SparkFunOTOS imu, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
-        if (!isValidPower(power)) {
-            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
-        }
-
-        final double acceptableDistError = 0.5;
-        final double acceptableAngleError = 2.0;
-        final double rotSpeed = 0.01;
-
-        boolean moveX = !TX.equals("~");
-        boolean moveY = !TY.equals("~");
-        boolean rotate = !H.equals("~");
-
-        double targetX = moveX ? Double.parseDouble(TX) : 0;
-        double targetY = moveY ? Double.parseDouble(TY) : 0;
-        double targetHeading = rotate ? Double.parseDouble(H) : 0;
-
-        boolean positionReached = false;
-        boolean headingReached = false;
-
-        while (!positionReached || !headingReached) {
-            SparkFunOTOS.Pose2D pos = imu.getPosition();
-
-            double dx = targetX - pos.x;
-            double dy = targetY - pos.y;
-
-            double distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
-
-            double headingError = rotate ? targetHeading - pos.h : 0;
-
-            while (headingError > 180) {headingError -= 360;}
-            while (headingError < -180) {headingError += 360;}
-
-            positionReached = (!moveX && !moveY) || distanceRemaining <= acceptableDistError;
-            headingReached = !rotate || Math.abs(headingError) <= acceptableAngleError;
-
-            double moveAngle = Math.atan2(dy, dx);
-            double movePower = Math.min(power, distanceRemaining * 0.1 + 0.2);
-
-            double xSpeed = moveX ? Math.cos(moveAngle) * movePower : 0;
-            double ySpeed = moveY ? Math.sin(moveAngle) * movePower : 0;
-
-            double turnPower = rotate ? headingError * rotSpeed : 0;
-
-            double HR = Math.toRadians(pos.h);
-            double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
-            double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
-
-            double frontLeftPower = YSpeed + XSpeed + turnPower;
-            double frontRightPower = YSpeed - XSpeed - turnPower;
-            double backLeftPower = YSpeed - XSpeed + turnPower;
-            double backRightPower = YSpeed + XSpeed - turnPower;
-
-            double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
-                    Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
-
-            if (maxPower > 1.0) {
-                frontLeftPower /= maxPower;
-                frontRightPower /= maxPower;
-                backLeftPower /= maxPower;
-                backRightPower /= maxPower;
-            }
-            frontLeft.setPower(frontLeftPower);
-            frontRight.setPower(frontRightPower);
-            backLeft.setPower(backLeftPower);
-            backRight.setPower(backRightPower);
-        }
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
+    public static void GoTo(double power, String TX, String TY, String H, SparkFunOTOS imu,
+                        DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+    if (!isValidPower(power)) {
+        throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
     }
+
+    final double acceptableDistError = 0.5;
+    final double acceptableAngleError = 2.0;
+
+    boolean moveX = !TX.equals("~");
+    boolean moveY = !TY.equals("~");
+    boolean rotate = !H.equals("~");
+
+    double targetX = moveX ? Double.parseDouble(TX) : 0;
+    double targetY = moveY ? Double.parseDouble(TY) : 0;
+    double targetHeading = rotate ? Double.parseDouble(H) : 0;
+
+    boolean positionReached = false;
+    boolean headingReached = false;
+
+    while (!positionReached || !headingReached) {
+        SparkFunOTOS.Pose2D pos = imu.getPosition();
+
+        double dx = targetX - pos.x;
+        double dy = targetY - pos.y;
+
+        double distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
+
+        double headingError = rotate ? targetHeading - pos.h : 0;
+
+        // Normalize heading error to [-180, 180]
+        while (headingError > 180) headingError -= 360;
+        while (headingError < -180) headingError += 360;
+
+        positionReached = (!moveX && !moveY) || distanceRemaining <= acceptableDistError;
+        headingReached = !rotate || Math.abs(headingError) <= acceptableAngleError;
+
+        double moveAngle = Math.atan2(dy, dx);
+        double movePower = positionReached ? 0 : Math.min(power, distanceRemaining * 0.1 + 0.2);
+
+        // Calculate robot-oriented speeds (field-centric control)
+        double HR = Math.toRadians(pos.h);
+        double xSpeed = moveX ? Math.cos(moveAngle) * movePower : 0;
+        double ySpeed = moveY ? Math.sin(moveAngle) * movePower : 0;
+
+        double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
+        double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+
+        // Smooth rotation power based on heading error
+        double turnPower = rotate ? headingError * 0.01 : 0;
+
+        // Balance rotational and translational power
+        double totalPower = Math.abs(XSpeed) + Math.abs(YSpeed) + Math.abs(turnPower);
+        if (totalPower > power) {
+            double scale = power / totalPower;
+            XSpeed *= scale;
+            YSpeed *= scale;
+            turnPower *= scale;
+        }
+
+        double frontLeftPower = YSpeed + XSpeed + turnPower;
+        double frontRightPower = YSpeed - XSpeed - turnPower;
+        double backLeftPower = YSpeed - XSpeed + turnPower;
+        double backRightPower = YSpeed + XSpeed - turnPower;
+
+        frontLeft.setPower(frontLeftPower);
+        frontRight.setPower(frontRightPower);
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
+
+        // Delay to prevent CPU overload and allow IMU updates
+        try { Thread.sleep(30); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+    }
+
+    // Stop motors at the end
+    frontLeft.setPower(0);
+    frontRight.setPower(0);
+    backLeft.setPower(0);
+    backRight.setPower(0);
+}
+
 
 
 
