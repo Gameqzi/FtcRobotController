@@ -121,6 +121,7 @@ public class Robot {
     }
     //endregion
 
+
     //region BASIC RELATIVE ROBOT MOVEMENT COMMANDS
     /**
      * Strafe left using mecanum drive.
@@ -241,14 +242,21 @@ public class Robot {
         }
 
         final double THRESHOLD = 0.5; // Acceptable distance error in units
+        final double Kp = 0.02; // Proportional gain for heading correction, tune this value
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
         while (Math.abs(getRobotXDisplacement(startPos, imu.getPosition())) < Math.abs(targetDist) - THRESHOLD) {
-            double direction = Math.signum(targetDist); // Basically gets the sign of the target distance
-            frontLeftMotor.setPower(power * direction);
-            frontRightMotor.setPower(power * direction);
-            backLeftMotor.setPower(-power * direction);
-            backRightMotor.setPower(-power * direction);
+            double strafe = Math.signum(targetDist); // Basically gets the sign of the target distance
+
+            double headingError = startPos.h - imu.getPosition().h;
+            double headingCorrection = Kp * normalizeAngle(headingError);
+
+            frontLeftMotor.setPower((-power * strafe) + headingCorrection);
+            frontRightMotor.setPower((-power * strafe) - headingCorrection);
+            backLeftMotor.setPower((power * strafe) + headingCorrection);
+            backRightMotor.setPower((power * strafe) - headingCorrection);
+
+            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -268,14 +276,21 @@ public class Robot {
         }
 
         final double THRESHOLD = 0.5; // Acceptable distance error in units
+        final double Kp = 0.02; // Proportional gain for heading correction, tune this value
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
         while (Math.abs(getRobotYDisplacement(startPos, imu.getPosition())) < Math.abs(targetDist) - THRESHOLD) {
-            double direction = Math.signum(targetDist); // Basically gets the sign of the target distance
-            frontLeftMotor.setPower(power * direction);
-            frontRightMotor.setPower(power * direction);
-            backLeftMotor.setPower(power * direction);
-            backRightMotor.setPower(power * direction);
+            double drive = Math.signum(targetDist); // Basically gets the sign of the target distance
+
+            double headingError = startPos.h - imu.getPosition().h;
+            double headingCorrection = Kp * normalizeAngle(headingError);
+
+            frontLeftMotor.setPower((power * drive) + headingCorrection);
+            frontRightMotor.setPower((power * drive) - headingCorrection);
+            backLeftMotor.setPower((power * drive) + headingCorrection);
+            backRightMotor.setPower((power * drive) - headingCorrection);
+
+            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -285,9 +300,9 @@ public class Robot {
     /**
      * Rotate to a set global angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
-     * @param targetAngle The desired angle you want the robot to rotate to. (Global Angle)
+     * @param TH The desired angle you want the robot to rotate to. (Global Angle)
      */
-    public void rotateTo(double power, float targetAngle) {
+    public void rotateTo(double power, float TH) {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -298,7 +313,7 @@ public class Robot {
         final double ANGLE_THRESHOLD = 2.0; // Acceptable error in degrees
 
         // Calculate initial angle error
-        double angleError = normalizeAngle(targetAngle - imu.getPosition().h);
+        double angleError = normalizeAngle(TH - imu.getPosition().h);
 
         // Continue rotating while the error is outside the threshold
         while (Math.abs(angleError) > ANGLE_THRESHOLD) {
@@ -310,7 +325,9 @@ public class Robot {
             backRightMotor.setPower(power * direction);
 
             // Update angle error
-            angleError = normalizeAngle(targetAngle - imu.getPosition().h);
+            angleError = normalizeAngle(TH - imu.getPosition().h);
+
+            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -318,11 +335,11 @@ public class Robot {
     /**
      * Move to a set global X & Y coordinate, as well as a set heading angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
-     * @param TX The desired X coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param TY The desired Y coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param H The desired heading angle in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param FX The desired X coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param FY The desired Y coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param FH The desired heading angle in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
      */
-    public void goTo(double power, String TX, String TY, String H) {
+    public void goTo(double power, String FX, String FY, String FH) {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -330,76 +347,73 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double DIST_THRESHOLD = 0.5;    // Acceptable position error
-        final double ANGLE_THRESHOLD = 2.0;   // Acceptable heading error
-        final double ROT_SPEED = 0.01;        // Proportional gain for rotation
+        final double distThreshold = 0.5;       // Acceptable position error
+        final double angleThreshold = 2.0;      // Acceptable heading error
 
-        // Use Objects.equals for null-safe comparison (will not compare memory addresses, but rather, values)
-        boolean moveX = !Objects.equals(TX, "~"); // true if TX is not "~"
-        boolean moveY = !Objects.equals(TY, "~"); // true if TY is not "~"
-        boolean rotate = !Objects.equals(H, "~"); // true if H is not "~"
+        final double minSpeed = 0.15;           // Minimum speed the robot can drive at
+        final double maxSpeed = 0.50;           // Maximum speed the robot can drive at
 
-        double targetX = moveX ? Double.parseDouble(TX) : 0;
-        double targetY = moveY ? Double.parseDouble(TY) : 0;
-        double targetHeading = rotate ? Double.parseDouble(H) : 0;
+        final double rotSpeed = 0.01;           // Proportional gain for rotation
 
-        // Calculate initial errors
-        SparkFunOTOS.Pose2D pos = imu.getPosition();
-        double dx = targetX - pos.x;
-        double dy = targetY - pos.y;
-        double distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
+        SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
-        double headingError = rotate ? normalizeAngle(targetHeading - pos.h) : 0;
+        double TX, TY, TH;
+        if (Objects.equals(FX, "~")) {TX = startPos.x;} else {TX = Double.parseDouble(FX);}
+        if (Objects.equals(FY, "~")) {TY = startPos.y;} else {TY = Double.parseDouble(FY);}
+        if (Objects.equals(FH, "~")) {TH = startPos.h;} else {TH = Double.parseDouble(FH);}
 
-        // Continue moving while either position or heading is not reached
-        while (((moveX || moveY) && distanceRemaining > DIST_THRESHOLD) ||
-                (rotate && Math.abs(headingError) > ANGLE_THRESHOLD)) {
+        // ToDo NOTICE: This while loop is still here because I want to later change this function.
+        //while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold || Math.abs(normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
 
-            // Recalculate errors each loop
-            pos = imu.getPosition();
-            dx = targetX - pos.x;
-            dy = targetY - pos.y;
-            distanceRemaining = Math.hypot(moveX ? dx : 0, moveY ? dy : 0);
+            while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold) {
+                SparkFunOTOS.Pose2D currentPos = imu.getPosition();
 
-            headingError = rotate ? normalizeAngle(targetHeading - pos.h) : 0;
+                double dx = TX - currentPos.x;
+                double dy = TY - currentPos.y;
 
-            // Calculate movement direction and power
-            double moveAngle = Math.atan2(dy, dx); // Direction to target
-            double movePower = (distanceRemaining > DIST_THRESHOLD) ? Math.min(power, distanceRemaining * 0.1 + 0.2) : 0;
+                double toTargetAngle = Math.atan2(dy, dx);
 
-            // Calculate X and Y speed components in field coordinates
-            double xSpeed = moveX ? Math.cos(moveAngle) * movePower : 0;
-            double ySpeed = moveY ? Math.sin(moveAngle) * movePower : 0;
-            // Calculate turn power proportional to heading error
-            double turnPower = rotate ? headingError * ROT_SPEED : 0;
+                double toTargetDist = Math.hypot(dx, dy);
+                double motorPower = Math.max(minSpeed, Math.min(power, toTargetDist * maxSpeed));
 
-            // Convert field-centric speeds to robot-centric speeds
-            double HR = Math.toRadians(pos.h);
-            double XSpeed = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
-            double YSpeed = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+                double xSpeed = Math.cos(toTargetAngle) * motorPower;
+                double ySpeed = Math.sin(toTargetAngle) * motorPower;
 
-            // Calculate individual motor powers for mecanum drive
-            double frontLeftPower = YSpeed + XSpeed + turnPower;
-            double frontRightPower = YSpeed - XSpeed - turnPower;
-            double backLeftPower = YSpeed - XSpeed + turnPower;
-            double backRightPower = YSpeed + XSpeed - turnPower;
+                double HR = Math.toRadians(currentPos.h);
+                double xPower = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
+                double yPower = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
 
-            // Normalize powers if any exceed 1.0
-            double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
-                    Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
-            if (maxPower > 1.0) {
-                frontLeftPower /= maxPower;
-                frontRightPower /= maxPower;
-                backLeftPower /= maxPower;
-                backRightPower /= maxPower;
+                double frontLeftPower = yPower + xPower;
+                double frontRightPower = yPower - xPower;
+                double backLeftPower = yPower - xPower;
+                double backRightPower = yPower + xPower;
+
+                double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+                if (maxPower > 1.0) {frontLeftPower /= maxPower; frontRightPower /= maxPower; backLeftPower /= maxPower; backRightPower /= maxPower;}
+
+                frontLeftMotor.setPower(frontLeftPower);
+                frontRightMotor.setPower(frontRightPower);
+                backLeftMotor.setPower(backLeftPower);
+                backRightMotor.setPower(backRightPower);
+
+                // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
+            stopMotors();
 
-            // Set motor powers
-            frontLeftMotor.setPower(frontLeftPower);
-            frontRightMotor.setPower(frontRightPower);
-            backLeftMotor.setPower(backLeftPower);
-            backRightMotor.setPower(backRightPower);
-        }
+            while (Math.abs(normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
+                SparkFunOTOS.Pose2D currentPos = imu.getPosition();
+
+                double headingError = normalizeAngle(TH - currentPos.h);
+                double rotPower = headingError * rotSpeed;
+
+                frontLeftMotor.setPower(rotPower);
+                frontRightMotor.setPower(-rotPower);
+                backLeftMotor.setPower(rotPower);
+                backRightMotor.setPower(-rotPower);
+
+                // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
+            }
+        //}
         stopMotors();
     }
     //endregion
@@ -453,7 +467,7 @@ public class Robot {
      * @param angle The angle in degrees to normalize.
      * @return The normalized angle in the range [-180, 180).
      */
-    private double normalizeAngle(double angle) {
+    public double normalizeAngle(double angle) {    // ToDo: Will this work as a public? I need it in the main script.
         // O(n) time complexity. Add this back in if my angle normalization is not working. -NP
         /* while (angle > 180) angle -= 360;
         while (angle < -180) angle += 360; */
