@@ -193,8 +193,28 @@ public class MentorChallengeOne extends ThreadOpMode {
 
 
     public void ScoreBlock() {
+        /*
+        0.15 MAX AREA - Limelight
 
+        Servo Start Pos:
+            0.505 [Servo 1]
+            0.470 [Servo 2]
 
+        Lift Move Servo Pos:
+            0.800 [Servo 1]
+            0.505 [Servo 2]
+
+        ------------------------------
+        
+         Servo Limits:
+            Servo 1:
+              0.63 MAX Right
+              0.37 MAX Left
+        
+            Servo 2:
+              0.35 MAX Down
+              0.47 MAX Up
+         */
     }
 
 
