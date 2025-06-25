@@ -16,6 +16,8 @@ public class servothing extends ThreadOpMode {
     public void mainInit() {
         servo1 = hardwareMap.get(Servo.class, "test");
         servo2 = hardwareMap.get(Servo.class, "test2");
+        servo1.setPosition(0);
+        servo2.setPosition(0);
     }
 
     @Override
