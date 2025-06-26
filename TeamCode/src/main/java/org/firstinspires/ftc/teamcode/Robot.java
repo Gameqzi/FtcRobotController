@@ -132,9 +132,9 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
+        frontLeftMotor.setPower(-power);
         frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(-power);
+        backLeftMotor.setPower(power);
         backRightMotor.setPower(power);
     }
 
@@ -147,9 +147,9 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
+        frontLeftMotor.setPower(power);
         frontRightMotor.setPower(power);
-        backLeftMotor.setPower(power);
+        backLeftMotor.setPower(-power);
         backRightMotor.setPower(-power);
     }
 
@@ -163,9 +163,9 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
+        frontLeftMotor.setPower(-power);
         frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(power);
+        backLeftMotor.setPower(-power);
         backRightMotor.setPower(-power);
     }
 
@@ -179,9 +179,9 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
+        frontLeftMotor.setPower(power);
         frontRightMotor.setPower(power);
-        backLeftMotor.setPower(-power);
+        backLeftMotor.setPower(power);
         backRightMotor.setPower(power);
     }
 
@@ -251,10 +251,10 @@ public class Robot {
             double headingError = startPos.h - imu.getPosition().h;
             double headingCorrection = Kp * normalizeAngle(headingError);
 
-            frontLeftMotor.setPower((-power * strafe) + headingCorrection);
-            frontRightMotor.setPower(-((-power * strafe) - headingCorrection));
-            backLeftMotor.setPower((power * strafe) + headingCorrection);
-            backRightMotor.setPower(-((power * strafe) - headingCorrection));
+            frontLeftMotor.setPower((power * strafe) + headingCorrection);
+            frontRightMotor.setPower((power * strafe) + headingCorrection);
+            backLeftMotor.setPower((power * -strafe) + headingCorrection);
+            backRightMotor.setPower((power * -strafe) + headingCorrection);
 
             // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
@@ -262,7 +262,7 @@ public class Robot {
     }
 
     /**
-     * Drive for a set distance on the robot's relative Y axis. Negative = Backward, Positive Forward. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
+     * Drive for a set distance on the robot's relative Y axis. Negative = Backward, Positive = Forward. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move.
      */
@@ -286,9 +286,9 @@ public class Robot {
             double headingCorrection = Kp * normalizeAngle(headingError);
 
             frontLeftMotor.setPower((power * drive) + headingCorrection);
-            frontRightMotor.setPower(-((power * drive) - headingCorrection));
+            frontRightMotor.setPower((power * -drive) + headingCorrection);
             backLeftMotor.setPower((power * drive) + headingCorrection);
-            backRightMotor.setPower(-((power * drive) - headingCorrection));
+            backRightMotor.setPower((power * -drive) + headingCorrection);
 
             // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
@@ -298,7 +298,7 @@ public class Robot {
 
     //region ADVANCED GLOBAL ROBOT MOVEMENT COMMANDS:
     /**
-     * Rotate to a set global angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
+     * Rotate to a set global angle. Negative = CCW, Positive = CW. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param TH The desired angle you want the robot to rotate to. (Global Angle)
      */
@@ -320,9 +320,9 @@ public class Robot {
             double direction = Math.signum(angleError); // +1 for CCW, -1 for CW
             // Set all motors to rotate in the same direction
             frontLeftMotor.setPower(power * direction);
-            frontRightMotor.setPower(-power * direction);
+            frontRightMotor.setPower(power * direction);
             backLeftMotor.setPower(power * direction);
-            backRightMotor.setPower(-power * direction);
+            backRightMotor.setPower(power * direction);
 
             // Update angle error
             angleError = normalizeAngle(TH - imu.getPosition().h);
@@ -407,9 +407,9 @@ public class Robot {
                 double rotPower = headingError * rotSpeed;
 
                 frontLeftMotor.setPower(rotPower);
-                frontRightMotor.setPower(-rotPower);
+                frontRightMotor.setPower(rotPower);
                 backLeftMotor.setPower(rotPower);
-                backRightMotor.setPower(-rotPower);
+                backRightMotor.setPower(rotPower);
 
                 // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
