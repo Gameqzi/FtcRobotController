@@ -133,9 +133,9 @@ public class Robot {
         }
 
         frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
+        frontRightMotor.setPower(-power);
         backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        backRightMotor.setPower(power);
     }
 
     /**
@@ -148,9 +148,9 @@ public class Robot {
         }
 
         frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
+        frontRightMotor.setPower(power);
         backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
+        backRightMotor.setPower(-power);
     }
 
     /**
@@ -164,9 +164,9 @@ public class Robot {
         }
 
         frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
+        frontRightMotor.setPower(-power);
         backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
+        backRightMotor.setPower(-power);
     }
 
     /**
@@ -180,9 +180,9 @@ public class Robot {
         }
 
         frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
+        frontRightMotor.setPower(power);
         backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        backRightMotor.setPower(power);
     }
 
     /**
@@ -195,9 +195,9 @@ public class Robot {
         }
 
         frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
+        frontRightMotor.setPower(-power);
         backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
+        backRightMotor.setPower(-power);
     }
 
     /**
@@ -210,9 +210,9 @@ public class Robot {
         }
 
         frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
+        frontRightMotor.setPower(power);
         backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        backRightMotor.setPower(power);
     }
 
     /**
@@ -252,9 +252,9 @@ public class Robot {
             double headingCorrection = Kp * normalizeAngle(headingError);
 
             frontLeftMotor.setPower((-power * strafe) + headingCorrection);
-            frontRightMotor.setPower((-power * strafe) - headingCorrection);
+            frontRightMotor.setPower(-((-power * strafe) - headingCorrection));
             backLeftMotor.setPower((power * strafe) + headingCorrection);
-            backRightMotor.setPower((power * strafe) - headingCorrection);
+            backRightMotor.setPower(-((power * strafe) - headingCorrection));
 
             // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
@@ -286,9 +286,9 @@ public class Robot {
             double headingCorrection = Kp * normalizeAngle(headingError);
 
             frontLeftMotor.setPower((power * drive) + headingCorrection);
-            frontRightMotor.setPower((power * drive) - headingCorrection);
+            frontRightMotor.setPower(-((power * drive) - headingCorrection));
             backLeftMotor.setPower((power * drive) + headingCorrection);
-            backRightMotor.setPower((power * drive) - headingCorrection);
+            backRightMotor.setPower(-((power * drive) - headingCorrection));
 
             // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
@@ -320,9 +320,9 @@ public class Robot {
             double direction = Math.signum(angleError); // +1 for CCW, -1 for CW
             // Set all motors to rotate in the same direction
             frontLeftMotor.setPower(power * direction);
-            frontRightMotor.setPower(power * direction);
+            frontRightMotor.setPower(-power * direction);
             backLeftMotor.setPower(power * direction);
-            backRightMotor.setPower(power * direction);
+            backRightMotor.setPower(-power * direction);
 
             // Update angle error
             angleError = normalizeAngle(TH - imu.getPosition().h);
@@ -383,18 +383,18 @@ public class Robot {
                 double xPower = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
                 double yPower = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
 
-                double frontLeftPower = yPower + xPower;
+                double frontLeftPower  = yPower + xPower;
                 double frontRightPower = yPower - xPower;
-                double backLeftPower = yPower - xPower;
-                double backRightPower = yPower + xPower;
+                double backLeftPower   = yPower - xPower;
+                double backRightPower  = yPower + xPower;
 
                 double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
                 if (maxPower > 1.0) {frontLeftPower /= maxPower; frontRightPower /= maxPower; backLeftPower /= maxPower; backRightPower /= maxPower;}
 
                 frontLeftMotor.setPower(frontLeftPower);
-                frontRightMotor.setPower(frontRightPower);
+                frontRightMotor.setPower(-frontRightPower);
                 backLeftMotor.setPower(backLeftPower);
-                backRightMotor.setPower(backRightPower);
+                backRightMotor.setPower(-backRightPower);
 
                 // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
