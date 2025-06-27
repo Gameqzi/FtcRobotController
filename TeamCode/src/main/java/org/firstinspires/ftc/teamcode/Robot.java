@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.Objects;
 
 /**
@@ -25,6 +27,7 @@ public class Robot {
     private final DcMotorEx backLeftMotor;
     private final DcMotorEx backRightMotor;
     private SparkFunOTOS imu;
+    private Telemetry telemetry;
     //endregion
 
     //region Singleton implementation
@@ -117,6 +120,11 @@ public class Robot {
      */
     public Robot setImu(SparkFunOTOS imu) {
         this.imu = imu;
+        return this;
+    }
+
+    public Robot setTelemetry(Telemetry telemetry) {
+        this.telemetry = telemetry;
         return this;
     }
     //endregion
