@@ -41,7 +41,8 @@ public class RobotTest extends ThreadOpMode {
 
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
-                .setImu(sparkFun);
+                .setImu(sparkFun)
+                .setTelemetry(telemetry);
 
         configureOtos();
     }
