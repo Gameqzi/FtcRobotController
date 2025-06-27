@@ -440,7 +440,7 @@ public class Robot {
                 if(rotPower > 1.0) {rotPower = 1.0;} // Cap the rotation power to 1.0
                 else if(rotPower < -1.0) {rotPower = -1.0;} // Cap the rotation power to -1.0
 
-                rotate(rotPower); // Use the rotate method to apply the rotation power
+                rotate(-rotPower); // Use the rotate method to apply the rotation power
             }
         //}
         stopMotors();
