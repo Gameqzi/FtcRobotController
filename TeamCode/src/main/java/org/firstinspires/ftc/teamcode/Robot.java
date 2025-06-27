@@ -173,6 +173,28 @@ public class Robot {
     }
 
     /**
+     * Rotates the robot in place using mecanum drive.
+     * <p>
+     * If the power is positive, the robot rotates clockwise (right).
+     * If the power is negative, the robot rotates counterclockwise (left).
+     * </p>
+     *
+     * @param power Motor power, between -1.0 and 1.0. Positive for right, negative for left.
+     * @throws IllegalArgumentException if the power is outside the range \[-1.0, 1.0\].
+     */
+    public void rotate(double power) {
+        if (!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
+        if(power > 0) {
+            rotateRight(power);
+        } else {
+            rotateLeft(power);
+        }
+    }
+
+    /**
      * Rotates the robot counterclockwise in place using mecanum drive.
      * Useful for turning the robot to a new heading.
      * @param power Motor power, between -1.0 and 1.0.
@@ -419,10 +441,7 @@ public class Robot {
                 double headingError = Utils.normalizeAngle(TH - currentPos.h);
                 double rotPower = headingError * -rotSpeed;
 
-                frontLeftMotor.setPower(rotPower);
-                frontRightMotor.setPower(rotPower);
-                backLeftMotor.setPower(rotPower);
-                backRightMotor.setPower(rotPower);
+                rotate(rotPower); // Use the rotate method to apply the rotation power
             }
         //}
         stopMotors();
