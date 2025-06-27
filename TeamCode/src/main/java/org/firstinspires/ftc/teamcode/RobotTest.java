@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.threadopmode.TaskThread;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
@@ -45,14 +46,22 @@ public class RobotTest extends ThreadOpMode {
                 .setTelemetry(telemetry);
 
         configureOtos();
+        registerThread(new TaskThread(() -> wheelTelemetry()));
     }
 
     @Override
     public void mainLoop() {
-        robot.goTo(0.5, "12", "12", "0");
+        robot.goTo(0.25, "12", "12", "0");
+        Utils.sleep(10000);
+        requestOpModeStop();
     }
 
-
+    private void wheelTelemetry() {
+        SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
+        telemetry.addData("X", pos.x);
+        telemetry.addData("Y", pos.y);
+        telemetry.update();
+    }
 
     @SuppressLint("DefaultLocale")
     private void configureOtos() {
