@@ -132,10 +132,10 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
+        frontLeftMotor.setPower(power);
+        frontRightMotor.setPower(power);
+        backLeftMotor.setPower(-power);
+        backRightMotor.setPower(-power);
     }
 
     /**
@@ -147,10 +147,10 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
-        backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        frontLeftMotor.setPower(-power);
+        frontRightMotor.setPower(-power);
+        backLeftMotor.setPower(power);
+        backRightMotor.setPower(power);
     }
 
     /**
@@ -163,10 +163,10 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        frontLeftMotor.setPower(power);
+        frontRightMotor.setPower(power);
+        backLeftMotor.setPower(power);
+        backRightMotor.setPower(power);
     }
 
     /**
@@ -179,10 +179,10 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
-        backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
+        frontLeftMotor.setPower(-power);
+        frontRightMotor.setPower(-power);
+        backLeftMotor.setPower(-power);
+        backRightMotor.setPower(-power);
     }
 
     /**
@@ -194,10 +194,10 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(power);
-        backRightMotor.setPower(-power);
+        frontLeftMotor.setPower(-power);
+        frontRightMotor.setPower(power);
+        backLeftMotor.setPower(-power);
+        backRightMotor.setPower(power);
     }
 
     /**
@@ -209,10 +209,10 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(power);
-        backLeftMotor.setPower(-power);
-        backRightMotor.setPower(power);
+        frontLeftMotor.setPower(power);
+        frontRightMotor.setPower(-power);
+        backLeftMotor.setPower(power);
+        backRightMotor.setPower(-power);
     }
 
     /**
@@ -251,10 +251,10 @@ public class Robot {
             double headingError = startPos.h - imu.getPosition().h;
             double headingCorrection = Kp * normalizeAngle(headingError);
 
-            frontLeftMotor.setPower((power * strafe) + headingCorrection);
-            frontRightMotor.setPower((power * strafe) + headingCorrection);
-            backLeftMotor.setPower((power * -strafe) + headingCorrection);
-            backRightMotor.setPower((power * -strafe) + headingCorrection);
+            frontLeftMotor.setPower((power * -strafe) + headingCorrection);
+            frontRightMotor.setPower((power * -strafe) + headingCorrection);
+            backLeftMotor.setPower((power * strafe) + headingCorrection);
+            backRightMotor.setPower((power * strafe) + headingCorrection);
 
             // TODO: !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
@@ -285,10 +285,10 @@ public class Robot {
             double headingError = startPos.h - imu.getPosition().h;
             double headingCorrection = Kp * normalizeAngle(headingError);
 
-            frontLeftMotor.setPower((power * drive) + headingCorrection);
-            frontRightMotor.setPower((power * -drive) + headingCorrection);
-            backLeftMotor.setPower((power * drive) + headingCorrection);
-            backRightMotor.setPower((power * -drive) + headingCorrection);
+            frontLeftMotor.setPower((power * -drive) + headingCorrection);
+            frontRightMotor.setPower((power * drive) + headingCorrection);
+            backLeftMotor.setPower((power * -drive) + headingCorrection);
+            backRightMotor.setPower((power * drive) + headingCorrection);
         }
         stopMotors();
     }
@@ -308,7 +308,7 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double ANGLE_THRESHOLD = 2.0; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 20; // Acceptable error in degrees
 
         // Calculate initial angle error
         double angleError = normalizeAngle(TH - imu.getPosition().h);
@@ -387,10 +387,10 @@ public class Robot {
                 double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
                 if (maxPower > 1.0) {frontLeftPower /= maxPower; frontRightPower /= maxPower; backLeftPower /= maxPower; backRightPower /= maxPower;}
 
-                frontLeftMotor.setPower(frontLeftPower);
-                frontRightMotor.setPower(-frontRightPower);
-                backLeftMotor.setPower(backLeftPower);
-                backRightMotor.setPower(-backRightPower);
+                frontLeftMotor.setPower(-frontLeftPower);
+                frontRightMotor.setPower(frontRightPower);
+                backLeftMotor.setPower(-backLeftPower);
+                backRightMotor.setPower(backRightPower);
             }
             stopMotors();
 
