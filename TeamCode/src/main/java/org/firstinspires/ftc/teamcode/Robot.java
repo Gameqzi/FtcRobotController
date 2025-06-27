@@ -183,10 +183,6 @@ public class Robot {
      * @throws IllegalArgumentException if the power is outside the range \[-1.0, 1.0\].
      */
     public void rotate(double power) {
-        if (!isValidPower(power)) {
-            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
-        }
-
         if(power > 0) {
             rotateRight(power);
         } else {
@@ -440,6 +436,9 @@ public class Robot {
 
                 double headingError = Utils.normalizeAngle(TH - currentPos.h);
                 double rotPower = headingError * rotSpeed;
+
+                if(rotPower > 1.0) {rotPower = 1.0;} // Cap the rotation power to 1.0
+                else if(rotPower < -1.0) {rotPower = -1.0;} // Cap the rotation power to -1.0
 
                 rotate(rotPower); // Use the rotate method to apply the rotation power
             }
