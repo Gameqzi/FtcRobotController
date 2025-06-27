@@ -257,11 +257,6 @@ public class Robot {
             backRightMotor.setPower((power * -strafe) + headingCorrection);
 
             // TODO: !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                // Handle the exception if needed
-            }
         }
         stopMotors();
     }
@@ -294,8 +289,6 @@ public class Robot {
             frontRightMotor.setPower((power * -drive) + headingCorrection);
             backLeftMotor.setPower((power * drive) + headingCorrection);
             backRightMotor.setPower((power * -drive) + headingCorrection);
-
-            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -331,8 +324,6 @@ public class Robot {
 
             // Update angle error
             angleError = normalizeAngle(TH - imu.getPosition().h);
-
-            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -400,8 +391,6 @@ public class Robot {
                 frontRightMotor.setPower(-frontRightPower);
                 backLeftMotor.setPower(backLeftPower);
                 backRightMotor.setPower(-backRightPower);
-
-                // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
             stopMotors();
 
@@ -415,8 +404,6 @@ public class Robot {
                 frontRightMotor.setPower(rotPower);
                 backLeftMotor.setPower(rotPower);
                 backRightMotor.setPower(rotPower);
-
-                // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
         //}
         stopMotors();
@@ -472,7 +459,7 @@ public class Robot {
      * @param angle The angle in degrees to normalize.
      * @return The normalized angle in the range [-180, 180).
      */
-    public double normalizeAngle(double angle) {    // ToDo: Will this work as a public? I need it in the main script.
+    public static double normalizeAngle(double angle) {
         // O(n) time complexity. Add this back in if my angle normalization is not working. -NP
         /* while (angle > 180) angle -= 360;
         while (angle < -180) angle += 360; */
