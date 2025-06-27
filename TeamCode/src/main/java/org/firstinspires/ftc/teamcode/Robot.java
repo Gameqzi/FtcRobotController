@@ -232,7 +232,7 @@ public class Robot {
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move. (Relative Distance)
      */
-    public void strafeRelDist(double power, float targetDist) {
+    public void strafeRelDist(double power, double targetDist) {
         if(imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -256,7 +256,7 @@ public class Robot {
             backLeftMotor.setPower((power * -strafe) + headingCorrection);
             backRightMotor.setPower((power * -strafe) + headingCorrection);
 
-            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
+            // TODO: !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -266,7 +266,7 @@ public class Robot {
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move.
      */
-    public void driveRelDist(double power, float targetDist) {
+    public void driveRelDist(double power, double targetDist) {
         if(imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -289,8 +289,6 @@ public class Robot {
             frontRightMotor.setPower((power * -drive) + headingCorrection);
             backLeftMotor.setPower((power * drive) + headingCorrection);
             backRightMotor.setPower((power * -drive) + headingCorrection);
-
-            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -302,7 +300,7 @@ public class Robot {
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param TH The desired angle you want the robot to rotate to. (Global Angle)
      */
-    public void rotateTo(double power, float TH) {
+    public void rotateTo(double power, double TH) {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -326,8 +324,6 @@ public class Robot {
 
             // Update angle error
             angleError = normalizeAngle(TH - imu.getPosition().h);
-
-            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
         stopMotors();
     }
@@ -395,8 +391,6 @@ public class Robot {
                 frontRightMotor.setPower(-frontRightPower);
                 backLeftMotor.setPower(backLeftPower);
                 backRightMotor.setPower(-backRightPower);
-
-                // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
             stopMotors();
 
@@ -410,8 +404,6 @@ public class Robot {
                 frontRightMotor.setPower(rotPower);
                 backLeftMotor.setPower(rotPower);
                 backRightMotor.setPower(rotPower);
-
-                // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
             }
         //}
         stopMotors();
@@ -467,7 +459,7 @@ public class Robot {
      * @param angle The angle in degrees to normalize.
      * @return The normalized angle in the range [-180, 180).
      */
-    public double normalizeAngle(double angle) {    // ToDo: Will this work as a public? I need it in the main script.
+    public static double normalizeAngle(double angle) {
         // O(n) time complexity. Add this back in if my angle normalization is not working. -NP
         /* while (angle > 180) angle -= 360;
         while (angle < -180) angle += 360; */
