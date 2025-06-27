@@ -232,7 +232,7 @@ public class Robot {
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move. (Relative Distance)
      */
-    public void strafeRelDist(double power, float targetDist) {
+    public void strafeRelDist(double power, double targetDist) {
         if(imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -256,7 +256,12 @@ public class Robot {
             backLeftMotor.setPower((power * -strafe) + headingCorrection);
             backRightMotor.setPower((power * -strafe) + headingCorrection);
 
-            // ToDo; !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
+            // TODO: !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // Handle the exception if needed
+            }
         }
         stopMotors();
     }
@@ -266,7 +271,7 @@ public class Robot {
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move.
      */
-    public void driveRelDist(double power, float targetDist) {
+    public void driveRelDist(double power, double targetDist) {
         if(imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -302,7 +307,7 @@ public class Robot {
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      * @param TH The desired angle you want the robot to rotate to. (Global Angle)
      */
-    public void rotateTo(double power, float TH) {
+    public void rotateTo(double power, double TH) {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }

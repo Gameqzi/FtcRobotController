@@ -33,9 +33,9 @@ public class MentorChallengeOne extends ThreadOpMode {
     // Trig [Triangulation] Globals:
     // TODO: Can this be marked final? Could help with compilation folding. :) (https://ondrej-kvasnovsky.medium.com/constant-folding-in-the-jvm-08437d879a45) -NP
     int basketRange = 5; // Inches
-    float X1, Y1, H1;
-    float X2, Y2, H2;
-    float XT, YT;
+    double X1, Y1, H1;
+    double X2, Y2, H2;
+    double XT, YT;
 
     //endregion
 
@@ -120,18 +120,18 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         CenterTag(17);
         pos = robot.getImu().getPosition();
-        X1 = (float) pos.x;
-        Y1 = (float) pos.y;
-        H1 = (float) Math.toRadians(robot.normalizeAngle(pos.h));
+        X1 = pos.x;
+        Y1 = pos.y;
+        H1 = Math.toRadians(robot.normalizeAngle(pos.h));
 
         robot.rotateTo(0.8, 45);
         robot.strafeRelDist(0.8, 12);
 
         CenterTag(17);
         pos = robot.getImu().getPosition();
-        X2 = (float) pos.x;
-        Y2 = (float) pos.y;
-        H2 = (float) Math.toRadians(robot.normalizeAngle(pos.h));
+        X2 = pos.x;
+        Y2 = pos.y;
+        H2 = Math.toRadians(robot.normalizeAngle(pos.h));
 
         telemetry.addData("X1:", X1);
         telemetry.addData("Y1:", Y1);
@@ -147,8 +147,8 @@ public class MentorChallengeOne extends ThreadOpMode {
         telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!!! IDK: How to fix/If even issue
         telemetry.update();
 
-        XT = (float) ((Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2)));
-        YT = (float) (Math.tan(H1) * (XT - X1) + Y1);
+        XT = (Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2));
+        YT = Math.tan(H1) * (XT - X1) + Y1;
 
         telemetry.addLine();
         telemetry.addLine("Done Mathing!");
@@ -170,7 +170,7 @@ public class MentorChallengeOne extends ThreadOpMode {
                         break;
                     }
                 }
-                robot.rotateTo(0.5, ((float) (robot.getImu().getPosition().h + 15)));
+                robot.rotateTo(0.5, robot.getImu().getPosition().h + 15);
             }
 
             robot.stopMotors();
