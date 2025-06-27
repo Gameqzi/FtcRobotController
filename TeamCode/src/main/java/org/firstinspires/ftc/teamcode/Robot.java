@@ -249,7 +249,7 @@ public class Robot {
             double strafe = Math.signum(targetDist); // Basically gets the sign of the target distance
 
             double headingError = startPos.h - imu.getPosition().h;
-            double headingCorrection = Kp * normalizeAngle(headingError);
+            double headingCorrection = Kp * Utils.normalizeAngle(headingError);
 
             frontLeftMotor.setPower((power * -strafe) + headingCorrection);
             frontRightMotor.setPower((power * -strafe) + headingCorrection);
@@ -283,7 +283,7 @@ public class Robot {
             double drive = Math.signum(targetDist); // Basically gets the sign of the target distance
 
             double headingError = startPos.h - imu.getPosition().h;
-            double headingCorrection = Kp * normalizeAngle(headingError);
+            double headingCorrection = Kp * Utils.normalizeAngle(headingError);
 
             frontLeftMotor.setPower((power * -drive) + headingCorrection);
             frontRightMotor.setPower((power * drive) + headingCorrection);
@@ -311,7 +311,7 @@ public class Robot {
         final double ANGLE_THRESHOLD = 20; // Acceptable error in degrees
 
         // Calculate initial angle error
-        double angleError = normalizeAngle(TH - imu.getPosition().h);
+        double angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
 
         // Continue rotating while the error is outside the threshold
         while (Math.abs(angleError) > ANGLE_THRESHOLD) {
@@ -323,7 +323,7 @@ public class Robot {
             backRightMotor.setPower(power * direction);
 
             // Update angle error
-            angleError = normalizeAngle(TH - imu.getPosition().h);
+            angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
         }
         stopMotors();
     }
@@ -359,7 +359,7 @@ public class Robot {
         if (Objects.equals(FH, "~")) {TH = startPos.h;} else {TH = Double.parseDouble(FH);}
 
         // ToDo NOTICE: This while loop is still here because I want to later change this function.
-        //while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold || Math.abs(normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
+        //while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold || Math.abs(Utils.normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
 
             while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold) {
                 SparkFunOTOS.Pose2D currentPos = imu.getPosition();
@@ -387,18 +387,18 @@ public class Robot {
                 double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
                 if (maxPower > 1.0) {frontLeftPower /= maxPower; frontRightPower /= maxPower; backLeftPower /= maxPower; backRightPower /= maxPower;}
 
-                frontLeftMotor.setPower(-frontLeftPower);
-                frontRightMotor.setPower(frontRightPower);
-                backLeftMotor.setPower(-backLeftPower);
-                backRightMotor.setPower(backRightPower);
+                frontLeftMotor.setPower(frontLeftPower);
+                frontRightMotor.setPower(-frontRightPower);
+                backLeftMotor.setPower(backLeftPower);
+                backRightMotor.setPower(-backRightPower);
             }
             stopMotors();
 
-            while (Math.abs(normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
+            while (Math.abs(Utils.normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
                 SparkFunOTOS.Pose2D currentPos = imu.getPosition();
 
-                double headingError = normalizeAngle(TH - currentPos.h);
-                double rotPower = headingError * rotSpeed;
+                double headingError = Utils.normalizeAngle(TH - currentPos.h);
+                double rotPower = headingError * -rotSpeed;
 
                 frontLeftMotor.setPower(rotPower);
                 frontRightMotor.setPower(rotPower);
@@ -444,29 +444,6 @@ public class Robot {
         double dy = current.y - start.y;
         double hR = Math.toRadians(current.h);
         return dx * Math.sin(-hR) + dy * Math.cos(-hR);
-    }
-
-    /**
-     * Normalizes an angle to the range [-180, 180) degrees.
-     * <p>
-     * This ensures that any input angle, regardless of its magnitude or sign,
-     * is converted to an equivalent angle within the standard range for heading
-     * calculations. This is important for consistent angle comparisons and
-     * control logic, as angles outside this range can cause discontinuities
-     * or incorrect behavior in robot movement and rotation algorithms.
-     * </p>
-     *
-     * @param angle The angle in degrees to normalize.
-     * @return The normalized angle in the range [-180, 180).
-     */
-    public static double normalizeAngle(double angle) {
-        // O(n) time complexity. Add this back in if my angle normalization is not working. -NP
-        /* while (angle > 180) angle -= 360;
-        while (angle < -180) angle += 360; */
-
-        // O(1) time complexity. This should be a more efficient way to normalize angles.
-        angle = ((angle + 180) % 360 + 360) % 360 - 180;
-        return angle;
     }
     //endregion
 }

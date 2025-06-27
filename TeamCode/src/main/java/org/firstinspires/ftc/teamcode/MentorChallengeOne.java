@@ -122,7 +122,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         pos = robot.getImu().getPosition();
         X1 = pos.x;
         Y1 = pos.y;
-        H1 = Math.toRadians(Robot.normalizeAngle(pos.h));
+        H1 = Math.toRadians(Utils.normalizeAngle(pos.h));
 
         robot.rotateTo(0.8, 45);
         robot.strafeRelDist(0.8, 12);
@@ -131,7 +131,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         pos = robot.getImu().getPosition();
         X2 = pos.x;
         Y2 = pos.y;
-        H2 = Math.toRadians(Robot.normalizeAngle(pos.h));
+        H2 = Math.toRadians(Utils.normalizeAngle(pos.h));
 
         telemetry.addData("X1:", X1);
         telemetry.addData("Y1:", Y1);
