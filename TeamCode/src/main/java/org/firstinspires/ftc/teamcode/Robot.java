@@ -123,6 +123,17 @@ public class Robot {
         return this;
     }
 
+    /**
+     * Sets the telemetry object for the robot.
+     * <p>
+     * This allows the robot to send data and status updates to the driver station
+     * or other monitoring interfaces during operation. The method uses the fluent
+     * interface pattern, enabling method chaining by returning the current Robot instance.
+     * </p>
+     *
+     * @param telemetry The Telemetry object to associate with this robot.
+     * @return This Robot instance, for method chaining.
+     */
     public Robot setTelemetry(Telemetry telemetry) {
         this.telemetry = telemetry;
         return this;
