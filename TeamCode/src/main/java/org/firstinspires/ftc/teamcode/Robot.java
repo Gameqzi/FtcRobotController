@@ -439,7 +439,7 @@ public class Robot {
                 SparkFunOTOS.Pose2D currentPos = imu.getPosition();
 
                 double headingError = Utils.normalizeAngle(TH - currentPos.h);
-                double rotPower = headingError * -rotSpeed;
+                double rotPower = headingError * rotSpeed;
 
                 rotate(rotPower); // Use the rotate method to apply the rotation power
             }
