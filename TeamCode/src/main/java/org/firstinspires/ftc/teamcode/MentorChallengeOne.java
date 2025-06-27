@@ -88,6 +88,8 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         TriangulateBasketPos();
 
+        requestOpModeStop();
+
         HomePos();
         Collect("RED");
         ScoreBlock();
@@ -220,6 +222,12 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     public void HomePos() {
         // ToDo: GoTo (2, 2), then: slow strafe right for 3 sec, slow backwards for 3 sec.
+        robot.goTo(0.8, "5", "5", "0");
+        robot.driveBackward(0.2);
+        Utils.sleep(3000);
+        robot.strafeLeft(0.2);
+        Utils.sleep(3000);
+        robot.getImu().resetTracking();
     }
 //endregion
 
