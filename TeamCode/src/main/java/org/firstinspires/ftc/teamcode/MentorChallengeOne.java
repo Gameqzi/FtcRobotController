@@ -80,7 +80,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     //endregion
 
-    //region MainExe
+    //region Main
 
     @Override
     public void mainLoop() {
