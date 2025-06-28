@@ -391,57 +391,64 @@ public class Robot {
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
         double TX, TY, TH;
-        if (Objects.equals(FX, "~")) {TX = startPos.x;} else {TX = Double.parseDouble(FX);}
-        if (Objects.equals(FY, "~")) {TY = startPos.y;} else {TY = Double.parseDouble(FY);}
-        if (Objects.equals(FH, "~")) {TH = startPos.h;} else {TH = Double.parseDouble(FH);}
+        if (Objects.equals(FX, "~")) {
+            TX = startPos.x;
+        } else {
+            TX = Double.parseDouble(FX);
+        }
+        if (Objects.equals(FY, "~")) {
+            TY = startPos.y;
+        } else {
+            TY = Double.parseDouble(FY);
+        }
+        if (Objects.equals(FH, "~")) {
+            TH = startPos.h;
+        } else {
+            TH = Double.parseDouble(FH);
+        }
 
         // ToDo NOTICE: This while loop is still here because I want to later change this function.
         //while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold || Math.abs(Utils.normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
 
-            while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold) {
-                SparkFunOTOS.Pose2D currentPos = imu.getPosition();
+        while (Math.hypot(imu.getPosition().x - TX, imu.getPosition().y - TY) > distThreshold) {
+            SparkFunOTOS.Pose2D currentPos = imu.getPosition();
 
-                double dx = TX - currentPos.x;
-                double dy = TY - currentPos.y;
+            double dx = TX - currentPos.x;
+            double dy = TY - currentPos.y;
 
-                double toTargetAngle = Math.atan2(dy, dx);
+            double toTargetAngle = Math.atan2(dy, dx);
 
-                double toTargetDist = Math.hypot(dx, dy);
-                double motorPower = Math.max(minSpeed, Math.min(power, toTargetDist * maxSpeed));
+            double toTargetDist = Math.hypot(dx, dy);
+            double motorPower = Math.max(minSpeed, Math.min(power, toTargetDist * maxSpeed));
 
-                double xSpeed = Math.cos(toTargetAngle) * motorPower;
-                double ySpeed = Math.sin(toTargetAngle) * motorPower;
+            double xSpeed = Math.cos(toTargetAngle) * motorPower;
+            double ySpeed = Math.sin(toTargetAngle) * motorPower;
 
-                double HR = Math.toRadians(currentPos.h);
-                double xPower = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
-                double yPower = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
+            double HR = Math.toRadians(currentPos.h);
+            double xPower = xSpeed * Math.cos(-HR) - ySpeed * Math.sin(-HR);
+            double yPower = xSpeed * Math.sin(-HR) + ySpeed * Math.cos(-HR);
 
-                double frontLeftPower  = yPower + xPower;
-                double frontRightPower = yPower - xPower;
-                double backLeftPower   = yPower - xPower;
-                double backRightPower  = yPower + xPower;
+            double frontLeftPower = yPower + xPower;
+            double frontRightPower = yPower - xPower;
+            double backLeftPower = yPower - xPower;
+            double backRightPower = yPower + xPower;
 
-                double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
-                if (maxPower > 1.0) {frontLeftPower /= maxPower; frontRightPower /= maxPower; backLeftPower /= maxPower; backRightPower /= maxPower;}
-
-                frontLeftMotor.setPower(-frontLeftPower);
-                frontRightMotor.setPower(frontRightPower);
-                backLeftMotor.setPower(-backLeftPower);
-                backRightMotor.setPower(backRightPower);
+            double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+            if (maxPower > 1.0) {
+                frontLeftPower /= maxPower;
+                frontRightPower /= maxPower;
+                backLeftPower /= maxPower;
+                backRightPower /= maxPower;
             }
-            stopMotors();
 
-            while (Math.abs(Utils.normalizeAngle(TH - imu.getPosition().h)) > angleThreshold) {
-                SparkFunOTOS.Pose2D currentPos = imu.getPosition();
+            frontLeftMotor.setPower(-frontLeftPower);
+            frontRightMotor.setPower(frontRightPower);
+            backLeftMotor.setPower(-backLeftPower);
+            backRightMotor.setPower(backRightPower);
+        }
+        stopMotors();
 
-                double headingError = Utils.normalizeAngle(TH - currentPos.h);
-                double rotPower = headingError * rotSpeed;
-
-                if(rotPower > 1.0) {rotPower = 1.0;} // Cap the rotation power to 1.0
-                else if(rotPower < -1.0) {rotPower = -1.0;} // Cap the rotation power to -1.0
-
-                rotate(-rotPower); // Use the rotate method to apply the rotation power
-            }
+        rotateTo(rotSpeed, TH);
         //}
         stopMotors();
     }
