@@ -352,7 +352,7 @@ public class Robot {
 
         // Continue rotating while the error is outside the threshold
         while (Math.abs(angleError) > ANGLE_THRESHOLD) {
-            double direction = -Math.signum(angleError); // +1 for CCW, -1 for CW
+            double direction = Math.signum(angleError); // +1 for CCW, -1 for CW
             // Set all motors to rotate in the same direction
             frontLeftMotor.setPower(power * direction);
             frontRightMotor.setPower(power * direction);
