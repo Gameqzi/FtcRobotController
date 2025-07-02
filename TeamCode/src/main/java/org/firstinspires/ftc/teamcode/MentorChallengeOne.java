@@ -117,8 +117,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
 //region Exe Functions
     public void TriangulateBasketPos() {
-        robot.goTo(0.2, "12", "12", "45");
-        robot.strafeRelDist(0.2, -6);
+        robot.goTo(0.2, "12", "12", "0");
 
         SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
 
@@ -126,7 +125,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         pos = robot.getImu().getPosition();
         X1 = pos.x;
         Y1 = pos.y;
-        H1 = Math.toRadians(Utils.normalizeAngle(pos.h));
+        H1 = pos.h;
 
         robot.strafeRelDist(0.2, 12);
 
@@ -134,7 +133,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         pos = robot.getImu().getPosition();
         X2 = pos.x;
         Y2 = pos.y;
-        H2 = Math.toRadians(Utils.normalizeAngle(pos.h));
+        H2 = pos.h;
 
         telemetry.addData("X1:", X1);
         telemetry.addData("Y1:", Y1);
@@ -176,7 +175,7 @@ public class MentorChallengeOne extends ThreadOpMode {
             robot.rotateRight(0.2);
         }
         robot.stopMotors();
-
+        requestOpModeStop();
         double targetError = 10;
 
         while (targetError > 5) {
