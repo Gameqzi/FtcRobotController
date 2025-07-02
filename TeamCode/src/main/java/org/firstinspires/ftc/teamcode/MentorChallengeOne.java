@@ -164,6 +164,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     public void CenterTag(int tagID) {
         AprilTagDetection target = null;
+        int test = 1;
 
         while (target == null) {
             for (AprilTagDetection det : tagProcessor.getDetections()) {
@@ -173,6 +174,9 @@ public class MentorChallengeOne extends ThreadOpMode {
                 }
             }
             robot.rotateRight(0.2);
+            test += 1;
+            telemetry.addData("Num", test);
+            telemetry.update();
         }
         robot.stopMotors();
         requestOpModeStop();
