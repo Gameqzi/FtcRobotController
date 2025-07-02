@@ -35,7 +35,7 @@ public class MentorChallengeOne extends ThreadOpMode {
     int basketRange = 5; // Inches
     double X1, Y1, H1;
     double X2, Y2, H2;
-    double XT, YT;
+    double TX, TY;
 
     //endregion
 
@@ -154,13 +154,13 @@ public class MentorChallengeOne extends ThreadOpMode {
         double A = 180 - (H1 + H2);
         double a = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2));
 
-        double TY = ((a) / Math.tan(A)) * Math.cos(A);
-        double TX = TY * Math.tan(A);
+        TY = ((a) / Math.tan(A)) * Math.cos(A);
+        TX = TY * Math.tan(A);
 
         telemetry.addLine();
         telemetry.addLine("Done Mathing!");
-        telemetry.addData("XT", XT);
-        telemetry.addData("YT", YT);
+        telemetry.addData("XT", TX);
+        telemetry.addData("YT", TY);
     }
 
 
