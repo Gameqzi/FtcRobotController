@@ -151,8 +151,11 @@ public class MentorChallengeOne extends ThreadOpMode {
         telemetry.addLine(" !Be Aware: Could divide by 0 or <1e-6, very unlikely though!"); // POTENTIAL CATASTROPHIC ERROR: DIVIDE BY 0 OR <1e-6!!! IDK: How to fix/If even issue
         telemetry.update();
 
-        XT = (Y2 - Y1 + (Math.tan(H1) * X1) - (Math.tan(H2) * X2)) / (Math.tan(H1) - Math.tan(H2));
-        YT = Math.tan(H1) * (XT - X1) + Y1;
+        double A = 180 - (H1 + H2);
+        double a = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2));
+
+        double TY = ((a) / Math.tan(A)) * Math.cos(A);
+        double TX = TY * Math.tan(A);
 
         telemetry.addLine();
         telemetry.addLine("Done Mathing!");
