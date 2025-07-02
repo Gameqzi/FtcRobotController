@@ -173,7 +173,7 @@ public class MentorChallengeOne extends ThreadOpMode {
                     break;
                 }
             }
-            robot.rotateTo(0.2, robot.getImu().getPosition().h + 15);
+            robot.rotateRight(0.2);
         }
         robot.stopMotors();
 
