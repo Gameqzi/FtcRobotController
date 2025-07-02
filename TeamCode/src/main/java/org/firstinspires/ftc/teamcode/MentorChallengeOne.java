@@ -35,7 +35,7 @@ public class MentorChallengeOne extends ThreadOpMode {
     int basketRange = 5; // Inches
     double X1, Y1, H1;
     double X2, Y2, H2;
-    double TX, TY;
+    double XT, YT;
 
     //endregion
 
@@ -128,7 +128,6 @@ public class MentorChallengeOne extends ThreadOpMode {
         Y1 = pos.y;
         H1 = Math.toRadians(Utils.normalizeAngle(pos.h));
 
-        robot.rotateTo(0.2, 45);
         robot.strafeRelDist(0.2, 12);
 
         CenterTag(17);
@@ -154,40 +153,39 @@ public class MentorChallengeOne extends ThreadOpMode {
         double A = 180 - (H1 + H2);
         double a = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2));
 
-        TY = ((a) / Math.tan(A)) * Math.cos(A);
-        TX = TY * Math.tan(A);
+        double TY = ((a) / Math.tan(A)) * Math.cos(A);
+        double TX = TY * Math.tan(A);
 
         telemetry.addLine();
         telemetry.addLine("Done Mathing!");
-        telemetry.addData("XT", TX);
-        telemetry.addData("YT", TY);
+        telemetry.addData("XT", XT);
+        telemetry.addData("YT", YT);
     }
 
 
     public void CenterTag(int tagID) {
+        AprilTagDetection target = null;
+
+        while (target == null) {
+            for (AprilTagDetection det : tagProcessor.getDetections()) {
+                if (det.id == tagID) {
+                    target = det;
+                    break;
+                }
+            }
+            robot.rotateTo(0.2, robot.getImu().getPosition().h + 15);
+        }
+        robot.stopMotors();
+
         double targetError = 10;
 
         while (targetError > 5) {
-            AprilTagDetection target = null;
-
-            while (target == null) {
-                for (AprilTagDetection det : tagProcessor.getDetections()) {
-                    if (det.id == tagID) {
-                        target = det;
-                        break;
-                    }
-                }
-                robot.rotateTo(0.5, robot.getImu().getPosition().h + 15);
-            }
-
-            robot.stopMotors();
-
             targetError = target.center.x - (camWidthPX / 2.0);
             if (targetError > 0) {
-                robot.rotateRight(0.5);
+                robot.rotateRight(0.2);
             }
             if (targetError < 0) {
-                robot.rotateLeft(0.5);
+                robot.rotateLeft(0.2);
             }
         }
         robot.stopMotors();
