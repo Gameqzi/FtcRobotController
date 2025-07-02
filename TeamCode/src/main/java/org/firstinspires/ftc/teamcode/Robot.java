@@ -345,7 +345,7 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double ANGLE_THRESHOLD = 20; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 2.0; // Acceptable error in degrees
 
         // Calculate initial angle error
         double angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
@@ -386,7 +386,7 @@ public class Robot {
         final double minSpeed = 0.15;           // Minimum speed the robot can drive at
         final double maxSpeed = 0.50;           // Maximum speed the robot can drive at
 
-        final double rotSpeed = 0.01;           // Proportional gain for rotation
+        final double rotSpeed = 0.1;           // Proportional gain for rotation
 
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
@@ -448,7 +448,7 @@ public class Robot {
         }
         stopMotors();
 
-        rotateTo(rotSpeed, TH);
+        rotateTo(rotSpeed, -TH);
         //}
         stopMotors();
     }
