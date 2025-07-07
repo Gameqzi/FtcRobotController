@@ -5,6 +5,9 @@ import static org.firstinspires.ftc.teamcode.Utils.sleep;
 import android.annotation.SuppressLint;
 import android.util.Size;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,8 +21,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.List;
-
+@Config
 @TeleOp
 public class NewMentorChallenge extends ThreadOpMode {
 
@@ -72,6 +74,8 @@ public class NewMentorChallenge extends ThreadOpMode {
                 .setImu(sparkFun);
 
         configureOtos();
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
@@ -85,56 +89,67 @@ public class NewMentorChallenge extends ThreadOpMode {
 
 
     private void CenterTag(int tagID) {
+        // compute the midpoint of the camera frame
+        final double centerX = CamW;
         AprilTagDetection target = null;
-        List<AprilTagDetection> detections = tagProcessor.getDetections();
 
         // 1) Spin until we see the tag at all
-        FindTag:
         while (target == null) {
             for (AprilTagDetection det : tagProcessor.getDetections()) {
                 if (det.id == tagID) {
                     target = det;
-                    telemetry.addData("Det", det);
-                    telemetry.addData("target", target);
+                    telemetry.addData("Tag Found", det.id);
+                    telemetry.addData("Center X", det.center.x);
                     telemetry.update();
-                    break FindTag;
-                    /*double targetError;
-                    targetError = target.center.x - CamW;
-                    telemetry.addData("FOUND", null);
-                    telemetry.addData("TargetError", targetError);
-                    telemetry.addData("Target Center X", target.center.x);
-                    telemetry.update();*/
+                    break;
                 }
             }
-
-            robot.rotateRight(0.2);
-            sleep(50);
+            if (target == null) {
+                robot.rotateRight(0.2);
+                sleep(50);
+            }
         }
+        // stop spinning as soon as we’ve locked onto the tag
+        robot.stopMotors();
 
-        while (target != null) {
-            for (AprilTagDetection det : tagProcessor.getDetections()) {
-                double targetError;
-                if (det.id == tagID) {
-                    if (target != null) {
-                        do {
-                            // fetch fresh detections each pass
-                            targetError = target.center.x - CamW;
-
-                            telemetry.addData("TargetError", targetError);
-                            telemetry.update();
-
-                            if (targetError > 5) {
-                                robot.rotateLeft(0.2);
-                            } else if (targetError < -5) {
-                                robot.rotateRight(0.2);
-                            }
-                            sleep(50);
-                        } while (Math.abs(targetError) > 5);
+        // 2) Center on the tag
+        if (target != null) {
+            double targetError;
+            do {
+                // re-fetch detections each pass
+                target = null;
+                for (AprilTagDetection det : tagProcessor.getDetections()) {
+                    if (det.id == tagID) {
+                        target = det;
+                        break;
                     }
                 }
-            }
+                if (target == null) {
+                    // lost sight of the tag — bail out
+                    break;
+                }
+
+                // compute error relative to midpoint
+                targetError = target.center.x - centerX;
+                telemetry.addData("TargetError", targetError);
+                telemetry.update();
+
+                if (targetError > 5) {
+                    robot.rotateRight(0.2);
+                } else if (targetError < -5) {
+                    robot.rotateLeft(0.2);
+                }
+                sleep(50);
+            } while (Math.abs(targetError) > 5);
+
+            // finally, stop any motion
+            robot.stopMotors();
+
+
+            //requestOpModeStop();
         }
     }
+
 
 
     @SuppressLint("DefaultLocale")
