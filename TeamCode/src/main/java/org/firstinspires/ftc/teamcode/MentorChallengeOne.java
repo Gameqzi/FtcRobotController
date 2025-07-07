@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Utils.sleep;
+
 import android.annotation.SuppressLint;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -16,6 +18,8 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.List;
+
 @Config
 @TeleOp
 public class MentorChallengeOne extends ThreadOpMode {
@@ -23,8 +27,8 @@ public class MentorChallengeOne extends ThreadOpMode {
     //region GLOBAL VARIABLES
 
     // WebCam Globals:
-    private static final double camWidthPX = 640;
-    private static final double camHeightPX = 480;
+    private static final double camWidthPX = 960;
+    private static final double camHeightPX = 540;
     private VisionPortal visionPortal;
     private AprilTagProcessor tagProcessor;
 
@@ -88,7 +92,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         TriangulateBasketPos();
 
-        Utils.sleep(Long.MAX_VALUE);
+        sleep(Long.MAX_VALUE);
 
         requestOpModeStop();
 
@@ -164,8 +168,9 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     public void CenterTag(int tagID) {
         AprilTagDetection target = null;
-        int test = 1;
+        List<AprilTagDetection> detections = tagProcessor.getDetections();
 
+        // 1) Spin until we see the tag at all
         while (target == null) {
             for (AprilTagDetection det : tagProcessor.getDetections()) {
                 if (det.id == tagID) {
@@ -173,27 +178,42 @@ public class MentorChallengeOne extends ThreadOpMode {
                     break;
                 }
             }
-            robot.rotateRight(0.2);
-            test += 1;
-            telemetry.addData("Num", test);
-            telemetry.update();
-        }
-        robot.stopMotors();
-        requestOpModeStop();
-        double targetError = 10;
-
-        while (targetError > 5) {
-            targetError = target.center.x - (camWidthPX / 2.0);
-            if (targetError > 0) {
+            if (target == null) {
                 robot.rotateRight(0.2);
-            }
-            if (targetError < 0) {
-                robot.rotateLeft(0.2);
+                sleep(50);
             }
         }
+
+        while (target != null) {
+            for (AprilTagDetection det : tagProcessor.getDetections()) {
+                double targetError;
+                if (det.id == tagID) {
+                    if (target != null) {
+                        do {
+                            // fetch fresh detections each pass
+                            targetError = target.center.x - (camWidthPX / 2.0);
+
+                            telemetry.addData("TargetError", targetError);
+                            telemetry.update();
+
+                            if (targetError > 5) {
+                                robot.rotateRight(0.2);
+                            } else if (targetError < -5) {
+                                robot.rotateLeft(0.2);
+                            }
+                            sleep(50);
+                        } while (Math.abs(targetError) > 5);
+                    }
+                }
+            }
+        }
+
+        robot.stopMotors();
+
+        // 2) Now keep turning *and* updating the detection until centered
+
         robot.stopMotors();
     }
-
 
     public void Collect(String Color) {
 
@@ -230,9 +250,9 @@ public class MentorChallengeOne extends ThreadOpMode {
         // ToDo: GoTo (2, 2), then: slow strafe right for 3 sec, slow backwards for 3 sec.
         robot.goTo(0.8, "5", "5", "0");
         robot.driveBackward(0.2);
-        Utils.sleep(3000);
+        sleep(3000);
         robot.strafeLeft(0.2);
-        Utils.sleep(3000);
+        sleep(3000);
         robot.getImu().resetTracking();
     }
 //endregion
