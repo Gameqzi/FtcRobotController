@@ -24,9 +24,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @Config
 @TeleOp
 public class NewMentorChallenge extends ThreadOpMode {
-
-    private static final double camWidthPX = 960;
-    private static final double camHeightPX = 540;
     private VisionPortal visionPortal;
     private AprilTagProcessor tagProcessor;
 
@@ -89,8 +86,6 @@ public class NewMentorChallenge extends ThreadOpMode {
 
 
     private void CenterTag(int tagID) {
-        // compute the midpoint of the camera frame
-        final double centerX = CamW;
         AprilTagDetection target = null;
 
         // 1) Spin until we see the tag at all
@@ -126,12 +121,16 @@ public class NewMentorChallenge extends ThreadOpMode {
                 }
                 if (target == null) {
                     // lost sight of the tag — bail out
+                    sleep(500);
+                    telemetry.addData("doesn't see", target);
+                    telemetry.update();
                     break;
                 }
 
                 // compute error relative to midpoint
-                targetError = target.center.x - centerX;
+                targetError = target.center.x - CamW;
                 telemetry.addData("TargetError", targetError);
+                telemetry.addData("Center X", target.center.x);
                 telemetry.update();
 
                 if (targetError > 5) {
@@ -145,8 +144,7 @@ public class NewMentorChallenge extends ThreadOpMode {
             // finally, stop any motion
             robot.stopMotors();
 
-
-            //requestOpModeStop();
+            requestOpModeStop();
         }
     }
 
