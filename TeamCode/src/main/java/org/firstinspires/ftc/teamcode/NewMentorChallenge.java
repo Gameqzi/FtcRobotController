@@ -87,6 +87,9 @@ public class NewMentorChallenge extends ThreadOpMode {
         SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
 
         CenterTag(17);
+        sleep(50);
+        requestOpModeStop();
+        sleep(2000);
     }
 
 
@@ -114,47 +117,46 @@ public class NewMentorChallenge extends ThreadOpMode {
         // stop spinning as soon as we’ve locked onto the tag
         robot.stopMotors();
 
+
+
         // 2) Center on the tag
         if (target != null) {
             double targetError;
             targetError = target.center.x - centerX;
-            while (Math.abs(targetError) > 5) {
-                // re-fetch detections each pass
-                target = null;
-                for (AprilTagDetection det : tagProcessor.getDetections()) {
-                    if (det.id == tagID) {
-                        target = det;
+
+            while (Math.abs(targetError) > 10) {
+                while (Math.abs(targetError) > 10) {
+                    // re-fetch detections each pass
+                    target = null;
+                    for (AprilTagDetection det : tagProcessor.getDetections()) {
+                        if (det.id == tagID) {
+                            target = det;
+                            break;
+                        }
+                    }
+                    if (target == null) {
                         break;
                     }
-                }
-                if (target == null) {
-                    // lost sight of the tag — bail out
-                    break;
-                }
 
-                // compute error relative to midpoint
-                targetError = target.center.x - centerX;
-                telemetry.addData("TargetError", targetError);
-                telemetry.update();
+                    // compute error relative to midpoint
+                    targetError = target.center.x - centerX;
+                    telemetry.addData("TargetError", targetError);
+                    telemetry.update();
 
-                if (targetError > 5) {
-                    robot.rotateRight(0.2);
-                } else if (targetError < -5) {
-                    robot.rotateLeft(0.2);
+                    if (targetError > 10) {
+                        robot.rotateRight(Math.max(Math.abs(targetError) / 1500, 0.05));
+                    } else if (targetError < -10) {
+                        robot.rotateLeft(Math.max(Math.abs(targetError) / 1500, 0.05));
+                    }
+
+                    sleep(25);
                 }
 
-                sleep(50);
+                // finally, stop any motion
+                robot.stopMotors();
             }
-
-            // finally, stop any motion
-            robot.stopMotors();
-
-
-            //requestOpModeStop();
         }
     }
-
-
 
     @SuppressLint("DefaultLocale")
     private void configureOtos() {
