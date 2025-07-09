@@ -24,6 +24,11 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @Config
 @TeleOp
 public class NewMentorChallenge extends ThreadOpMode {
+
+    DcMotorEx frontLeft, frontRight, backLeft, backRight;
+
+    private static final double camWidthPX = 960;
+    private static final double camHeightPX = 540;
     private VisionPortal visionPortal;
     private AprilTagProcessor tagProcessor;
 
@@ -46,10 +51,10 @@ public class NewMentorChallenge extends ThreadOpMode {
 
 
         // Changed these to locals instead of class variables. -NP
-        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFunOTOS sparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -86,6 +91,8 @@ public class NewMentorChallenge extends ThreadOpMode {
 
 
     private void CenterTag(int tagID) {
+        // compute the midpoint of the camera frame
+        final double centerX = CamW;
         AprilTagDetection target = null;
 
         // 1) Spin until we see the tag at all
@@ -100,7 +107,7 @@ public class NewMentorChallenge extends ThreadOpMode {
                 }
             }
             if (target == null) {
-                robot.rotateRight(0.2);
+                robot.rotateRight(0.1);
                 sleep(50);
             }
         }
@@ -110,7 +117,8 @@ public class NewMentorChallenge extends ThreadOpMode {
         // 2) Center on the tag
         if (target != null) {
             double targetError;
-            do {
+            targetError = target.center.x - centerX;
+            while (Math.abs(targetError) > 5) {
                 // re-fetch detections each pass
                 target = null;
                 for (AprilTagDetection det : tagProcessor.getDetections()) {
@@ -121,16 +129,12 @@ public class NewMentorChallenge extends ThreadOpMode {
                 }
                 if (target == null) {
                     // lost sight of the tag — bail out
-                    sleep(500);
-                    telemetry.addData("doesn't see", target);
-                    telemetry.update();
                     break;
                 }
 
                 // compute error relative to midpoint
-                targetError = target.center.x - CamW;
+                targetError = target.center.x - centerX;
                 telemetry.addData("TargetError", targetError);
-                telemetry.addData("Center X", target.center.x);
                 telemetry.update();
 
                 if (targetError > 5) {
@@ -138,13 +142,15 @@ public class NewMentorChallenge extends ThreadOpMode {
                 } else if (targetError < -5) {
                     robot.rotateLeft(0.2);
                 }
+
                 sleep(50);
-            } while (Math.abs(targetError) > 5);
+            }
 
             // finally, stop any motion
             robot.stopMotors();
 
-            requestOpModeStop();
+
+            //requestOpModeStop();
         }
     }
 
