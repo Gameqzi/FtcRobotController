@@ -188,7 +188,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         double s = (DX * dy1 - DY * dx1) / det; // Not technically required
 
         // Find the intersection of the 2 rays (A & B)
-        if (det < 1e-10) {throw new RuntimeException("ERROR: RAYS ARE PARALLEL!");} // Stop invalid intersections
+        if (det < 1e-10) {throw new RuntimeException("ERROR: INVALID INTERSECTION");} // Stop invalid intersections
 
         TX = X1 + t * dx1;
         TY = Y1 + t * dy1;
