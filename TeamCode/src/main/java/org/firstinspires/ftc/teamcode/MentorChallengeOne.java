@@ -136,15 +136,15 @@ public class MentorChallengeOne extends ThreadOpMode {
         pos = robot.getImu().getPosition();
         X1 = pos.x;
         Y1 = pos.y;
-        H1 = pos.h;
-
+        H1 = -pos.h;
+        
         robot.strafeRelDist(0.2, 12);
 
         CenterTag(17);
         pos = robot.getImu().getPosition();
         X2 = pos.x;
         Y2 = pos.y;
-        H2 = pos.h;
+        H2 = -pos.h;
 
         telemetry.addData("X1:", X1);
         telemetry.addData("Y1:", Y1);
@@ -171,11 +171,10 @@ public class MentorChallengeOne extends ThreadOpMode {
         // NEW, POTENTIALLY VALID, MATH:
 
         // Convert: Heading (DEG) --> Dir Vec (RAD)
-        double dx1 = Math.cos(Math.toRadians(90 - H1));
-        double dy1 = Math.sin(Math.toRadians(90 - H1));
-        double dx2 = Math.cos(Math.toRadians(90 - H2));
-        double dy2 = Math.sin(Math.toRadians(90 - H2));
-
+        double dx1 = Math.cos(Math.toRadians(90 - (H1 - 5)));
+        double dy1 = Math.sin(Math.toRadians(90 - (H1 - 5)));
+        double dx2 = Math.cos(Math.toRadians(90 - (H2 - 5 )));
+        double dy2 = Math.sin(Math.toRadians(90 - (H2 - 5)));
         // Find the vector from point A (X1, Y1) to point B (X2, Y2)
         double DX = X2 - X1;
         double DY = Y2 - Y1;
