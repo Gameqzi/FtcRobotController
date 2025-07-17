@@ -163,7 +163,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         /* OLD, POTENTIALLY INVALID, MATH
         double A = 180 - (H1 + H2);
-        double a = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2));
+        double a = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2)); we might need this line
 
         TY = ((a) / Math.tan(A)) * Math.cos(A);
         TX = TY * Math.tan(A);
