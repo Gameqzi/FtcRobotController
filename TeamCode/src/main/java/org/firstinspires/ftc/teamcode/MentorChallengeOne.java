@@ -35,7 +35,8 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     // Trig [Triangulation] Globals:
     // TODO: Can this be marked final? Could help with compilation folding. :) (https://ondrej-kvasnovsky.medium.com/constant-folding-in-the-jvm-08437d879a45) -NP
-    int basketRange = 5; // Inches
+    double basketRange = 5; // Inches
+    double hCorrection = 0; // Degrees
     double X1, Y1, H1;
     double X2, Y2, H2;
     double TX, TY;
@@ -171,10 +172,10 @@ public class MentorChallengeOne extends ThreadOpMode {
         // NEW, POTENTIALLY VALID, MATH:
 
         // Convert: Heading (DEG) --> Dir Vec (RAD)
-        double dx1 = Math.cos(Math.toRadians(90 - (H1 - 5)));
-        double dy1 = Math.sin(Math.toRadians(90 - (H1 - 5)));
-        double dx2 = Math.cos(Math.toRadians(90 - (H2 - 5 )));
-        double dy2 = Math.sin(Math.toRadians(90 - (H2 - 5)));
+        double dx1 = Math.cos(Math.toRadians(90 - (H1 + hCorrection)));
+        double dy1 = Math.sin(Math.toRadians(90 - (H1 + hCorrection)));
+        double dx2 = Math.cos(Math.toRadians(90 - (H2 + hCorrection)));
+        double dy2 = Math.sin(Math.toRadians(90 - (H2 + hCorrection)));
         // Find the vector from point A (X1, Y1) to point B (X2, Y2)
         double DX = X2 - X1;
         double DY = Y2 - Y1;
