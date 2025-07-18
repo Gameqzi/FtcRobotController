@@ -31,6 +31,8 @@ public class MentorChallengeOne extends ThreadOpMode {
     private VisionPortal visionPortal;
     private AprilTagProcessor tagProcessor;
 
+    public static double P = 10, I = 3, D = 0, F = 8;
+
     private Robot robot;
 
     // Trig [Triangulation] Globals:
@@ -81,6 +83,11 @@ public class MentorChallengeOne extends ThreadOpMode {
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        frontRight.setVelocityPIDFCoefficients(P, I, D, F);
+        backRight.setVelocityPIDFCoefficients(P, I, D, F);
+        frontLeft.setVelocityPIDFCoefficients(P, I, D, F);
+        backLeft.setVelocityPIDFCoefficients(P, I, D, F);
+
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
@@ -129,22 +136,22 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     //region Exe Functions
     public void TriangulateBasketPos() {
-        robot.goTo(0.2, "12", "12", "0");
+        robot.goTo(0.2, "18", "18", "0");
 
         SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
 
         CenterTag(17);
         pos = robot.getImu().getPosition();
-        X1 = pos.x;
-        Y1 = pos.y;
+        X1 = pos.x - 2.5;
+        Y1 = pos.y + 2.125;
         H1 = -pos.h;
 
-        robot.strafeRelDist(0.2, 12);
+        robot.strafeRelDist(0.2, 18);
 
         CenterTag(17);
         pos = robot.getImu().getPosition();
-        X2 = pos.x;
-        Y2 = pos.y;
+        X2 = pos.x - 2.5;
+        Y2 = pos.y + 2.125;
         H2 = -pos.h;
 
         telemetry.addData("X1:", X1);
@@ -231,13 +238,14 @@ public class MentorChallengeOne extends ThreadOpMode {
             double targetError;
             targetError = target.center.x - centerX;
 
-            while (Math.abs(targetError) > 10) {
-                while (Math.abs(targetError) > 10) {
+            while (Math.abs(targetError) > 3) {
+                while (Math.abs(targetError) > 3) {
                     // re-fetch detections each pass
                     target = null;
                     for (AprilTagDetection det : tagProcessor.getDetections()) {
                         if (det.id == tagID) {
                             target = det;
+                            telemetry.addData("Center X", det.center.x);
                             break;
                         }
                     }
@@ -250,9 +258,9 @@ public class MentorChallengeOne extends ThreadOpMode {
                     telemetry.addData("TargetError", targetError);
                     telemetry.update();
 
-                    if (targetError > 10) {
+                    if (targetError > 3) {
                         robot.rotateRight(Math.max(Math.abs(targetError) / 1500, 0.05));
-                    } else if (targetError < -10) {
+                    } else if (targetError < -3) {
                         robot.rotateLeft(Math.max(Math.abs(targetError) / 1500, 0.05));
                     }
 
