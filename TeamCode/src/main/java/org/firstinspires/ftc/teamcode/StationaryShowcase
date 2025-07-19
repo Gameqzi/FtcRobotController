@@ -1,0 +1,325 @@
+package org.firstinspires.ftc.teamcode;
+
+import static org.firstinspires.ftc.teamcode.Utils.sleep;
+
+import android.annotation.SuppressLint;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
+
+@Config
+@TeleOp
+public class StationaryShowcase extends ThreadOpMode {
+
+    //region GLOBAL VARIABLES
+
+    // Hardware Variables:
+    private Robot robot;
+    private ColorSensor colorSensor;
+    private CRServo IntakeServo1, IntakeServo2; private Servo CamServoPan, CamServoTilt;
+    DcMotorEx Lift;
+
+    // Global Variables:
+
+    // Tunables:
+    public static final double LP = 10, LI = 3, LD = 0, LF = 8; // Lift PIDF Values | ToDo: Maybe Tune These?
+    public static final double panMin = 0.37, panMax = 0.63, tiltMin = 0.35, tiltMax = 0.47; // Camera Servo Limits | ToDo: Maybe Tune These?
+    public static final int colorThreshold = 20; // ToDo: Tune This!
+
+    // Others:
+    boolean WiggleDir = false; // True for In, False for Out
+
+    /** @noinspection BooleanMethodIsAlwaysInverted*/
+    public boolean isStopRequested() {return Thread.currentThread().isInterrupted();}
+
+    // Global Enums:
+    public enum IntakeAction {COLLECT, REJECT, SCORE, STOP}
+
+    //endregion
+
+    //region MainInit
+
+    @Override
+    public void mainInit() { // TODO: DO NOT ADD MultipleTelemetry(FtcDashboard), the telemetry is setup for the DRIVER HUB, NOT FTC DASHBOARD!
+
+        // Fix POTENTIAL telemetry flooding lag
+        telemetry.setMsTransmissionInterval(250);  // Send at most 4x/second
+
+        telemetry.clearAll();
+        addTelemetryLine("Setup ~1% Complete: Int Hardware Map...");
+
+        // [SETUP] Hardware Map
+        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
+        SparkFunOTOS sparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        colorSensor = hardwareMap.colorSensor.get("ColorSensor");
+        IntakeServo1 = hardwareMap.get(CRServo.class, "IntakeServo1");
+        IntakeServo2 = hardwareMap.get(CRServo.class, "IntakeServo2");
+        CamServoPan = hardwareMap.get(Servo.class, "CamServoPan");
+        CamServoTilt = hardwareMap.get(Servo.class, "CamServoTilt");
+        Lift = hardwareMap.get(DcMotorEx.class, "lift");
+
+        addTelemetryLine("Setup ~16% Complete: Motor Config... (1/2)");
+
+        // [SETUP] Motor Config.
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        Lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
+        addTelemetryLine("Setup ~50% Complete: Motor Config... (2/2)");
+
+        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        addTelemetryLine("Setup ~66% Complete: Int Robot.java Link...");
+
+        // [SETUP] Robot.java Link
+        robot = Robot
+                .getInstance(frontLeft, frontRight, backLeft, backRight)
+                .setImu(sparkFun);
+
+        addTelemetryLine("Setup ~83% Complete: IMU Config...");
+
+        // [SETUP] IMU Config.
+        configureOtos();
+
+        addTelemetryLine("Setup ~99% Complete: Setting Robot Defaults...");
+
+        // [SETUP] Defaults
+        robot.stopMotors();
+        cameraGotoPos(0.5, 0.47);
+        liftGotoPos(20);
+
+        addTelemetryLine("Setup 100% Complete, Status: Running Main Loop...");
+
+        sleep(500);
+    }
+
+    //endregion
+
+    //region Main
+
+    @Override
+    public void mainLoop() {
+        telemetry.clearAll();
+
+        while (!isStopRequested()) {
+            addTelemetryLine("Status: Switching Modes...");
+            IdleMode();
+
+            addTelemetryLine("Status: Switching Modes...");
+            ActiveMode();
+
+        }
+
+        addTelemetryLine("Status: Shutting Down...");
+
+        // Safe shutdown
+        cameraGotoPos(0.5, 0.47);
+        liftGotoPos(10);
+        intakeMove(IntakeAction.STOP);
+    }
+
+    //endregion
+
+    //region Exe Functions
+
+    public void IdleMode() {
+        addTelemetryLine("Status: Running Idle Mode...");
+
+        while (!gamepad1.cross && !isStopRequested()) {
+
+            sleepForRand(500, 1000);
+
+            int idleChance = ThreadLocalRandom.current().nextInt(1, 101);
+            addTelemetryData("Current Idle Movement: ", "...");
+
+            if (idleChance <= 50) {
+                // 50% chance - Move Camera
+                addTelemetryData("Current Idle Movement: ", "Move Camera");
+                cameraGotoPos(ThreadLocalRandom.current().nextDouble(panMin, panMax), ThreadLocalRandom.current().nextDouble(tiltMin, tiltMax));
+            } else if (idleChance <= 85) {
+                // 35% chance - Move Lift
+                addTelemetryData("Current Idle Movement: ", "Move Lift");
+                liftGotoPos(ThreadLocalRandom.current().nextInt(10, 1001));
+            } else {
+                // 15% chance - Wiggle Intake
+                addTelemetryData("Current Idle Movement: ", "Wiggle Intake");
+                intakeIdleWiggle();
+            }
+        }
+    }
+
+    public void ActiveMode() {
+        while (!gamepad1.triangle && !isStopRequested()) {
+            addTelemetryLine("Status: Running Active Mode...");
+
+            liftGotoPos(10);
+            boolean correctBlock = false;
+
+            while (!correctBlock && !gamepad1.triangle && !isStopRequested()) {
+                boolean block = false;
+
+                intakeMove(IntakeAction.COLLECT);
+                while (!block && !gamepad1.triangle && !isStopRequested()) {
+                    block = colorSensor.red() > 40 || colorSensor.blue() > 40 || colorSensor.green() > 40; // ToDo: Maybe change to: colorSensor.alpha()?
+                    sleep(10); // Avoid CPU Hogging | ToDo: Is the sleep() required?
+                }
+                intakeMove(IntakeAction.STOP);
+
+                if (colorSensor.red() > colorSensor.blue() + colorThreshold) { // If Red Block, Collect
+                    correctBlock = true;
+                    sleep(1000);
+                }
+                else if (colorSensor.blue() > colorSensor.red() + colorThreshold) { // If Blue Block, Reject
+                    intakeMove(IntakeAction.REJECT);
+                    sleep(1000);
+                }
+                else { // If Unidentifiable, Throw
+                    throw new IllegalStateException("Block [ARGB Val: " + colorSensor.argb() + "] was detected, but it could not be identified!");
+                }
+            }
+
+            liftGotoPos(2850);
+
+            sleep(500);
+            intakeMove(IntakeAction.SCORE);
+
+            sleep(1000);
+            intakeMove(IntakeAction.STOP);
+        }
+    }
+
+    // Less Main Stuffs:
+    public void liftGotoPos(int LiftPos) {
+        if (LiftPos > 2900 || LiftPos < -10) {
+            throw new IllegalStateException("Lift Pos is OUT OF BOUNDS!");
+        }
+
+        Lift.setVelocityPIDFCoefficients(LP, LI, LD, LF);
+        Lift.setTargetPosition(LiftPos);
+        Lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+
+        // Optionally set power (or velocity) once
+        Lift.setVelocity(Math.abs(LiftPos - Lift.getCurrentPosition()) > 0 ? 1500 : 0);
+
+        // Wait until it's done
+        while (Lift.isBusy() && !isStopRequested()) {
+            sleep(10); // Avoid CPU Hogging | ToDo: Is the sleep() required?
+        }
+
+        // Stop the motor
+        Lift.setVelocity(0);
+    }
+
+
+    public void cameraGotoPos(double pan, double tilt) {
+        if (pan < 0.37 || pan > 0.63 || tilt < 0.35 || tilt > 0.47) {
+            throw new IllegalStateException("Camera Pos is OUT OF BOUNDS!");
+        }
+        CamServoPan.setPosition(pan);
+        CamServoTilt.setPosition(tilt);
+    }
+
+    public void intakeMove(IntakeAction action) {
+        switch (action) {
+            case COLLECT:
+                IntakeServo1.setPower(0.25);
+                IntakeServo2.setPower(-0.25);
+                break;
+            case REJECT:
+                IntakeServo1.setPower(-0.5);
+                IntakeServo2.setPower(0.5);
+                break;
+            case SCORE:
+                IntakeServo1.setPower(-1);
+                IntakeServo2.setPower(1);
+                break;
+            case STOP:
+                IntakeServo1.setPower(0);
+                IntakeServo2.setPower(0);
+                break;
+            default:
+                throw new IllegalStateException(action + " is an INVALID intake action!");
+        }
+    }
+
+    public void intakeIdleWiggle() {
+        if (WiggleDir) {
+            intakeMove(IntakeAction.COLLECT);
+            sleep(300);
+            intakeMove(IntakeAction.REJECT);
+            WiggleDir = false;
+        } else {
+            intakeMove(IntakeAction.REJECT);
+            sleep(300);
+            intakeMove(IntakeAction.COLLECT);
+            WiggleDir = true;
+        }
+    }
+
+    public void sleepForRand(long MinMillis, long MaxMillis) {
+        if (MinMillis >= MaxMillis) {
+            throw new IllegalStateException("MIN value is greater than or equal to MAX value!");
+        }
+        long randomTime = ThreadLocalRandom.current().nextLong(MinMillis, MaxMillis + 1);
+        sleep(randomTime);
+    }
+
+    public void addTelemetryLine(String Status) {
+        telemetry.clear();
+        telemetry.addLine(Status);
+        telemetry.update();
+    }
+
+    public void addTelemetryData(String Key, String Status) {
+        telemetry.clear();
+        telemetry.addData(Key, Status);
+        telemetry.update();
+    }
+
+    //endregion
+
+    //region SparkFunOTOS Config
+    @SuppressLint("DefaultLocale")
+    private void configureOtos() {
+        // SparkFun.setLinearUnit(DistanceUnit.METER);
+        robot.getImu().setLinearUnit(DistanceUnit.INCH);
+        // SparkFun.setAngularUnit(AngleUnit.RADIANS);
+        robot.getImu().setAngularUnit(AngleUnit.DEGREES);
+
+        robot.getImu().setLinearScalar(1.0);
+        robot.getImu().setAngularScalar(1.0);
+
+        robot.getImu().calibrateImu();
+
+        robot.getImu().resetTracking();
+
+        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+        robot.getImu().setPosition(currentPosition);
+    }
+    //endregion
+}
