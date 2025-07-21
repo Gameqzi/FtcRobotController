@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -38,11 +40,12 @@ public class StationaryShowcase extends ThreadOpMode {
     public static final double panMin = 0.37, panMax = 0.63, tiltMin = 0.35, tiltMax = 0.47; // Camera Servo Limits | ToDo: Maybe Tune These?
     public static final int colorThreshold = 20; // ToDo: Tune This!
 
+    // Telemetry:
+    private static final int maxTelemetryLines = 10;
+    private final ArrayDeque<TelemetryEntry> telemetryBuffer = new ArrayDeque<>(maxTelemetryLines);
+
     // Others:
     boolean WiggleDir = false; // True for In, False for Out
-
-    /** @noinspection BooleanMethodIsAlwaysInverted*/
-    public boolean isStopRequested() {return Thread.currentThread().isInterrupted();}
 
     // Global Enums:
     public enum IntakeAction {COLLECT, REJECT, SCORE, STOP}
@@ -57,7 +60,10 @@ public class StationaryShowcase extends ThreadOpMode {
         // Fix POTENTIAL telemetry flooding lag
         telemetry.setMsTransmissionInterval(250);  // Send at most 4x/second
 
-        telemetry.clearAll();
+        // Required for the telemetry method used
+        telemetry.setAutoClear(false);
+
+        clearTelemetry();
         addTelemetryLine("Setup ~1% Complete: Int Hardware Map...");
 
         // [SETUP] Hardware Map
@@ -115,7 +121,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Running Main Loop...");
 
-        sleep(500);
+        waitForOpModeStart();
     }
 
     //endregion
@@ -124,23 +130,11 @@ public class StationaryShowcase extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        telemetry.clearAll();
+        addTelemetryLine("Status: Switching Modes...");
+        IdleMode();
 
-        while (!isStopRequested()) {
-            addTelemetryLine("Status: Switching Modes...");
-            IdleMode();
-
-            addTelemetryLine("Status: Switching Modes...");
-            ActiveMode();
-
-        }
-
-        addTelemetryLine("Status: Shutting Down...");
-
-        // Safe shutdown
-        cameraGotoPos(0.5, 0.47);
-        liftGotoPos(10);
-        intakeMove(IntakeAction.STOP);
+        addTelemetryLine("Status: Switching Modes...");
+        ActiveMode();
     }
 
     //endregion
@@ -150,7 +144,7 @@ public class StationaryShowcase extends ThreadOpMode {
     public void IdleMode() {
         addTelemetryLine("Status: Running Idle Mode...");
 
-        while (!gamepad1.cross && !isStopRequested()) {
+        while (!gamepad1.cross) {
 
             sleepForRand(500, 1000);
 
@@ -174,32 +168,37 @@ public class StationaryShowcase extends ThreadOpMode {
     }
 
     public void ActiveMode() {
-        while (!gamepad1.triangle && !isStopRequested()) {
-            addTelemetryLine("Status: Running Active Mode...");
+        addTelemetryLine("Status: Running Active Mode...");
+
+        while (!gamepad1.triangle) {
 
             liftGotoPos(10);
             boolean correctBlock = false;
 
-            while (!correctBlock && !gamepad1.triangle && !isStopRequested()) {
+            while (!correctBlock && !gamepad1.triangle) {
                 boolean block = false;
 
                 intakeMove(IntakeAction.COLLECT);
-                while (!block && !gamepad1.triangle && !isStopRequested()) {
+                while (!block && !gamepad1.triangle) {
                     block = colorSensor.red() > 40 || colorSensor.blue() > 40 || colorSensor.green() > 40; // ToDo: Maybe change to: colorSensor.alpha()?
                     sleep(10); // Avoid CPU Hogging | ToDo: Is the sleep() required?
                 }
                 intakeMove(IntakeAction.STOP);
+                addTelemetryLine("ActiveMode: Block detected, Identifying the color...");
 
                 if (colorSensor.red() > colorSensor.blue() + colorThreshold) { // If Red Block, Collect
                     correctBlock = true;
+                    addTelemetryLine("ActiveMode: Detected color RED -> Scoring...");
                     sleep(1000);
                 }
                 else if (colorSensor.blue() > colorSensor.red() + colorThreshold) { // If Blue Block, Reject
                     intakeMove(IntakeAction.REJECT);
+                    addTelemetryLine("ActiveMode: Detected color BLUE -> Rejecting...");
                     sleep(1000);
                 }
                 else { // If Unidentifiable, Throw
-                    throw new IllegalStateException("Block [ARGB Val: " + colorSensor.argb() + "] was detected, but it could not be identified!");
+                    addTelemetryLine("ActiveMode: <ERROR> Color could not be identified! Throwing error...");
+                    throw new IllegalStateException("Block [ARGB Val: " + colorSensor.argb() + " (0xAARRGGBB)] was detected, but it could not be identified!");
                 }
             }
 
@@ -210,6 +209,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
             sleep(1000);
             intakeMove(IntakeAction.STOP);
+
+            addTelemetryLine("ActiveMode: Block scored & robot reset, rerunning Active Mode loop...");
         }
     }
 
@@ -227,7 +228,7 @@ public class StationaryShowcase extends ThreadOpMode {
         Lift.setVelocity(Math.abs(LiftPos - Lift.getCurrentPosition()) > 0 ? 1500 : 0);
 
         // Wait until it's done
-        while (Lift.isBusy() && !isStopRequested()) {
+        while (Lift.isBusy()) {
             sleep(10); // Avoid CPU Hogging | ToDo: Is the sleep() required?
         }
 
@@ -282,23 +283,83 @@ public class StationaryShowcase extends ThreadOpMode {
     }
 
     public void sleepForRand(long MinMillis, long MaxMillis) {
-        if (MinMillis >= MaxMillis) {
+        if (MinMillis >= MaxMillis || MinMillis < 0) {
             throw new IllegalStateException("MIN value is greater than or equal to MAX value!");
+        }
+        if (MaxMillis >= Long.MAX_VALUE - 3) {
+            throw new IllegalStateException("Why wait so long!?");
         }
         long randomTime = ThreadLocalRandom.current().nextLong(MinMillis, MaxMillis + 1);
         sleep(randomTime);
     }
 
-    public void addTelemetryLine(String Status) {
-        telemetry.clear();
-        telemetry.addLine(Status);
+    //endregion
+
+    // region Telemetry
+
+    private static class TelemetryEntry {
+        final String key;
+        String value;
+        TelemetryEntry(String message) {
+            this.key   = null;
+            this.value = message;
+        }
+        TelemetryEntry(String key, String value) {
+            this.key   = key;
+            this.value = value;
+        }
+        boolean isPlain() { return key == null; }
+    }
+
+    private void clearTelemetry() {
+        telemetry.clearAll();
+    }
+
+    private void updateTelemetry() {
+        clearTelemetry();
+        for (TelemetryEntry e : telemetryBuffer) {
+            if (e.isPlain()) {
+                telemetry.addLine(e.value);
+            } else {
+                telemetry.addData(e.key, e.value);
+            }
+        }
         telemetry.update();
     }
 
-    public void addTelemetryData(String Key, String Status) {
-        telemetry.clear();
-        telemetry.addData(Key, Status);
-        telemetry.update();
+    public void addTelemetryLine(String msg) {
+        if (telemetryBuffer.size() == maxTelemetryLines) {
+            telemetryBuffer.removeFirst();
+        }
+        telemetryBuffer.addLast(new TelemetryEntry(msg));
+        updateTelemetry();
+    }
+
+    public void addTelemetryData(String key, String value) {
+        TelemetryEntry last = telemetryBuffer.peekLast();
+        if (last != null && Objects.equals(last.key, key)) {
+            last.value = value;
+            updateTelemetry();
+            return;
+        }
+        if (telemetryBuffer.size() == maxTelemetryLines) {
+            telemetryBuffer.removeFirst();
+        }
+        telemetryBuffer.addLast(new TelemetryEntry(key, value));
+        updateTelemetry();
+    }
+
+    //endregion
+
+    //region OpModeShutdown
+
+    @Override
+    protected void onOpModeStop() {
+        addTelemetryLine("Status: Shutting Down...");
+        
+        cameraGotoPos(0.5, 0.47);
+        liftGotoPos(10);
+        intakeMove(IntakeAction.STOP);
     }
 
     //endregion
