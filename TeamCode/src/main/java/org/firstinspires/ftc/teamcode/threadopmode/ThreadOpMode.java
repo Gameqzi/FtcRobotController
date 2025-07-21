@@ -11,6 +11,8 @@ import java.util.List;
  */
 public abstract class ThreadOpMode extends OpMode {
     private List<TaskThread> threads = new ArrayList<>();
+    private final Object startLock = new Object();
+    private volatile boolean isOpModeStarted = false;
 
     /**
      * Registers a new {@link TaskThread} to be ran periodically.
@@ -18,9 +20,7 @@ public abstract class ThreadOpMode extends OpMode {
      *
      * @param taskThread A {@link TaskThread} object to be ran periodically.
      */
-    public final void registerThread(TaskThread taskThread) {
-        threads.add(taskThread);
-    }
+    public final void registerThread(TaskThread taskThread) {threads.add(taskThread);}
 
     /**
      * Contains code to be ran before the OpMode is started. Similar to {@link OpMode#init()}.
@@ -35,9 +35,7 @@ public abstract class ThreadOpMode extends OpMode {
      * Should not be called by subclass.
      */
     @Override
-    public final void init() {
-        mainInit();
-    }
+    public final void init() {mainInit();}
 
     /**
      * Should not be called by subclass.
@@ -47,23 +45,44 @@ public abstract class ThreadOpMode extends OpMode {
         for(TaskThread taskThread : threads) {
             taskThread.start();
         }
+
+        synchronized (startLock) {
+            isOpModeStarted = true;
+            startLock.notifyAll();
+        }
     }
 
     /**
      * Should not be called by subclass.
      */
     @Override
-    public final void loop() {
-        mainLoop();
-    }
+    public final void loop() {mainLoop();}
 
     /**
      * Should not be called by subclass.
      */
     @Override
     public final void stop() {
+        onOpModeStop();
+
         for(TaskThread taskThread : threads) {
-            taskThread.stop();
+        taskThread.stop();
         }
     }
+
+    protected void waitForOpModeStart() {
+        synchronized (startLock) {
+            while (!isOpModeStarted) {
+                try {
+                    startLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+    }
+
+    protected void onOpModeStop() {}
+
 }
