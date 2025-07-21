@@ -97,6 +97,8 @@ public class MentorChallengeOne extends ThreadOpMode {
         configureOtos();
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        waitForOpModeStart();
     }
 
     //endregion
@@ -134,7 +136,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         requestOpModeStop();
     }
 
-//endregion
+    //endregion
 
     //region Exe Functions
     public void TriangulateBasketPos() {
@@ -199,13 +201,17 @@ public class MentorChallengeOne extends ThreadOpMode {
 
         // Solve for t (& optionally s)
         double det = dx1 * dy2 - dx2 * dy1; // Find the determinant
-        if (Math.abs(det) < 1e-10) {throw new RuntimeException("ERROR: RAYS ARE PARALLEL!");} // Stop divide by zero
+        if (Math.abs(det) < 1e-10) {
+            throw new RuntimeException("ERROR: RAYS ARE PARALLEL!");
+        } // Stop divide by zero
 
         double t = (DX * dy2 - DY * dx2) / det;
         double s = (DX * dy1 - DY * dx1) / det; // Not technically required
 
         // Find the intersection of the 2 rays (A & B)
-        if (t < 0 || s < 0) {throw new RuntimeException("ERROR: INVALID INTERSECTION");} // Stop invalid intersections
+        if (t < 0 || s < 0) {
+            throw new RuntimeException("ERROR: INVALID INTERSECTION");
+        } // Stop invalid intersections
 
         TX = X1 + t * dx1;
         TY = Y1 + t * dy1;
@@ -242,7 +248,6 @@ public class MentorChallengeOne extends ThreadOpMode {
         robot.stopMotors();
 
 
-
         // 2) Center on the tag
         if (target != null) {
             double targetError;
@@ -268,6 +273,7 @@ public class MentorChallengeOne extends ThreadOpMode {
                     telemetry.addData("TargetError", targetError);
                     telemetry.update();
 
+                    // ToDo: This could be simplified to: "if (Math.abs(targetError) > 3) {robot.rotate(Math.max(targetError / 1500, 0.05));}"
                     if (targetError > 3) {
                         robot.rotateRight(Math.max(Math.abs(targetError) / 1500, 0.05));
                     } else if (targetError < -3) {
@@ -323,7 +329,17 @@ public class MentorChallengeOne extends ThreadOpMode {
         sleep(3000);
         robot.getImu().resetTracking();
     }
-//endregion
+    //endregion
+
+    //region OpModeShutdown
+
+    // ToDo: Add safe shutdown code
+    
+    /* @Override
+    protected void onOpModeStop() { }
+    */
+    
+    //endregion
 
     //region SparkFunOTOS Config
     @SuppressLint("DefaultLocale")
