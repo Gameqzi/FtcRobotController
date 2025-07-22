@@ -205,7 +205,7 @@ public class StationaryShowcase extends ThreadOpMode {
             }
 
             if (robotCanMove) {robot.goTo(0.3, "0", "12", "0");}
-            
+
             liftGotoPos(2850);
 
             sleep(500);
@@ -216,8 +216,8 @@ public class StationaryShowcase extends ThreadOpMode {
             liftGotoPos(10);
 
             sleep(500);
-            if (robotCanMove) {robot.goTo(0.3, "0", "0", "0");}
-            
+            if (robotCanMove) {robot.goTo(0.3, "0", "0", "0"); sleep(500);}
+
             addTelemetryLine("ActiveMode: Block scored & robot reset, rerunning Active Mode loop...");
         }
     }
