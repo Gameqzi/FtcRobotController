@@ -11,8 +11,6 @@ import java.util.List;
  */
 public abstract class ThreadOpMode extends OpMode {
     private List<TaskThread> threads = new ArrayList<>();
-    private final Object startLock = new Object();
-    private volatile boolean isOpModeStarted = false;
 
     /**
      * Registers a new {@link TaskThread} to be ran periodically.
@@ -45,11 +43,6 @@ public abstract class ThreadOpMode extends OpMode {
         for(TaskThread taskThread : threads) {
             taskThread.start();
         }
-
-        synchronized (startLock) {
-            isOpModeStarted = true;
-            startLock.notifyAll();
-        }
     }
 
     /**
@@ -67,19 +60,6 @@ public abstract class ThreadOpMode extends OpMode {
 
         for(TaskThread taskThread : threads) {
             taskThread.stop();
-        }
-    }
-
-    protected void waitForOpModeStart() {
-        synchronized (startLock) {
-            while (!isOpModeStarted) {
-                try {
-                    startLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
         }
     }
 
