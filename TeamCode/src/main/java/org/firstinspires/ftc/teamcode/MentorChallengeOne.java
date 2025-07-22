@@ -97,8 +97,6 @@ public class MentorChallengeOne extends ThreadOpMode {
         configureOtos();
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-        waitForOpModeStart();
     }
 
     //endregion
