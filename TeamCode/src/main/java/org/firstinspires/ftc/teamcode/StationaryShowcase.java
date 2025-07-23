@@ -18,7 +18,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 import java.util.ArrayDeque;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Config
@@ -49,6 +48,18 @@ public class StationaryShowcase extends ThreadOpMode {
     // Others:
     boolean WiggleDir = false; // True for In, False for Out
     public int colorThreshold, alphaThreshold; // Used for active tuning
+
+    // Tuning Mode Vars:
+    boolean blockDetected;
+    String blockColor;
+    int selectedAction = 1;
+    String selector;
+    boolean editing = false;
+
+    // Active Mode Latches:
+    public boolean IdleModeActive = true;
+    public boolean ActiveModeActive = false;
+    public boolean TuningModeActive = false;
 
     // Global Enums:
     public enum IntakeAction {COLLECT, REJECT, SCORE, STOP}
@@ -139,61 +150,44 @@ public class StationaryShowcase extends ThreadOpMode {
     @Override
     public void mainLoop() {
 
-        if (gamepad1.right_bumper) {
-            addTelemetryLine("Status: Running Tuning Mode...");
-            TuningMode();
-        }
-
-        addTelemetryLine("Status: Running Idle Mode...");
-        IdleMode();
-
-        addTelemetryLine("Status: Running Active Mode...");
-        ActiveMode();
-    }
-
-    //endregion
-
-    //region Exe Functions
-
-    public void IdleMode() {
-        while (!gamepad1.cross) {
-
+        if (IdleModeActive) {
+            updateTelemetry();
             sleepForRand(500, 1000);
 
             int idleChance = ThreadLocalRandom.current().nextInt(1, 101);
-            addTelemetryData("Current Idle Movement: ", "...");
+            addTelemetryLine("Current Idle Movement: ...");
 
             if (idleChance <= 50) {
                 // 50% chance - Move Camera
-                addTelemetryData("Current Idle Movement: ", "Move Camera");
+                addTelemetryLine("Current Idle Movement: Move Camera");
                 cameraGotoPos(ThreadLocalRandom.current().nextDouble(panMin, panMax), ThreadLocalRandom.current().nextDouble(tiltMin, tiltMax));
             } else if (idleChance <= 85) {
                 // 35% chance - Move Lift
-                addTelemetryData("Current Idle Movement: ", "Move Lift");
+                addTelemetryLine("Current Idle Movement: Move Lift");
                 liftGotoPos(ThreadLocalRandom.current().nextInt(10, 101));
             } else {
                 // 15% chance - Wiggle Intake
-                addTelemetryData("Current Idle Movement: ", "Wiggle Intake");
+                addTelemetryLine("Current Idle Movement: Wiggle Intake");
                 intakeIdleWiggle();
             }
+
             if (gamepad1.cross) {
-                break;
+                ActiveModeActive = true;
+                IdleModeActive = false;
+            }
+            if (gamepad1.triangle) {
+                TuningModeActive = true;
+                IdleModeActive = false;
             }
         }
 
 
-    }
-
-    public void ActiveMode() {
-
-        while (!gamepad1.triangle) {
-
+        if (ActiveModeActive) {
             liftGotoPos(10);
             cameraGotoPos(0.505, tiltMin);
 
             boolean correctBlock = false;
-
-            while (!correctBlock && !gamepad1.triangle) {
+            while (!correctBlock) {
                 boolean block = false;
 
                 intakeMove(IntakeAction.COLLECT);
@@ -207,13 +201,11 @@ public class StationaryShowcase extends ThreadOpMode {
                     correctBlock = true;
                     addTelemetryLine("ActiveMode: Detected color RED -> Scoring...");
                     sleep(1000);
-                }
-                else if (block && colorSensor.blue() > colorSensor.red() + colorThreshold) { // If Blue Block, Reject
+                } else if (block && colorSensor.blue() > colorSensor.red() + colorThreshold) { // If Blue Block, Reject
                     intakeMove(IntakeAction.REJECT);
                     addTelemetryLine("ActiveMode: Detected color BLUE -> Rejecting...");
                     sleep(1000);
-                }
-                else if (block){ // If Unidentifiable, Reject
+                } else if (block) { // If Unidentifiable, Reject
                     intakeMove(IntakeAction.REJECT);
                     addTelemetryLine("ActiveMode: <ERROR> Color could not be identified! Rejecting...");
                     sleep(1000);
@@ -236,27 +228,14 @@ public class StationaryShowcase extends ThreadOpMode {
             liftGotoPos(10);
 
             sleep(500);
-            if (robotCanMove) {robot.goTo(0.3, "0", "0", "0"); sleep(500);}
+            if (robotCanMove) {robot.goTo(0.3, "0", "0", "0");sleep(500);}
 
-            addTelemetryLine("ActiveMode: Block scored & robot reset, rerunning Active Mode loop...");
-
-            if (gamepad1.triangle) {
-                break;
-            }
+            ActiveModeActive = false;
+            IdleModeActive = true;
         }
-    }
 
-    public void TuningMode() {
-        boolean tuningModeActive = true;
 
-        int selectedAction = 1;
-        String selector;
-        boolean editing = false;
-
-        boolean blockDetected;
-        String blockColor;
-
-        while (tuningModeActive) {
+        if (TuningModeActive) {
             clearTelemetry();
             telemetry.addLine("TUNING MODE\n");
 
@@ -317,7 +296,10 @@ public class StationaryShowcase extends ThreadOpMode {
                     if (selectedAction != 3) {
                         editing = true;
                     } else {
-                        tuningModeActive = false;
+                        selectedAction = 1;
+                        TuningModeActive = false;
+                        IdleModeActive = true;
+                        editing = false;
                     }
                 }
             } else {
@@ -344,10 +326,12 @@ public class StationaryShowcase extends ThreadOpMode {
                 sleep(100);
             }
         }
-        updateTelemetry();
-        addTelemetryLine("Tuning Mode Ended, New RobotDefaults:");
-        addTelemetryLine("colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
+
     }
+
+    //endregion
+
+    //region Exe Functions
 
     // Less Main Stuffs:
     public void liftGotoPos(int LiftPos) {
@@ -434,10 +418,6 @@ public class StationaryShowcase extends ThreadOpMode {
             this.key   = null;
             this.value = message;
         }
-        TelemetryEntry(String key, String value) {
-            this.key   = key;
-            this.value = value;
-        }
         boolean isPlain() { return key == null; }
     }
 
@@ -462,20 +442,6 @@ public class StationaryShowcase extends ThreadOpMode {
             telemetryBuffer.removeFirst();
         }
         telemetryBuffer.addLast(new TelemetryEntry(msg));
-        updateTelemetry();
-    }
-
-    public void addTelemetryData(String key, String value) {
-        TelemetryEntry last = telemetryBuffer.peekLast();
-        if (last != null && Objects.equals(last.key, key)) {
-            last.value = value;
-            updateTelemetry();
-            return;
-        }
-        if (telemetryBuffer.size() == maxTelemetryLines) {
-            telemetryBuffer.removeFirst();
-        }
-        telemetryBuffer.addLast(new TelemetryEntry(key, value));
         updateTelemetry();
     }
 
