@@ -18,9 +18,7 @@ public abstract class ThreadOpMode extends OpMode {
      *
      * @param taskThread A {@link TaskThread} object to be ran periodically.
      */
-    public final void registerThread(TaskThread taskThread) {
-        threads.add(taskThread);
-    }
+    public final void registerThread(TaskThread taskThread) {threads.add(taskThread);}
 
     /**
      * Contains code to be ran before the OpMode is started. Similar to {@link OpMode#init()}.
@@ -35,9 +33,7 @@ public abstract class ThreadOpMode extends OpMode {
      * Should not be called by subclass.
      */
     @Override
-    public final void init() {
-        mainInit();
-    }
+    public final void init() {mainInit();}
 
     /**
      * Should not be called by subclass.
@@ -53,17 +49,26 @@ public abstract class ThreadOpMode extends OpMode {
      * Should not be called by subclass.
      */
     @Override
-    public final void loop() {
-        mainLoop();
-    }
+    public final void loop() {mainLoop();}
 
     /**
      * Should not be called by subclass.
      */
     @Override
     public final void stop() {
+        onOpModeStop();
+
         for(TaskThread taskThread : threads) {
             taskThread.stop();
         }
     }
+
+    // Helpful functions:
+    protected void onOpModeStop() {}
+
+    public final void idle() {
+        // From FTC's OpMode, good for empty while loops
+        Thread.yield();
+    }
+
 }
