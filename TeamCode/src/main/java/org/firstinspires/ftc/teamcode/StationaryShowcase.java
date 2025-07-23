@@ -156,7 +156,6 @@ public class StationaryShowcase extends ThreadOpMode {
     //region Exe Functions
 
     public void IdleMode() {
-
         while (!gamepad1.cross) {
 
             sleepForRand(500, 1000);
@@ -177,7 +176,12 @@ public class StationaryShowcase extends ThreadOpMode {
                 addTelemetryData("Current Idle Movement: ", "Wiggle Intake");
                 intakeIdleWiggle();
             }
+            if (gamepad1.cross) {
+                break;
+            }
         }
+
+
     }
 
     public void ActiveMode() {
@@ -195,7 +199,6 @@ public class StationaryShowcase extends ThreadOpMode {
                 intakeMove(IntakeAction.COLLECT);
                 while (!block && !gamepad1.triangle) {
                     block = colorSensor.alpha() > alphaThreshold;
-                    idle();
                 }
                 intakeMove(IntakeAction.STOP);
                 addTelemetryLine("ActiveMode: Block detected, Identifying the color...");
@@ -236,6 +239,10 @@ public class StationaryShowcase extends ThreadOpMode {
             if (robotCanMove) {robot.goTo(0.3, "0", "0", "0"); sleep(500);}
 
             addTelemetryLine("ActiveMode: Block scored & robot reset, rerunning Active Mode loop...");
+
+            if (gamepad1.triangle) {
+                break;
+            }
         }
     }
 
@@ -253,13 +260,29 @@ public class StationaryShowcase extends ThreadOpMode {
             clearTelemetry();
             telemetry.addLine("TUNING MODE\n");
 
-            if (selectedAction == 1 && editing) {selector = ">>";} else if (selectedAction == 1) {selector = "> ";} else {selector = "  ";}
+            if (selectedAction == 1 && editing) {
+                selector = ">>";
+            } else if (selectedAction == 1) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
             telemetry.addLine(selector + "Color Threshold : " + colorThreshold + "(Default: " + colorThresholdDefault + ")");
 
-            if (selectedAction == 2 && editing) {selector = ">>";} else if (selectedAction == 2) {selector = "> ";} else {selector = "  ";}
+            if (selectedAction == 2 && editing) {
+                selector = ">>";
+            } else if (selectedAction == 2) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
             telemetry.addLine(selector + "Alpha Threshold : " + alphaThreshold + "(Default: " + alphaThresholdDefault + ")");
 
-            if (selectedAction == 3) {selector = "> ";} else {selector = "  ";}
+            if (selectedAction == 3) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
             telemetry.addLine(selector + "EXIT TUNING MODE\n\n");
 
             telemetry.addLine("OUTPUT:\n");
@@ -267,22 +290,59 @@ public class StationaryShowcase extends ThreadOpMode {
             blockDetected = colorSensor.alpha() > alphaThreshold;
             telemetry.addLine("Block Detected? : " + blockDetected);
 
-            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {blockColor = "RED";}
-            else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {blockColor = "BLUE";}
-            else {blockColor = "UNKNOWN";}
+            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {
+                blockColor = "RED";
+            } else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {
+                blockColor = "BLUE";
+            } else {
+                blockColor = "UNKNOWN";
+            }
             telemetry.addLine("Block Color : " + blockColor);
 
             if (!editing) {
-                if (gamepad1.dpad_up) {while (gamepad1.dpad_up) {idle();} if (selectedAction != 1) {selectedAction -= 1;}}
-                if (gamepad1.dpad_down) {while (gamepad1.dpad_down) {idle();} if (selectedAction != 3) {selectedAction += 1;}}
-                if (gamepad1.dpad_right) {while (gamepad1.dpad_right) {idle();} if (selectedAction != 3) {editing = true;} else {tuningModeActive = false;}}
+                if (gamepad1.dpad_up) {
+                    while (gamepad1.dpad_up);
+                    if (selectedAction != 1) {
+                        selectedAction -= 1;
+                    }
+                }
+                if (gamepad1.dpad_down) {
+                    while (gamepad1.dpad_down);
+                    if (selectedAction != 3) {
+                        selectedAction += 1;
+                    }
+                }
+                if (gamepad1.dpad_right) {
+                    while (gamepad1.dpad_right);
+                    if (selectedAction != 3) {
+                        editing = true;
+                    } else {
+                        tuningModeActive = false;
+                    }
+                }
             } else {
-                if (gamepad1.dpad_up) {while (gamepad1.dpad_up) {idle();} if (selectedAction == 1) {colorThreshold += 1;} else {alphaThreshold += 1;}}
-                if (gamepad1.dpad_down) {while (gamepad1.dpad_down) {idle();} if (selectedAction == 1) {colorThreshold -= 1;} else {alphaThreshold -= 1;}}
-                if (gamepad1.dpad_left) {while (gamepad1.dpad_left) {idle();} editing = false;}
+                if (gamepad1.dpad_up) {
+                    while (gamepad1.dpad_up);
+                    if (selectedAction == 1) {
+                        colorThreshold += 1;
+                    } else {
+                        alphaThreshold += 1;
+                    }
+                }
+                if (gamepad1.dpad_down) {
+                    while (gamepad1.dpad_down);
+                    if (selectedAction == 1) {
+                        colorThreshold -= 1;
+                    } else {
+                        alphaThreshold -= 1;
+                    }
+                }
+                if (gamepad1.dpad_left) {
+                    while (gamepad1.dpad_left);
+                    editing = false;
+                }
+                sleep(100);
             }
-
-            idle();
         }
         updateTelemetry();
         addTelemetryLine("Tuning Mode Ended, New RobotDefaults:");
@@ -302,20 +362,15 @@ public class StationaryShowcase extends ThreadOpMode {
         // Optionally set power (or velocity) once
         Lift.setVelocity(Math.abs(LiftPos - Lift.getCurrentPosition()) > 0 ? 1500 : 0);
 
-        // Wait until it's done
-        while (Lift.isBusy()) {
-            idle();
-        }
-
         // Stop the motor
         Lift.setVelocity(0);
     }
 
 
     public void cameraGotoPos(double pan, double tilt) {
-        if (!(pan == 0.800 && tilt == 0.505) && (pan <= panMin || pan >= panMax || tilt <= tiltMin || tilt >= tiltMax)) {
+        /*if ((pan != 0.800 && tilt != 0.505) && (pan <= panMin || pan >= panMax || tilt <= tiltMin || tilt >= tiltMax)) {
             throw new IllegalStateException("Camera Pos is OUT OF BOUNDS!");
-        }
+        }*/
         CamServoPan.setPosition(pan);
         CamServoTilt.setPosition(tilt);
     }
@@ -347,12 +402,12 @@ public class StationaryShowcase extends ThreadOpMode {
         if (WiggleDir) {
             intakeMove(IntakeAction.COLLECT);
             sleep(300);
-            intakeMove(IntakeAction.REJECT);
+            intakeMove(IntakeAction.STOP);
             WiggleDir = false;
         } else {
             intakeMove(IntakeAction.REJECT);
             sleep(300);
-            intakeMove(IntakeAction.COLLECT);
+            intakeMove(IntakeAction.STOP);
             WiggleDir = true;
         }
     }

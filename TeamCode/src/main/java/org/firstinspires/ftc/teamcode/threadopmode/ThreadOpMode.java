@@ -66,9 +66,4 @@ public abstract class ThreadOpMode extends OpMode {
     // Helpful functions:
     protected void onOpModeStop() {}
 
-    public final void idle() {
-        // From FTC's OpMode, good for empty while loops
-        Thread.yield();
-    }
-
 }
