@@ -14,8 +14,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,7 +37,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
     // Tunables:
     public static final double LP = 10, LI = 3, LD = 0, LF = 8; // Lift PIDF Values | ToDo: Maybe Tune These?
-    public static final double panMin = 0.37, panMax = 0.63, tiltMin = 0.35, tiltMax = 0.47; // Camera Servo Limits | ToDo: Maybe Tune These?
+    public static final double panMin = 0.370, panMax = 0.630, tiltMin = 0.350, tiltMax = 0.505; // Camera Servo Limits | ToDo: Maybe Tune These?
     public static final int colorThresholdDefault = 20; // ToDo: Tune This!
     public static final int alphaThresholdDefault = 40; // ToDo: Tune This!
     public static final boolean robotCanMove = false; // ToDo: Can the robot move on the table?
@@ -121,7 +119,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         // [SETUP] Defaults
         robot.stopMotors();
-        cameraGotoPos(0.5, 0.47);
+        cameraGotoPos(0.505, 0.470);
         liftGotoPos(20);
 
         colorThreshold = colorThresholdDefault;
@@ -173,7 +171,7 @@ public class StationaryShowcase extends ThreadOpMode {
             } else if (idleChance <= 85) {
                 // 35% chance - Move Lift
                 addTelemetryData("Current Idle Movement: ", "Move Lift");
-                liftGotoPos(ThreadLocalRandom.current().nextInt(10, 1001));
+                liftGotoPos(ThreadLocalRandom.current().nextInt(10, 101));
             } else {
                 // 15% chance - Wiggle Intake
                 addTelemetryData("Current Idle Movement: ", "Wiggle Intake");
@@ -187,6 +185,8 @@ public class StationaryShowcase extends ThreadOpMode {
         while (!gamepad1.triangle) {
 
             liftGotoPos(10);
+            cameraGotoPos(0.505, tiltMin);
+
             boolean correctBlock = false;
 
             while (!correctBlock && !gamepad1.triangle) {
@@ -210,14 +210,19 @@ public class StationaryShowcase extends ThreadOpMode {
                     addTelemetryLine("ActiveMode: Detected color BLUE -> Rejecting...");
                     sleep(1000);
                 }
-                else if (block){ // If Unidentifiable, Throw
-                    addTelemetryLine("ActiveMode: <ERROR> Color could not be identified! Throwing error...");
-                    throw new IllegalStateException("Block [ARGB Val: " + colorSensor.argb() + " (0xAARRGGBB)] was detected, but it could not be identified!");
+                else if (block){ // If Unidentifiable, Reject
+                    intakeMove(IntakeAction.REJECT);
+                    addTelemetryLine("ActiveMode: <ERROR> Color could not be identified! Rejecting...");
+                    sleep(1000);
                 }
             }
 
+            cameraGotoPos(0.505, 0.470);
             if (robotCanMove) {robot.goTo(0.3, "0", "12", "0");}
 
+            sleep(500);
+
+            cameraGotoPos(0.800, 0.505);
             liftGotoPos(2850);
 
             sleep(500);
@@ -279,6 +284,9 @@ public class StationaryShowcase extends ThreadOpMode {
 
             idle();
         }
+        updateTelemetry();
+        addTelemetryLine("Tuning Mode Ended, New RobotDefaults:");
+        addTelemetryLine("colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
     }
 
     // Less Main Stuffs:
@@ -305,7 +313,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
     public void cameraGotoPos(double pan, double tilt) {
-        if (pan < 0.37 || pan > 0.63 || tilt < 0.35 || tilt > 0.47) {
+        if (!(pan == 0.800 && tilt == 0.505) && (pan <= panMin || pan >= panMax || tilt <= tiltMin || tilt >= tiltMax)) {
             throw new IllegalStateException("Camera Pos is OUT OF BOUNDS!");
         }
         CamServoPan.setPosition(pan);
@@ -351,7 +359,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
     public void sleepForRand(long MinMillis, long MaxMillis) {
         if (MinMillis >= MaxMillis || MinMillis < 0) {
-            throw new IllegalStateException("MIN value is greater than or equal to MAX value!");
+            throw new IllegalStateException("MIN value is greater than or equal to MAX value! OR MIN is < 0!");
         }
         if (MaxMillis >= Long.MAX_VALUE - 3) {
             throw new IllegalStateException("Why wait so long!?");
@@ -424,7 +432,7 @@ public class StationaryShowcase extends ThreadOpMode {
     protected void onOpModeStop() {
         addTelemetryLine("Status: Shutting Down...");
 
-        cameraGotoPos(0.5, 0.47);
+        cameraGotoPos(0.800, 0.505);
         liftGotoPos(10);
         intakeMove(IntakeAction.STOP);
     }
