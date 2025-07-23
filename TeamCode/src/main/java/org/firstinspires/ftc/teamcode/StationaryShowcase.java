@@ -8,18 +8,18 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
-import java.util.ArrayDeque;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
+
+import java.util.ArrayDeque;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Config
 @TeleOp
