@@ -225,7 +225,19 @@ public class StationaryShowcase extends ThreadOpMode {
                 } else if (block && colorSensor.blue() > colorSensor.red() + colorThreshold) { // If Blue Block, Reject
                     intakeMove(IntakeAction.REJECT);
                     addTelemetryLine("ActiveMode: Detected block: BLUE -> Rejecting...");
+                    sleep(500);
+
+                    // NEW: *Shakes Head* LoL
+                    cameraGotoPos(panMin, tiltHome);
+                    sleep(500);
+                    cameraGotoPos(panMax, tiltHome);
+                    sleep(500);
+                    cameraGotoPos(panMin, tiltHome);
+                    sleep(500);
+                    cameraGotoPos(panMax, tiltHome);
+
                     sleep(1000);
+                    cameraGotoPos(panHome, tiltMin);
                 } else if (block) { // If Unidentifiable, Reject
                     intakeMove(IntakeAction.REJECT);
                     addTelemetryLine("<ERROR> Block color could not be identified! Rejecting...");
