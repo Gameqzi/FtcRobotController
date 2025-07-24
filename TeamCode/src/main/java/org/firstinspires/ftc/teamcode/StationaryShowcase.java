@@ -38,7 +38,7 @@ public class StationaryShowcase extends ThreadOpMode {
     public static final double LP = 10, LI = 3, LD = 0, LF = 8; // Lift PIDF Values | ToDo: Maybe Tune These?
     public static final double panMin = 0.370, panMax = 0.630, tiltMin = 0.350, tiltMax = 0.505; // Camera Servo Limits | ToDo: Maybe Tune These?
     public static final int colorThresholdDefault = 20; // ToDo: Tune This!
-    public static final int alphaThresholdDefault = 40; // ToDo: Tune This!
+    public static final int alphaThresholdDefault = 210; // ToDo: Tune This!
     public static final boolean robotCanMove = false; // ToDo: Can the robot move on the table?
 
     // Telemetry:
@@ -106,6 +106,7 @@ public class StationaryShowcase extends ThreadOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         Lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        Lift.setDirection(DcMotor.Direction.REVERSE);
 
         addTelemetryLine("Setup ~50% Complete: Motor Config... (2/2)");
 
@@ -155,7 +156,6 @@ public class StationaryShowcase extends ThreadOpMode {
             sleepForRand(500, 1000);
 
             int idleChance = ThreadLocalRandom.current().nextInt(1, 101);
-            addTelemetryLine("Current Idle Movement: ...");
 
             if (idleChance <= 50) {
                 // 50% chance - Move Camera
@@ -183,7 +183,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (ActiveModeActive) {
-            liftGotoPos(10);
+            liftGotoPos(50);
             cameraGotoPos(0.505, tiltMin);
 
             boolean correctBlock = false;
@@ -280,23 +280,22 @@ public class StationaryShowcase extends ThreadOpMode {
 
             if (!editing) {
                 if (gamepad1.dpad_up) {
-                    while (gamepad1.dpad_up);
+                    sleep(1000);
                     if (selectedAction != 1) {
                         selectedAction -= 1;
                     }
                 }
                 if (gamepad1.dpad_down) {
-                    while (gamepad1.dpad_down);
+                    sleep(1000);
                     if (selectedAction != 3) {
-                        selectedAction += 1;
+                        selectedAction += 10;
                     }
                 }
                 if (gamepad1.dpad_right) {
-                    while (gamepad1.dpad_right);
                     if (selectedAction != 3) {
                         editing = true;
                     } else {
-                        selectedAction = 1;
+                        selectedAction = 10;
                         TuningModeActive = false;
                         IdleModeActive = true;
                         editing = false;
@@ -304,7 +303,7 @@ public class StationaryShowcase extends ThreadOpMode {
                 }
             } else {
                 if (gamepad1.dpad_up) {
-                    while (gamepad1.dpad_up);
+                    sleep(500);
                     if (selectedAction == 1) {
                         colorThreshold += 1;
                     } else {
@@ -312,7 +311,7 @@ public class StationaryShowcase extends ThreadOpMode {
                     }
                 }
                 if (gamepad1.dpad_down) {
-                    while (gamepad1.dpad_down);
+                    sleep(500);
                     if (selectedAction == 1) {
                         colorThreshold -= 1;
                     } else {
@@ -320,10 +319,9 @@ public class StationaryShowcase extends ThreadOpMode {
                     }
                 }
                 if (gamepad1.dpad_left) {
-                    while (gamepad1.dpad_left);
                     editing = false;
                 }
-                sleep(100);
+                sleep(500);
             }
         }
 
@@ -346,6 +344,8 @@ public class StationaryShowcase extends ThreadOpMode {
         // Optionally set power (or velocity) once
         Lift.setVelocity(Math.abs(LiftPos - Lift.getCurrentPosition()) > 0 ? 1500 : 0);
 
+        while (Lift.isBusy());
+
         // Stop the motor
         Lift.setVelocity(0);
     }
@@ -362,8 +362,8 @@ public class StationaryShowcase extends ThreadOpMode {
     public void intakeMove(IntakeAction action) {
         switch (action) {
             case COLLECT:
-                IntakeServo1.setPower(0.25);
-                IntakeServo2.setPower(-0.25);
+                IntakeServo1.setPower(0.1);
+                IntakeServo2.setPower(-0.1);
                 break;
             case REJECT:
                 IntakeServo1.setPower(-0.5);
