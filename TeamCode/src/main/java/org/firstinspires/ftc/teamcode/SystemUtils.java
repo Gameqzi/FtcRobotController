@@ -57,12 +57,13 @@ public class SystemUtils {
      * <br><br>SystemUtils Documentation Key:<br>
      * TypeType<br>
      * </p>
-     * All SystemUtils Functions:
+     * All SystemUtils Callable Functions:
      * <ul>
      * <li>HelpReference();</li>
-     * <li>.setTelemetry();</li>
-     * <li>.setGamepad1();</li>
-     * <li>.setGamepad2();</li>
+     * </ul>
+     * All Internal SystemUtils Functions:
+     * <ul>
+     * <li></li>
      * </ul>
      */
     public static void helpReference() {}
@@ -107,11 +108,33 @@ public class SystemUtils {
          * @param Steps How many times the LED will update during the change.
          */
         public void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Duration, int Steps) {
-            ElapsedTime timer = new ElapsedTime();
-            timer.reset();
+            int Step = Duration / Steps;
 
-            long Step = Duration / Steps;
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder GP1_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder GP2_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
 
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP1_floatLED_Effect;
+
+            for (int i = 0; i < Steps; i++) {
+                double progress = (double) i / Steps;
+
+                if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
+                    double currentR = interpolate(lastGamepad1R, R, progress);
+                    double currentG = interpolate(lastGamepad1G, G, progress);
+                    double currentB = interpolate(lastGamepad1B, B, progress);
+                    GP1_Builder.addStep(currentR, currentG, currentB, Step);
+                }
+                if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
+                    double currentR = interpolate(lastGamepad2R, R, progress);
+                    double currentG = interpolate(lastGamepad2G, G, progress);
+                    double currentB = interpolate(lastGamepad2B, B, progress);
+                    GP1_Builder.addStep(currentR, currentG, currentB, Step);
+                }
+            }
+
+
+
+            /*
             while (timer.milliseconds() < Duration) {
                 double progress = timer.milliseconds() / Duration;
 
@@ -129,6 +152,7 @@ public class SystemUtils {
                 }
                 sleep(Step);
             }
+            */
             if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad1.setLedColor(R, G, B, -1); lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
             if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.setLedColor(R, G, B, -1); lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
         }
@@ -212,7 +236,7 @@ public class SystemUtils {
             if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.runLedEffect(rainbowEffect);}
         }
 
-        // FIXME: DO NOT USE!!!
+        // FIXME: DO NOT USE, BROKEN & UNUSED!
         @Deprecated
         private com.qualcomm.robotcore.hardware.Gamepad.LedEffect createLedEffect(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps, boolean Repeating) {
 
@@ -255,6 +279,23 @@ public class SystemUtils {
                 }
             }
             return builder.setRepeating(Repeating).build();
+        }
+
+        private com.qualcomm.robotcore.hardware.Gamepad.LedEffect LEDSmoothTransition(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps) {
+            int Step = Duration / Steps;
+
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder LEDST_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
+
+            for (int i = 0; i < Steps; i++) {
+                double progress = (double) i / Steps;
+
+                double currentR = interpolate(R1, R2, progress);
+                double currentG = interpolate(G1, G2, progress);
+                double currentB = interpolate(B1, B2, progress);
+                LEDST_Builder.addStep(currentR, currentG, currentB, Step);
+            }
+
+            return LEDST_Builder.setRepeating(false).build();
         }
 
         private double interpolate(double Start, double End, double Progress) {
