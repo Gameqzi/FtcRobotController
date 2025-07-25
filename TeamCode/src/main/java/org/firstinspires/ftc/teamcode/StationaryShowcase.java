@@ -131,7 +131,8 @@ public class StationaryShowcase extends ThreadOpMode {
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        SystemUtils.setupSystemUtils(telemetry, gamepad1, gamepad2);
+        SystemUtils.setupSystemUtils.setTelemetry(telemetry);
+        SystemUtils.setupSystemUtils.setGamepad1(gamepad1);
 
         SystemUtils.helpReference();
 
@@ -154,9 +155,9 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        SystemUtils.gamepad.floatLED(GamepadTarget.GAMEPAD1, 0, 1, 0, -1, );
+        SystemUtils.gamepad.floatLED(GamepadTarget.BOTH, 0, 1, 0, 5000, 500);
 
-        SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0, 1, 1000);
+        SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0.3, 0.3, 1000);
     }
 
     //endregion
@@ -289,7 +290,6 @@ public class StationaryShowcase extends ThreadOpMode {
             if (tuningFirstTime) {
                 addTelemetryLine("Status: Running Tuning Mode...");
                 gamepad1.rumble(0.2, 0.2, 500);
-                fadeGamepadLED(0, 0, 1);
                 liftGotoPos(200);
                 cameraGotoPos(panScore, tiltScore);
 

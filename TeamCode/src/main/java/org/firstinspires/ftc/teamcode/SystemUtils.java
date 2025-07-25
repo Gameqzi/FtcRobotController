@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.Utils.sleep;
-
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -39,11 +36,28 @@ public class SystemUtils {
      *
      * @param telemetry The telemetry object to associate with the script.
      */
-    // --- CHANGE: Make setter method STATIC and return void ---
-    public static void setupSystemUtils(Telemetry telemetry, com.qualcomm.robotcore.hardware.Gamepad gamepad1, com.qualcomm.robotcore.hardware.Gamepad gamepad2) {
-        SystemUtils.telemetry = telemetry;
-        SystemUtils.gamepad1 = gamepad1;
-        SystemUtils.gamepad2 = gamepad2;
+    public static class setupSystemUtils {
+
+        // TODO: Add custom telemetry, then add it here: "[setupSystemUtils]: Waiting on Gamepad(s) to init..."
+        // TODO: ALSO: Add an addTelemetryDebug(String Function, String Message); --> Outputs: "[Function]: Message"
+        // TODO: ALSO ALSO: Add an addTelemetryStatus(String Status); --> Outputs: "[CurrentMS STATUS]: Status"
+
+        // TODO: Add a "Complete/Done Setting up" message here. WITH: GamepadID: gamepad1.getGamepadId()
+
+        public static void setTelemetry(Telemetry telemetry) {
+            SystemUtils.telemetry = telemetry;
+        }
+
+        public static void setGamepad1(com.qualcomm.robotcore.hardware.Gamepad gamepad1) {
+            SystemUtils.gamepad1 = gamepad1;
+            while(gamepad1.getGamepadId()!=-1);
+        }
+
+        public static void setGamepad2(com.qualcomm.robotcore.hardware.Gamepad gamepad2) {
+            SystemUtils.gamepad2 = gamepad2;
+            while(gamepad2.)
+        }
+
     }
 
     //endregion
@@ -108,53 +122,17 @@ public class SystemUtils {
          * @param Steps How many times the LED will update during the change.
          */
         public void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Duration, int Steps) {
-            int Step = Duration / Steps;
-
-            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder GP1_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
-            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder GP2_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
-
-            com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP1_floatLED_Effect;
-
-            for (int i = 0; i < Steps; i++) {
-                double progress = (double) i / Steps;
-
-                if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
-                    double currentR = interpolate(lastGamepad1R, R, progress);
-                    double currentG = interpolate(lastGamepad1G, G, progress);
-                    double currentB = interpolate(lastGamepad1B, B, progress);
-                    GP1_Builder.addStep(currentR, currentG, currentB, Step);
-                }
-                if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
-                    double currentR = interpolate(lastGamepad2R, R, progress);
-                    double currentG = interpolate(lastGamepad2G, G, progress);
-                    double currentB = interpolate(lastGamepad2B, B, progress);
-                    GP1_Builder.addStep(currentR, currentG, currentB, Step);
-                }
+            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
+                gamepad1.setLedColor(R, G, B, -1);
+                com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP1_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Duration, Steps);
+                gamepad1.runLedEffect(GP1_Effect);
             }
 
-
-
-            /*
-            while (timer.milliseconds() < Duration) {
-                double progress = timer.milliseconds() / Duration;
-
-                if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
-                    double currentRed = interpolate(lastGamepad1R, R, progress);
-                    double currentGreen = interpolate(lastGamepad1G, G, progress);
-                    double currentBlue = interpolate(lastGamepad1B, B, progress);
-                    SystemUtils.gamepad1.setLedColor(currentRed, currentGreen, currentBlue, -1);
-                }
-                if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
-                    double currentRed = interpolate(lastGamepad2R, R, progress);
-                    double currentGreen = interpolate(lastGamepad2G, G, progress);
-                    double currentBlue = interpolate(lastGamepad2B, B, progress);
-                    SystemUtils.gamepad2.setLedColor(currentRed, currentGreen, currentBlue, -1);
-                }
-                sleep(Step);
+            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
+                gamepad2.setLedColor(R, G, B, -1);
+                com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Duration, Steps);
+                gamepad2.runLedEffect(GP2_Effect);
             }
-            */
-            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad1.setLedColor(R, G, B, -1); lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
-            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.setLedColor(R, G, B, -1); lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
         }
 
         public void advRumble(GamepadTarget Gamepad, double RumbleLeft, double RumbleRight, int Duration) {
@@ -282,6 +260,8 @@ public class SystemUtils {
         }
 
         private com.qualcomm.robotcore.hardware.Gamepad.LedEffect LEDSmoothTransition(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps) {
+            if (Steps <= 0) {throw new IllegalArgumentException("SystemUtils.java: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Steps' <= 0)!");}
+
             int Step = Duration / Steps;
 
             com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder LEDST_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
