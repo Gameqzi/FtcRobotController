@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -152,14 +153,21 @@ public class StationaryShowcase extends ThreadOpMode {
         cameraGotoPos(panHome, tiltHome);
         liftGotoPos(30);
 
-        SystemUtils.gamepad.floatLED(GamepadTarget.GAMEPAD1, 0, 1, 0, 600, 20);
-
         colorThreshold = colorThresholdDefault;
         alphaThreshold = alphaThresholdDefault;
 
         addTelemetryLine("RobotDefaults: colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
+        Gamepad.LedEffect blinkBlue = new Gamepad.LedEffect.Builder()
+                .addStep(0.0, 0.0, 1.0, 750) // Blue for 750 ms
+                .addStep(0.0, 0.0, 0.0, 750) // Off for 750 ms (to create the flash)
+                .setRepeating(true) // Keep repeating this sequence
+                .build();
+
+        SystemUtils.gamepad.floatLED(GamepadTarget.GAMEPAD1, 0, 1, 0, 600, 20);
+        gamepad1.runLedEffect(blinkBlue);
+
         SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0, 1, 1000);
     }
 
@@ -411,6 +419,7 @@ public class StationaryShowcase extends ThreadOpMode {
             Lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             Lift.setVelocity(500); // This is the MAX velocity the internal PID will aim for
 
+            //noinspection StatementWithEmptyBody
             while (Lift.isBusy()) ; // THIS IS REQUIRED!
         } else {
             Lift.setMotorDisable();

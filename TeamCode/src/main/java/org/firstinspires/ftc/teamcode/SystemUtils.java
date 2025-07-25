@@ -2,12 +2,19 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Utils.sleep;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 enum GamepadTarget {
     GAMEPAD1, GAMEPAD2, BOTH
+}
+enum BlinkType {
+    EVEN, ODD_HIGH, ODD_LOW
+}
+enum BlinkAction {
+    SHARP, SOFT
 }
 
 public class SystemUtils {
@@ -160,13 +167,57 @@ public class SystemUtils {
             if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {gamepad1.setLedColor(R, G, B, -1); lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
             if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {gamepad2.setLedColor(R, G, B, -1); lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
         }
-        private double interpolate(double start, double end, double progress) {
-            return Math.max(0.0, Math.min(1.0, start + (end - start) * progress));
-        }
 
         public void advRumble(GamepadTarget Gamepad, double RumbleLeft, double RumbleRight, int Duration) {
             if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {gamepad1.rumble(RumbleLeft, RumbleRight, Duration);}
             if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {gamepad2.rumble(RumbleLeft, RumbleRight, Duration);}
+        }
+
+        public void advBlinkLED(GamepadTarget Gamepad, double R, double G, double B, int speed, BlinkType BlinkType, BlinkAction BlinkAction, int Steps) {
+            double onDuration = 500, offDuration = 500;
+            if (BlinkType == BlinkType.EVEN)        {onDuration = speed * 0.50; offDuration = speed * 0.50;}
+            if (BlinkType == BlinkType.ODD_HIGH)    {onDuration = speed * 0.75; offDuration = speed * 0.25;}
+            if (BlinkType == BlinkType.ODD_LOW)     {onDuration = speed * 0.25; offDuration = speed * 0.75;}
+
+            if (BlinkAction == BlinkAction.SHARP) {
+                com.qualcomm.robotcore.hardware.Gamepad.LedEffect advBlinkLED = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder()
+                        .addStep(R, G, B, (int) onDuration)
+                        .addStep(0.0, 0.0, 0.0, (int) offDuration)
+                        .setRepeating(true)
+                        .build();
+            } else {
+
+            }
+
+        }
+
+        // The amount of time, in ms, that it takes to complete one full loop.
+        public void rainBowLED(GamepadTarget Gamepad, int Speed, int Steps) {
+
+        }
+
+        private void ledEffect(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps) {
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
+            int stepDurationMs = Duration / (Steps - 1);
+
+            // Loop to add each interpolated color step to the *same* builder
+            for (int i = 0; i < Steps; i++) {
+                // Calculate the progress for the current step.
+                // This will range from 0.0 (for i=0) to 1.0 (for i=numSteps-1).
+                double progress = (double) i / (Steps - 1);
+
+                // Interpolate each RGB component based on the current progress
+                double currentRed = interpolate(R1, R2, progress);
+                double currentGreen = interpolate(G1, G2, progress);
+                double currentBlue = interpolate(B1, B2, progress);
+
+                // Add this calculated color and the step duration to the builder
+                builder.addStep(currentRed, currentGreen, currentBlue, stepDurationMs);
+            }
+        }
+
+        private double interpolate(double Start, double End, double Progress) {
+            return Math.max(0.0, Math.min(1.0, Start + (End - Start) * Progress));
         }
     }
     //endregion
