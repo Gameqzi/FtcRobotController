@@ -159,14 +159,8 @@ public class StationaryShowcase extends ThreadOpMode {
         addTelemetryLine("RobotDefaults: colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
-        Gamepad.LedEffect blinkBlue = new Gamepad.LedEffect.Builder()
-                .addStep(0.0, 0.0, 1.0, 750) // Blue for 750 ms
-                .addStep(0.0, 0.0, 0.0, 750) // Off for 750 ms (to create the flash)
-                .setRepeating(true) // Keep repeating this sequence
-                .build();
 
-        SystemUtils.gamepad.floatLED(GamepadTarget.GAMEPAD1, 0, 1, 0, 600, 20);
-        gamepad1.runLedEffect(blinkBlue);
+        SystemUtils.gamepad.advBlinkLED(GamepadTarget.BOTH, 0, 1, 0, 1000, BlinkType.EVEN, BlinkAction.SOFT, 50);
 
         SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0, 1, 1000);
     }
