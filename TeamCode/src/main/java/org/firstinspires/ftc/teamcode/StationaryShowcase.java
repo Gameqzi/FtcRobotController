@@ -395,6 +395,7 @@ public class StationaryShowcase extends ThreadOpMode {
             Lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             Lift.setVelocity(500); // This is the MAX velocity the internal PID will aim for
 
+            //noinspection StatementWithEmptyBody
             while (Lift.isBusy()) ; // THIS IS REQUIRED!
         } else {
             Lift.setMotorDisable();
