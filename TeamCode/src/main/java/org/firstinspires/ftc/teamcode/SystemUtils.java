@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Utils.sleep;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -186,34 +185,43 @@ public class SystemUtils {
                         .setRepeating(true)
                         .build();
             } else {
-
+                ledEffect(R, G, B, 0, 0, 0)
             }
 
         }
 
         // The amount of time, in ms, that it takes to complete one full loop.
-        public void rainBowLED(GamepadTarget Gamepad, int Speed, int Steps) {
+        public void rainbowLED(GamepadTarget Gamepad, int Speed, int Steps) {
 
         }
 
-        private void ledEffect(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps) {
+        private Object ledEffect(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps, boolean Repeating) {
             com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
             int stepDurationMs = Duration / (Steps - 1);
+            stepDurationMs = Math.max(1, stepDurationMs);
 
-            // Loop to add each interpolated color step to the *same* builder
             for (int i = 0; i < Steps; i++) {
-                // Calculate the progress for the current step.
-                // This will range from 0.0 (for i=0) to 1.0 (for i=numSteps-1).
+
                 double progress = (double) i / (Steps - 1);
 
-                // Interpolate each RGB component based on the current progress
                 double currentRed = interpolate(R1, R2, progress);
                 double currentGreen = interpolate(G1, G2, progress);
                 double currentBlue = interpolate(B1, B2, progress);
 
-                // Add this calculated color and the step duration to the builder
                 builder.addStep(currentRed, currentGreen, currentBlue, stepDurationMs);
             }
+            if (Repeating) {
+                for (int i = 1; i < Steps; i++) {
+                    double progress = (double) i / (Steps - 1);
+
+                    double currentR = interpolate(R2, R1, progress);
+                    double currentG = interpolate(G2, G1, progress);
+                    double currentB = interpolate(B2, B1, progress);
+
+                    builder.addStep(currentR, currentG, currentB, stepDurationMs);
+                }
+            }
+            return builder.setRepeating(Repeating).build();
         }
 
         private double interpolate(double Start, double End, double Progress) {
