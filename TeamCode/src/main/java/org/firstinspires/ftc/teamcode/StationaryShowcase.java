@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -133,9 +134,11 @@ public class StationaryShowcase extends ThreadOpMode {
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
         SystemUtils SystemUtils = new SystemUtils()
-                .setTelemetry(telemetry);
+                .setTelemetry(telemetry)
+                .setGamepad1(gamepad1)
+                .setGamepad2(gamepad2);
 
-        SystemUtils.HelpReference();
+        SystemUtils.helpReference();
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
@@ -149,7 +152,7 @@ public class StationaryShowcase extends ThreadOpMode {
         cameraGotoPos(panHome, tiltHome);
         liftGotoPos(30);
 
-        fadeGamepadLED(0, 1, 0);
+        SystemUtils.gamepad.floatLED(GamepadTarget.GAMEPAD1, 0, 1, 0, 600, 20);
 
         colorThreshold = colorThresholdDefault;
         alphaThreshold = alphaThresholdDefault;
@@ -157,7 +160,7 @@ public class StationaryShowcase extends ThreadOpMode {
         addTelemetryLine("RobotDefaults: colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
-        gamepad1.rumble(0.3, 0.3, 500);
+        SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0, 1, 1000);
     }
 
     //endregion

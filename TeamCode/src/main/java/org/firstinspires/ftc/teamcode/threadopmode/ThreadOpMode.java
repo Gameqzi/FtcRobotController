@@ -60,7 +60,7 @@ public abstract class ThreadOpMode extends OpMode {
     @Override
     public final void loop() {
         // Basically IF(StopRequested) --> Safe Shutdown
-        if (gamepad1.share || autoShutdownRequested) {
+        if (gamepad1.guide || autoShutdownRequested) {
             if (shutdownReady) {requestOpModeStop();} else {
                 gamepad1.rumble(0.5, 0.5, 1000);
                 manualOpModStop();
