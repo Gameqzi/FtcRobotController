@@ -84,9 +84,6 @@ public class StationaryShowcase extends ThreadOpMode {
         // Fix POTENTIAL telemetry flooding lag
         telemetry.setMsTransmissionInterval(50);  // Send at most 20x/second
 
-        // Set Gamepad LED Default
-        fadeGamepadLED(0, 0, 0);
-
         clearTelemetry();
         addTelemetryLine("Setup ~1% Complete: Int Hardware Map...");
 
@@ -134,10 +131,7 @@ public class StationaryShowcase extends ThreadOpMode {
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        SystemUtils SystemUtils = new SystemUtils()
-                .setTelemetry(telemetry)
-                .setGamepad1(gamepad1)
-                .setGamepad2(gamepad2);
+        SystemUtils.setupSystemUtils(telemetry, gamepad1, gamepad2);
 
         SystemUtils.helpReference();
 
@@ -160,7 +154,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        SystemUtils.gamepad.advBlinkLED(GamepadTarget.BOTH, 0, 1, 0, 1000, BlinkType.EVEN, BlinkAction.SOFT, 50);
+        SystemUtils.gamepad.floatLED(GamepadTarget.GAMEPAD1, 0, 1, 0, -1, );
 
         SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0, 1, 1000);
     }
@@ -174,7 +168,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         if (IdleModeActive) {
             updateTelemetry();
-            fadeGamepadLED(1, 1, 0);
+            //fadeGamepadLED(1, 1, 0);
             sleepForRand(500, 2000);
 
             int idleChance = ThreadLocalRandom.current().nextInt(1, 101);
@@ -219,7 +213,7 @@ public class StationaryShowcase extends ThreadOpMode {
         if (ActiveModeActive) {
             addTelemetryLine("Status: Running Active Mode...");
             gamepad1.rumble(0.2, 0.2, 500);
-            fadeGamepadLED(1, 0, 0);
+            //fadeGamepadLED(1, 0, 0);
 
             liftActive = true;
             liftGotoPos(30);

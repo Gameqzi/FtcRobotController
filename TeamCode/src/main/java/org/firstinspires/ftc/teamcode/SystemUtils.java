@@ -19,11 +19,12 @@ enum BlinkAction {
 
 public class SystemUtils {
     //region SystemUtils Global Functions:
-    private Telemetry telemetry;
-    private com.qualcomm.robotcore.hardware.Gamepad gamepad1;
-    private com.qualcomm.robotcore.hardware.Gamepad gamepad2;
 
-    public final Gamepad gamepad = new Gamepad();
+    private static Telemetry telemetry;
+    private static com.qualcomm.robotcore.hardware.Gamepad gamepad1;
+    private static com.qualcomm.robotcore.hardware.Gamepad gamepad2;
+
+    public static final Gamepad gamepad = new Gamepad();
 
     /**
      * <strong>Sets the telemetry object for SystemUtils</strong>
@@ -37,59 +38,22 @@ public class SystemUtils {
      * </ul>
      *
      * @param telemetry The telemetry object to associate with the script.
-     * @return This SystemUtils instance, for method chaining.
      */
-    public SystemUtils setTelemetry(Telemetry telemetry) {
-        this.telemetry = telemetry;
-        return this;
+    // --- CHANGE: Make setter method STATIC and return void ---
+    public static void setupSystemUtils(Telemetry telemetry, com.qualcomm.robotcore.hardware.Gamepad gamepad1, com.qualcomm.robotcore.hardware.Gamepad gamepad2) {
+        SystemUtils.telemetry = telemetry;
+        SystemUtils.gamepad1 = gamepad1;
+        SystemUtils.gamepad2 = gamepad2;
     }
 
-    /**
-     * <strong>Sets the gamepad1 object for SystemUtils</strong>
-     * <p>
-     * ToDo: Write something useful here...
-     * </p>
-     *
-     * <ul>
-     * <li>Level:    REQUIRED</li>
-     * <li>Location: MainINIT();</li>
-     * </ul>
-     *
-     * @param gamepad1 The gamepad1 object to associate with the script.
-     * @return This SystemUtils instance, for method chaining.
-     */
-    public SystemUtils setGamepad1(com.qualcomm.robotcore.hardware.Gamepad gamepad1) {
-        this.gamepad1 = gamepad1;
-        return this;
-    }
-
-    /**
-     * <strong>Sets the gamepad2 object for SystemUtils</strong>
-     * <p>
-     * ToDo: Write something useful here...
-     * </p>
-     *
-     * <ul>
-     * <li>Level:    REQUIRED</li>
-     * <li>Location: MainINIT();</li>
-     * </ul>
-     *
-     * @param gamepad2 The gamepad2 object to associate with the script.
-     * @return This SystemUtils instance, for method chaining.
-     */
-    public SystemUtils setGamepad2(com.qualcomm.robotcore.hardware.Gamepad gamepad2) {
-        this.gamepad2 = gamepad2;
-        return this;
-    }
     //endregion
 
-    // ToDo: MAKE THIS BETTER!!!:
     //region Help Reference:
     /**
      * <strong>Soley here to list all of the functions in SystemUtils & provide a documentation key.</strong>
      * <p>
      * Things to note:<br>
-     * You MUST call AT LEAST "SystemUtils SystemUtils = new SystemUtils();" in order to use SystemUtils.java's functions.
+     * You MUST call AT LEAST "SystemUtils.initialize(gamepad1, gamepad2, telemetry);" in your OpMode's runOpMode() to use SystemUtils.java's functions.
      * <br><br>SystemUtils Documentation Key:<br>
      * TypeType<br>
      * </p>
@@ -101,14 +65,13 @@ public class SystemUtils {
      * <li>.setGamepad2();</li>
      * </ul>
      */
-    public void helpReference() {}
+    public static void helpReference() {}
     //endregion
 
     //region MAIN EXE FUNCTIONS:
 
-
     //subregion Gamepad Functions:
-    public class Gamepad {
+    public static class Gamepad {
         private double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
         private double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
 
@@ -122,14 +85,14 @@ public class SystemUtils {
          */
         public void setLED(GamepadTarget Gamepad, double R, double G, double B, int Duration) {
             if (Gamepad == GamepadTarget.GAMEPAD1) {
-                gamepad1.setLedColor(R, G, B, Duration);
+                SystemUtils.gamepad1.setLedColor(R, G, B, Duration);
                 if (Duration == -1) {lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
             } else if (Gamepad == GamepadTarget.GAMEPAD2) {
-                gamepad2.setLedColor(R, G, B, Duration);
+                SystemUtils.gamepad2.setLedColor(R, G, B, Duration);
                 if (Duration == -1) {lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
             } else if (Gamepad == GamepadTarget.BOTH) {
-                gamepad1.setLedColor(R, G, B, Duration);
-                gamepad2.setLedColor(R, G, B, Duration);
+                SystemUtils.gamepad1.setLedColor(R, G, B, Duration);
+                SystemUtils.gamepad2.setLedColor(R, G, B, Duration);
                 if (Duration == -1) {lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B; lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
             }
         }
@@ -140,12 +103,14 @@ public class SystemUtils {
          * @param R        The RED color value. (0 - 1)
          * @param G        The GREEN color value. (0 - 1)
          * @param B        The BLUE color value. (0 - 1)
-         * @param Duration The how fast, in ms, that the float effect lasts.
-         * @param UpdateRate The rate, in ms, at which the gamepad LED updates during the effect.
+         * @param Duration How fast, in ms, that the float effect lasts.
+         * @param Steps How many times the LED will update during the change.
          */
-        public void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Duration, int UpdateRate) {
+        public void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Duration, int Steps) {
             ElapsedTime timer = new ElapsedTime();
             timer.reset();
+
+            long Step = Duration / Steps;
 
             while (timer.milliseconds() < Duration) {
                 double progress = timer.milliseconds() / Duration;
@@ -154,61 +119,113 @@ public class SystemUtils {
                     double currentRed = interpolate(lastGamepad1R, R, progress);
                     double currentGreen = interpolate(lastGamepad1G, G, progress);
                     double currentBlue = interpolate(lastGamepad1B, B, progress);
-                    gamepad1.setLedColor(currentRed, currentGreen, currentBlue, -1);
+                    SystemUtils.gamepad1.setLedColor(currentRed, currentGreen, currentBlue, -1);
                 }
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                     double currentRed = interpolate(lastGamepad2R, R, progress);
                     double currentGreen = interpolate(lastGamepad2G, G, progress);
                     double currentBlue = interpolate(lastGamepad2B, B, progress);
-                    gamepad2.setLedColor(currentRed, currentGreen, currentBlue, -1);
+                    SystemUtils.gamepad2.setLedColor(currentRed, currentGreen, currentBlue, -1);
                 }
-                sleep(UpdateRate);
+                sleep(Step);
             }
-            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {gamepad1.setLedColor(R, G, B, -1); lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
-            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {gamepad2.setLedColor(R, G, B, -1); lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
+            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad1.setLedColor(R, G, B, -1); lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
+            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.setLedColor(R, G, B, -1); lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
         }
 
         public void advRumble(GamepadTarget Gamepad, double RumbleLeft, double RumbleRight, int Duration) {
-            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {gamepad1.rumble(RumbleLeft, RumbleRight, Duration);}
-            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {gamepad2.rumble(RumbleLeft, RumbleRight, Duration);}
+            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad1.rumble(RumbleLeft, RumbleRight, Duration);}
+            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.rumble(RumbleLeft, RumbleRight, Duration);}
         }
 
+        // FIXME: DO NOT USE, WIP!
+        @Deprecated
         public void advBlinkLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, BlinkType BlinkType, BlinkAction BlinkAction, int Steps) {
             double onDuration = Speed * 0.50, offDuration = Speed * 0.50;
             if (BlinkType == BlinkType.EVEN)        {onDuration = Speed * 0.50; offDuration = Speed * 0.50;}
             if (BlinkType == BlinkType.ODD_HIGH)    {onDuration = Speed * 0.75; offDuration = Speed * 0.25;}
             if (BlinkType == BlinkType.ODD_LOW)     {onDuration = Speed * 0.25; offDuration = Speed * 0.75;}
 
-            com.qualcomm.robotcore.hardware.Gamepad.LedEffect advBlinkLED;
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect advBlinkLED_Effect;
 
             if (BlinkAction == BlinkAction.SHARP) {
-                advBlinkLED = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder()
+                advBlinkLED_Effect = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder()
                         .addStep(R, G, B, (int) onDuration)
                         .addStep(0.0, 0.0, 0.0, (int) offDuration)
                         .setRepeating(true)
                         .build();
-            } else {
-                advBlinkLED = createLedEffect(R, G, B, 0, 0, 0, Speed, Steps, true);
+            } else { // ELSE: BlinkAction.SOFT
+                int oneWayDuration = Speed / 2;
+                advBlinkLED_Effect = createLedEffect(R, G, B, 0, 0, 0, oneWayDuration, Steps, true);
             }
-            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {gamepad1.runLedEffect(advBlinkLED);}
-            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {gamepad2.runLedEffect(advBlinkLED);}
+            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad1.runLedEffect(advBlinkLED_Effect);}
+            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.runLedEffect(advBlinkLED_Effect);}
 
         }
 
-        // The amount of time, in ms, that it takes to complete one full loop.
+        // FIXME: DO NOT USE, WIP!
+        @Deprecated
         public void rainbowLED(GamepadTarget Gamepad, int Speed, int Steps) {
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
 
+            int totalIntervals = Steps;
+            // The total Speed duration divided by the number of steps to determine base duration per step
+            int baseStepDuration = Speed / totalIntervals;
+            int remainderDuration = Speed % totalIntervals;
+            baseStepDuration = Math.max(1, baseStepDuration); // Ensure minimum 1ms duration
+
+            for (int i = 0; i < Steps; i++) { // Loop through steps to generate colors
+                double progress = (double) i / Steps; // Progress from 0.0 to 1.0
+
+                // --- REPLACE THIS WITH YOUR ACTUAL RAINBOW COLOR INTERPOLATION LOGIC ---
+                // This is a simple example for demonstration:
+                double currentR = 0.0, currentG = 0.0, currentB = 0.0;
+                if (progress < 1.0/6.0) { // Red to Yellow
+                    currentR = 1.0; currentG = progress * 6.0;
+                } else if (progress < 2.0/6.0) { // Yellow to Green
+                    currentR = 1.0 - (progress * 6.0 - 1.0); currentG = 1.0;
+                } else if (progress < 3.0/6.0) { // Green to Cyan
+                    currentG = 1.0; currentB = progress * 6.0 - 2.0;
+                } else if (progress < 4.0/6.0) { // Cyan to Blue
+                    currentG = 1.0 - (progress * 6.0 - 3.0); currentB = 1.0;
+                } else if (progress < 5.0/6.0) { // Blue to Magenta
+                    currentR = progress * 6.0 - 4.0; currentB = 1.0;
+                } else { // Magenta to Red
+                    currentR = 1.0; currentB = 1.0 - (progress * 6.0 - 5.0);
+                }
+                // --- END RAINBOW COLOR INTERPOLATION ---
+
+                int actualStepDuration = baseStepDuration;
+                if (i < remainderDuration) {
+                    actualStepDuration++; // Distribute leftover milliseconds
+                }
+
+                builder.addStep(
+                        interpolate(0,1,currentR), // Use interpolate to clip colors (0.0 to 1.0)
+                        interpolate(0,1,currentG),
+                        interpolate(0,1,currentB),
+                        actualStepDuration
+                );
+            }
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect rainbowEffect = builder.setRepeating(true).build();
+            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad1.runLedEffect(rainbowEffect);}
+            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {SystemUtils.gamepad2.runLedEffect(rainbowEffect);}
         }
 
+        // FIXME: DO NOT USE!!!
+        @Deprecated
         private com.qualcomm.robotcore.hardware.Gamepad.LedEffect createLedEffect(double R1, double G1, double B1, double R2, double G2, double B2, int Duration, int Steps, boolean Repeating) {
-            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
-            int totalIntervalsPerWay = Steps - 1;
-            int baseStepDuration = Steps / totalIntervalsPerWay;
-            int remainderDuration = Steps % totalIntervalsPerWay;
-            baseStepDuration = Math.max(1, baseStepDuration);
 
+            com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
+
+            int totalIntervalsPerWay = Steps - 1;
+            int baseStepDuration = Duration / totalIntervalsPerWay;
+            int remainderDuration = Duration % totalIntervalsPerWay;
+            baseStepDuration = Math.max(1, baseStepDuration); // Ensure minimum 1ms duration
+
+            // 1. Fade from Color1 to Color2
             for (int i = 0; i < Steps; i++) {
-                double progress = (double) i / (Steps - 1);
+                double progress = (double) i / totalIntervalsPerWay;
 
                 double currentRed = interpolate(R1, R2, progress);
                 double currentGreen = interpolate(G1, G2, progress);
@@ -216,20 +233,22 @@ public class SystemUtils {
 
                 int actualStepDuration = baseStepDuration;
                 if (i < remainderDuration) {
-                    actualStepDuration++;
+                    actualStepDuration++; // Distribute leftover milliseconds
                 }
                 builder.addStep(currentRed, currentGreen, currentBlue, actualStepDuration);
             }
+
+            // 2. Fade from Color2 back to Color1 (if repeating)
             if (Repeating) {
-                for (int i = 1; i < Steps; i++) {
-                    double progress = (double) i / (Steps - 1);
+                for (int i = 1; i < Steps; i++) { // Start from 1 to avoid duplicating the middle step
+                    double progress = (double) i / totalIntervalsPerWay;
 
                     double currentR = interpolate(R2, R1, progress);
                     double currentG = interpolate(G2, G1, progress);
                     double currentB = interpolate(B2, B1, progress);
 
                     int actualStepDuration = baseStepDuration;
-                    if (i - 1 < remainderDuration) {
+                    if (i - 1 < remainderDuration) { // Adjust index for remainder distribution in second loop
                         actualStepDuration++;
                     }
                     builder.addStep(currentR, currentG, currentB, actualStepDuration);
@@ -244,30 +263,35 @@ public class SystemUtils {
     }
     //endregion
 
-    //subregion Telemetry LogFunctions:
-    private int maxTelemetryLines = 10;
-    /**
-     * Sets the maximum amount of lines that the telemetry log retains.
-     * <p>
-     * Thinking of a good note to put here...
-     * Level: REQUIRED - DEFAULT FAILSAFE
-     * </p>
-     * @param MaxLines ..
-     */
-    public void SetMaxLogLines(int MaxLines) {
-        maxTelemetryLines = MaxLines;
-    }
+    //subregion Telemetry Log Functions:
+    public static class TelemetryLog {
+        private static int maxTelemetryLines = 10;
 
-    /**
-     * Sets the maximum amount of lines that the telemetry log retains.
-     * <p>
-     * Thinking of a good note to put here...
-     * Level: REQUIRED - NULL OK FAILSAFE
-     * </p>
-     * @param MS ..
-     */
-    public void SetTelemetryTransmissionRate(int MS) {
-        telemetry.setMsTransmissionInterval(MS);
+        /**
+         * Sets the maximum amount of lines that the telemetry log retains.
+         * <p>
+         * Thinking of a good note to put here...
+         * Level: REQUIRED - DEFAULT FAILSAFE (10)
+         * </p>
+         *
+         * @param MaxLines ..
+         */
+        public static void SetMaxLogLines(int MaxLines) {
+            maxTelemetryLines = MaxLines;
+        }
+
+        /**
+         * Sets the maximum amount of lines that the telemetry log retains.
+         * <p>
+         * Thinking of a good note to put here...
+         * Level: REQUIRED - NULL OK FAILSAFE
+         * </p>
+         *
+         * @param MS ..
+         */
+        public static void SetTelemetryTransmissionRate(int MS) {
+            SystemUtils.telemetry.setMsTransmissionInterval(MS);
+        }
     }
     //endregion
 
