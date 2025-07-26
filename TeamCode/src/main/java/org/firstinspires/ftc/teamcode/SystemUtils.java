@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 enum GamepadTarget {
@@ -16,13 +14,12 @@ enum BlinkAction {
 
 public class SystemUtils {
     //region SystemUtils Global Functions:
-
     private static Telemetry telemetry;
     private static com.qualcomm.robotcore.hardware.Gamepad gamepad1;
     private static com.qualcomm.robotcore.hardware.Gamepad gamepad2;
 
-    public static final Gamepad gamepad = new Gamepad();
-
+    public static final UtilsGamepad gamepad = new UtilsGamepad();
+    /*
     /**
      * <strong>Sets the telemetry object for SystemUtils</strong>
      * <p>
@@ -36,7 +33,6 @@ public class SystemUtils {
      *
      * @param telemetry The telemetry object to associate with the script.
      */
-    public static class setupSystemUtils {
 
         // TODO: Add custom telemetry, then add it here: "[setupSystemUtils]: Waiting on Gamepad(s) to init..."
         // TODO: ALSO: Add an addTelemetryDebug(String Function, String Message); --> Outputs: "[Function]: Message"
@@ -44,20 +40,10 @@ public class SystemUtils {
 
         // TODO: Add a "Complete/Done Setting up" message here. WITH: GamepadID: gamepad1.getGamepadId()
 
-        public static void setTelemetry(Telemetry telemetry) {
-            SystemUtils.telemetry = telemetry;
-        }
-
-        public static void setGamepad1(com.qualcomm.robotcore.hardware.Gamepad gamepad1) {
-            SystemUtils.gamepad1 = gamepad1;
-            while(gamepad1.getGamepadId()!=-1);
-        }
-
-        public static void setGamepad2(com.qualcomm.robotcore.hardware.Gamepad gamepad2) {
-            SystemUtils.gamepad2 = gamepad2;
-            while(gamepad2.)
-        }
-
+    public static void setupSystemUtils(Telemetry telemetry, com.qualcomm.robotcore.hardware.Gamepad gamepad1, com.qualcomm.robotcore.hardware.Gamepad gamepad2) {
+        SystemUtils.telemetry = telemetry;
+        SystemUtils.gamepad1 = gamepad1;
+        SystemUtils.gamepad2 = gamepad2;
     }
 
     //endregion
@@ -86,7 +72,7 @@ public class SystemUtils {
     //region MAIN EXE FUNCTIONS:
 
     //subregion Gamepad Functions:
-    public static class Gamepad {
+    public static class UtilsGamepad {
         private double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
         private double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
 
@@ -99,16 +85,13 @@ public class SystemUtils {
          * @param Duration How long, in ms, that the RGB effect lasts. (Set to -1 for inf)
          */
         public void setLED(GamepadTarget Gamepad, double R, double G, double B, int Duration) {
-            if (Gamepad == GamepadTarget.GAMEPAD1) {
+            if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                 SystemUtils.gamepad1.setLedColor(R, G, B, Duration);
                 if (Duration == -1) {lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
-            } else if (Gamepad == GamepadTarget.GAMEPAD2) {
+            }
+            if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                 SystemUtils.gamepad2.setLedColor(R, G, B, Duration);
                 if (Duration == -1) {lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
-            } else if (Gamepad == GamepadTarget.BOTH) {
-                SystemUtils.gamepad1.setLedColor(R, G, B, Duration);
-                SystemUtils.gamepad2.setLedColor(R, G, B, Duration);
-                if (Duration == -1) {lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B; lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
             }
         }
 
@@ -124,13 +107,15 @@ public class SystemUtils {
         public void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Duration, int Steps) {
             if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                 gamepad1.setLedColor(R, G, B, -1);
+                lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;
                 com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP1_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Duration, Steps);
                 gamepad1.runLedEffect(GP1_Effect);
             }
 
             if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                 gamepad2.setLedColor(R, G, B, -1);
-                com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Duration, Steps);
+                lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;
+                com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad2R, lastGamepad2G, lastGamepad2B, R, G, B, Duration, Steps);
                 gamepad2.runLedEffect(GP2_Effect);
             }
         }

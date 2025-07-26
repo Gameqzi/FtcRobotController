@@ -125,14 +125,13 @@ public class StationaryShowcase extends ThreadOpMode {
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        addTelemetryLine("Setup ~66% Complete: Init Robot.java & TelemetryUtils.java Link...");
+        addTelemetryLine("Setup ~66% Complete: Init Robot.java & TelemetryUtils.java Link..."); // Gets stuck here (Doesn't show this line)
 
         // [SETUP] Robot.java & TelemetryUtils.java Link
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        SystemUtils.setupSystemUtils.setTelemetry(telemetry);
-        SystemUtils.setupSystemUtils.setGamepad1(gamepad1);
+        SystemUtils.setupSystemUtils(telemetry, gamepad1, gamepad2);
 
         SystemUtils.helpReference();
 
