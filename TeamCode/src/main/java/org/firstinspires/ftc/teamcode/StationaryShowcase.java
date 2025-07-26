@@ -125,15 +125,28 @@ public class StationaryShowcase extends ThreadOpMode {
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        addTelemetryLine("Setup ~66% Complete: Init Robot.java & TelemetryUtils.java Link..."); // Gets stuck here (Doesn't show this line)
+        addTelemetryLine("Setup ~66% Complete: Init Robot.java & SystemUtils.java Link...");
 
-        // [SETUP] Robot.java & TelemetryUtils.java Link
+        // [SETUP] Robot.java & SystemUtils.java Link
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        SystemUtils.setupSystemUtils(telemetry, gamepad1, gamepad2);
+        //SystemUtils.setupSystemUtils(telemetry, gamepad1, gamepad2);
 
         SystemUtils.helpReference();
+
+        SystemUtils     .init       .initTelemetry(telemetry);
+        SystemUtils     .init       .initGamepad1(gamepad1);
+        SystemUtils     .init       .initGamepad2(gamepad2);
+
+        SystemUtils     .gamepad    .led    .setLED(SystemUtils.GamepadTarget.BOTH, 0, 0, 0, 0);
+        SystemUtils     .gamepad    .led    .floatLED(SystemUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0);
+        SystemUtils     .gamepad    .led    .advBlinkLED(SystemUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, SystemUtils.BlinkType.EVEN, SystemUtils.BlinkAction.SHARP);
+        SystemUtils     .gamepad    .led    .rainbowLED(SystemUtils.GamepadTarget.BOTH, 0, 0);
+
+        SystemUtils     .gamepad    .rumble .advRumble(SystemUtils.GamepadTarget.BOTH, 0, 0, 0);
+
+
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
@@ -154,9 +167,9 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        SystemUtils.gamepad.floatLED(GamepadTarget.BOTH, 0, 1, 0, 5000, 500);
+        //SystemUtils.gamepad.floatLED(GamepadTarget.BOTH, 0, 1, 0, 5000, 500);
 
-        SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0.3, 0.3, 1000);
+        //SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0.3, 0.3, 1000);
     }
 
     //endregion
