@@ -19,6 +19,9 @@ public class SystemUtils {
     private static Gamepad SysGamepad1;
     private static Gamepad SysGamepad2;
 
+    private static double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
+    private static double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
+
     //region GLOBAL FUNCTIONS:
      /**
      * <strong>Soley here to list all of the functions in SystemUtils & provide a documentation key.</strong>
@@ -49,18 +52,20 @@ public class SystemUtils {
 
         public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad functions
             SysGamepad1 = gamepad;
+            SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black default
+            lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
         }
 
         public  static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad functions
             SysGamepad2 = gamepad;
+            SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black default
+            lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
         }
     }
     //endregion
 
     //region SystemUtils.gamepad
     public static class gamepad {
-        private  static double lastGamepad1R, lastGamepad1G, lastGamepad1B;
-        private  static double lastGamepad2R, lastGamepad2G, lastGamepad2B;
 
         //subregion SystemUtils.gamepad.led
         public static class led {
@@ -78,16 +83,16 @@ public class SystemUtils {
 
             public static void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, int Resolution) {
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
-                    SysGamepad1.setLedColor(R, G, B, -1);
-                    lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;
                     com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP1_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Speed, Resolution);
+                    lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;
+                    SysGamepad1.setLedColor(R, G, B, -1);
                     SysGamepad1.runLedEffect(GP1_Effect);
                 }
 
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
-                    SysGamepad2.setLedColor(R, G, B, -1);
-                    lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;
                     com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad2R, lastGamepad2G, lastGamepad2B, R, G, B, Speed, Resolution);
+                    lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;
+                    SysGamepad2.setLedColor(R, G, B, -1);
                     SysGamepad2.runLedEffect(GP2_Effect);
                 }
             }
@@ -103,6 +108,7 @@ public class SystemUtils {
 
                 com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder LEDST_Builder = new com.qualcomm.robotcore.hardware.Gamepad.LedEffect.Builder();
 
+                SysTelemetry.clearAll();
                 for (int i = 0; i < Resolution; i++) {
                     double progress = (double) i / Resolution;
 
@@ -110,6 +116,7 @@ public class SystemUtils {
                     double currentG = interpolate(G1, G2, progress);
                     double currentB = interpolate(B1, B2, progress);
                     LEDST_Builder.addStep(currentR, currentG, currentB, Step);
+                    SysTelemetry.addLine("CR: " + currentR + "  CG: " + currentG + "  CB: " + currentB);
                 }
 
                 return LEDST_Builder.setRepeating(false).build();
@@ -135,6 +142,8 @@ public class SystemUtils {
     //endregion
 }
 
+// for the telemetry TMS rate: (Default: |FTC SDK DEFAULT HERE|)
+// region OLD STUFFS
 
 
 /*
@@ -433,3 +442,4 @@ public class SystemUtils {
 }
 
  */
+// endregion

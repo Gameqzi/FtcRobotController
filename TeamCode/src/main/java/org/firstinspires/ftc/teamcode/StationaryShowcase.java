@@ -11,10 +11,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -46,7 +43,7 @@ public class StationaryShowcase extends ThreadOpMode {
     public static final int colorThresholdDefault = 30; // ToDo:                                                            | Change For Each Environment?
     public static final int alphaThresholdDefault = 210; // ToDo:                                                           | Change For Each Environment?
     public static final boolean robotCanMove = false; // ToDo: Can the robot move on the table?
-    public static final boolean robotQuietMode = false; // If we want less motor wining. Maybe for enclosed environments?
+    public static final boolean robotQuietMode = false; // If we want less motor wining. ToDo: Maybe for enclosed environments?
     boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode
 
     // Telemetry:
@@ -56,7 +53,6 @@ public class StationaryShowcase extends ThreadOpMode {
     // Others:
     boolean WiggleDir = false; // True for In, False for Out
     public int colorThreshold, alphaThreshold; // Used for active tuning
-    public int gamepadLastR = 0, gamepadLastG = 0, gamepadLastB = 0;
 
     // Tuning Mode Vars:
     boolean tuningFirstTime = true;
@@ -131,8 +127,10 @@ public class StationaryShowcase extends ThreadOpMode {
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        //SystemUtils.setupSystemUtils(telemetry, gamepad1, gamepad2);
+        SystemUtils.init.initTelemetry(telemetry);
+        SystemUtils.init.initGamepad1(gamepad1);
 
+        /*
         SystemUtils.helpReference();
 
         SystemUtils     .init       .initTelemetry(telemetry);
@@ -145,8 +143,7 @@ public class StationaryShowcase extends ThreadOpMode {
         SystemUtils     .gamepad    .led    .rainbowLED(SystemUtils.GamepadTarget.BOTH, 0, 0);
 
         SystemUtils     .gamepad    .rumble .advRumble(SystemUtils.GamepadTarget.BOTH, 0, 0, 0);
-
-
+        */
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
@@ -167,9 +164,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        //SystemUtils.gamepad.floatLED(GamepadTarget.BOTH, 0, 1, 0, 5000, 500);
-
-        //SystemUtils.gamepad.advRumble(GamepadTarget.BOTH, 0.3, 0.3, 1000);
+        SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 10000, 500);
+        SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.3, 0.3, 1000);
     }
 
     //endregion
@@ -181,7 +177,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         if (IdleModeActive) {
             updateTelemetry();
-            //fadeGamepadLED(1, 1, 0);
+            SystemUtils.gamepad.led.setLED(SystemUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, -1);
             sleepForRand(500, 2000);
 
             int idleChance = ThreadLocalRandom.current().nextInt(1, 101);
@@ -225,8 +221,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
         if (ActiveModeActive) {
             addTelemetryLine("Status: Running Active Mode...");
-            gamepad1.rumble(0.2, 0.2, 500);
-            //fadeGamepadLED(1, 0, 0);
+            SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 5000, 500);
+            SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.2, 0.2, 800);
 
             liftActive = true;
             liftGotoPos(30);
@@ -301,7 +297,8 @@ public class StationaryShowcase extends ThreadOpMode {
         if (TuningModeActive) {
             if (tuningFirstTime) {
                 addTelemetryLine("Status: Running Tuning Mode...");
-                gamepad1.rumble(0.2, 0.2, 500);
+                SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 1, 5000, 500);
+                SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.2, 0.2, 800);
                 liftGotoPos(200);
                 cameraGotoPos(panScore, tiltScore);
 
@@ -482,33 +479,6 @@ public class StationaryShowcase extends ThreadOpMode {
         }
         long randomTime = ThreadLocalRandom.current().nextLong(MinMillis, MaxMillis + 1);
         sleep(randomTime);
-    }
-
-    public void fadeGamepadLED(int R, int G, int B) {
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-
-        int duration = 800;
-        
-        while (timer.milliseconds() < duration) {
-            double progress = timer.milliseconds() / duration;
-
-            double currentRed = gamepadLastR + (R - gamepadLastR) * progress;
-            double currentGreen = gamepadLastG + (G - gamepadLastG) * progress;
-            double currentBlue = gamepadLastB + (B - gamepadLastB) * progress;
-            
-            currentRed = Math.max(0.0, Math.min(1.0, currentRed));
-            currentGreen = Math.max(0.0, Math.min(1.0, currentGreen));
-            currentBlue = Math.max(0.0, Math.min(1.0, currentBlue));
-
-            gamepad1.setLedColor(currentRed, currentGreen, currentBlue, -1);
-
-            sleep(20);
-        }
-
-        gamepadLastR = R; gamepadLastG = G; gamepadLastB = B;
-
-        gamepad1.setLedColor(R, G, B, -1);
     }
 
     //endregion
