@@ -164,7 +164,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 10000, 500);
+        SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 10000, 1000);
         SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.3, 0.3, 1000);
     }
 

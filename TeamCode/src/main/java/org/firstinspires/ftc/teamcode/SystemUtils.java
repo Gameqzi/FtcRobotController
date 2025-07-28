@@ -50,13 +50,13 @@ public class SystemUtils {
             SysTelemetry = telemetry;
         }
 
-        public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad functions
+        public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions
             SysGamepad1 = gamepad;
             SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black default
             lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
         }
 
-        public  static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad functions
+        public  static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad (2) functions
             SysGamepad2 = gamepad;
             SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black default
             lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
@@ -84,15 +84,16 @@ public class SystemUtils {
             public static void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, int Resolution) {
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                     com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP1_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Speed, Resolution);
+                    //SysGamepad1.setLedColor(R, G, B, -1);
+                    SysGamepad1.setLedColor(lastGamepad1R, lastGamepad1G, lastGamepad1B, 10);
                     lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;
-                    SysGamepad1.setLedColor(R, G, B, -1);
                     SysGamepad1.runLedEffect(GP1_Effect);
                 }
 
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                     com.qualcomm.robotcore.hardware.Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad2R, lastGamepad2G, lastGamepad2B, R, G, B, Speed, Resolution);
+                    SysGamepad2.setLedColor(lastGamepad2R, lastGamepad2G, lastGamepad2B, 10);
                     lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;
-                    SysGamepad2.setLedColor(R, G, B, -1);
                     SysGamepad2.runLedEffect(GP2_Effect);
                 }
             }
