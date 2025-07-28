@@ -164,8 +164,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 10000, 1000);
-        SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.3, 0.3, 1000);
+        SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 500, 50);
+        SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.1, 0.1, 800);
     }
 
     //endregion
@@ -220,9 +220,14 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (ActiveModeActive) {
-            addTelemetryLine("Status: Running Active Mode...");
-            SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 5000, 500);
-            SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.2, 0.2, 800);
+            addTelemetryLine("Status: Running Active Mode..."); // Testing SystemUtils.gamepad.led.floatLED(); Here:
+            for (int i = 0; i < 50; i++) {
+                SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 0, 1, 500, 50);
+                sleep(2000);
+
+                SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 500, 50);
+                sleep(2000);
+            }
 
             liftActive = true;
             liftGotoPos(30);
