@@ -93,7 +93,7 @@ public class DisplayUtils {
             }
 
             // ToDo: Note: less precise bcs of required double to int conversion
-            public static void sharpBlinkLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, BlinkType BlinkType) {
+            public static void sharpBlinkLED(GamepadTarget Gamepad, double R1, double G1, double B1, double R2, double G2, double B2 , int Speed, BlinkType BlinkType) {
                 double onDuration = Speed * 0.50, offDuration = Speed * 0.50;
                 if (BlinkType == DisplayUtils.BlinkType.EVEN)        {onDuration = Speed * 0.50; offDuration = Speed * 0.50;}
                 if (BlinkType == DisplayUtils.BlinkType.ODD_HIGH)    {onDuration = Speed * 0.75; offDuration = Speed * 0.25;}
@@ -101,8 +101,8 @@ public class DisplayUtils {
 
                 Gamepad.LedEffect.Builder SBLED_Builder = new Gamepad.LedEffect.Builder();
 
-                SBLED_Builder.addStep(R, G, B, (int) onDuration);
-                SBLED_Builder.addStep(0, 0, 0, (int) offDuration);
+                SBLED_Builder.addStep(R1, G1, B1, (int) onDuration);
+                SBLED_Builder.addStep(R2, G2, B2, (int) offDuration);
 
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP1_Effect = SBLED_Builder.setRepeating(true).build();
@@ -116,7 +116,7 @@ public class DisplayUtils {
 
             // @throws IllegalArgumentException if ...
             // ToDo: Note: less precise bcs of required double to int conversion
-            public static void softPulseLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, int Resolution, BlinkType BlinkType) {
+            public static void softPulseLED(GamepadTarget Gamepad, double R1, double G1, double B1, double R2, double G2, double B2, int Speed, int Resolution, BlinkType BlinkType) {
                 if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.advBlinkLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
 
                 int Step;
@@ -135,9 +135,9 @@ public class DisplayUtils {
                 for (int i = 0; i <= Res + 1; i++) {
                     double progress = (double) i / Res;
 
-                    currentR = interpolate(0, R, progress);
-                    currentG = interpolate(0, G, progress);
-                    currentB = interpolate(0, B, progress);
+                    currentR = interpolate(R2, R1, progress);
+                    currentG = interpolate(G2, G1, progress);
+                    currentB = interpolate(B2, B1, progress);
                     SPLED_Builder.addStep(currentR, currentG, currentB, Step);
                 }
 
@@ -146,9 +146,9 @@ public class DisplayUtils {
                 for (int i = 0; i <= Res + 1; i++) {
                     double progress = (double) i / Res;
 
-                    currentR = interpolate(R, 0, progress);
-                    currentG = interpolate(G, 0, progress);
-                    currentB = interpolate(B, 0, progress);
+                    currentR = interpolate(R1, R2, progress);
+                    currentG = interpolate(G1, G2, progress);
+                    currentB = interpolate(B1, B2, progress);
                     SPLED_Builder.addStep(currentR, currentG, currentB, Step);
                 }
                 SPLED_Builder.addStep(currentR, currentG, currentB, Step * 5);

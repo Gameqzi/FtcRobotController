@@ -140,7 +140,7 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0); // Done, Tested
         DisplayUtils    .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0); // Done, Tested
         DisplayUtils    .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // Done, Tested
-        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // WIP, Testing
+        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // Done, Tested
         DisplayUtils    .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 0, 0); // Done, Tested
 
         DisplayUtils    .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0); // Done, Tested
@@ -172,8 +172,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 1, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
-        DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0, 500);
+        DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, 0, 0, 0, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
+        DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
     }
 
     //endregion
@@ -228,15 +228,9 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (ActiveModeActive) {
-            addTelemetryLine("Status: Running Active Mode..."); // Testing DisplayUtils.gamepad.led.floatLED(); Here:
-
-            for (int i = 0; i < 50; i++) {
-                DisplayUtils.gamepad.led.floatLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 0, 1, 500, 50);
-                sleep(800);
-
-                DisplayUtils.gamepad.led.floatLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 500, 50);
-                sleep(800);
-            }
+            addTelemetryLine("Status: Running Active Mode...");
+            DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
+            DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
 
             liftActive = true;
             liftGotoPos(30);
@@ -311,8 +305,8 @@ public class StationaryShowcase extends ThreadOpMode {
         if (TuningModeActive) {
             if (tuningFirstTime) {
                 addTelemetryLine("Status: Running Tuning Mode...");
-                DisplayUtils.gamepad.led.floatLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 1, 5000, 500);
-                DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.2, 0.2, 800);
+                DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
+                DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
                 liftGotoPos(200);
                 cameraGotoPos(panScore, tiltScore);
 
