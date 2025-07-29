@@ -121,28 +121,28 @@ public class StationaryShowcase extends ThreadOpMode {
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        addTelemetryLine("Setup ~66% Complete: Init Robot.java & SystemUtils.java Link...");
+        addTelemetryLine("Setup ~66% Complete: Init Robot.java & DisplayUtils.java Link...");
 
-        // [SETUP] Robot.java & SystemUtils.java Link
+        // [SETUP] Robot.java & DisplayUtils.java Link
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        SystemUtils.init.initTelemetry(telemetry);
-        SystemUtils.init.initGamepad1(gamepad1);
+        DisplayUtils.init.initTelemetry(telemetry);
+        DisplayUtils.init.initGamepad1(gamepad1);
 
         /*
-        SystemUtils.helpReference();
+        DisplayUtils.helpReference();
 
-        SystemUtils     .init       .initTelemetry(telemetry);
-        SystemUtils     .init       .initGamepad1(gamepad1);
-        SystemUtils     .init       .initGamepad2(gamepad2);
+        DisplayUtils     .init       .initTelemetry(telemetry);
+        DisplayUtils     .init       .initGamepad1(gamepad1);
+        DisplayUtils     .init       .initGamepad2(gamepad2);
 
-        SystemUtils     .gamepad    .led    .setLED(SystemUtils.GamepadTarget.BOTH, 0, 0, 0, 0);
-        SystemUtils     .gamepad    .led    .floatLED(SystemUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0);
-        SystemUtils     .gamepad    .led    .advBlinkLED(SystemUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, SystemUtils.BlinkType.EVEN, SystemUtils.BlinkAction.SHARP);
-        SystemUtils     .gamepad    .led    .rainbowLED(SystemUtils.GamepadTarget.BOTH, 0, 0);
+        DisplayUtils     .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0);
+        DisplayUtils     .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0);
+        DisplayUtils     .gamepad    .led    .advBlinkLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN, DisplayUtils.BlinkAction.SHARP);
+        DisplayUtils     .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 0, 0);
 
-        SystemUtils     .gamepad    .rumble .advRumble(SystemUtils.GamepadTarget.BOTH, 0, 0, 0);
+        DisplayUtils     .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0);
         */
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
@@ -164,8 +164,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 500, 50);
-        SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.1, 0.1, 800);
+        DisplayUtils.gamepad.led.rainbowLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1000, 100);
+        DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0, 500);
     }
 
     //endregion
@@ -177,7 +177,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         if (IdleModeActive) {
             updateTelemetry();
-            SystemUtils.gamepad.led.setLED(SystemUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, -1);
+            DisplayUtils.gamepad.led.setLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, -1);
             sleepForRand(500, 2000);
 
             int idleChance = ThreadLocalRandom.current().nextInt(1, 101);
@@ -220,13 +220,14 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (ActiveModeActive) {
-            addTelemetryLine("Status: Running Active Mode..."); // Testing SystemUtils.gamepad.led.floatLED(); Here:
-            for (int i = 0; i < 50; i++) {
-                SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 0, 1, 500, 50);
-                sleep(2000);
+            addTelemetryLine("Status: Running Active Mode..."); // Testing DisplayUtils.gamepad.led.floatLED(); Here:
 
-                SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 500, 50);
-                sleep(2000);
+            for (int i = 0; i < 50; i++) {
+                DisplayUtils.gamepad.led.floatLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 0, 1, 500, 50);
+                sleep(800);
+
+                DisplayUtils.gamepad.led.floatLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 500, 50);
+                sleep(800);
             }
 
             liftActive = true;
@@ -302,8 +303,8 @@ public class StationaryShowcase extends ThreadOpMode {
         if (TuningModeActive) {
             if (tuningFirstTime) {
                 addTelemetryLine("Status: Running Tuning Mode...");
-                SystemUtils.gamepad.led.floatLED(SystemUtils.GamepadTarget.GAMEPAD1, 0, 1, 1, 5000, 500);
-                SystemUtils.gamepad.rumble.advRumble(SystemUtils.GamepadTarget.GAMEPAD1, 0.2, 0.2, 800);
+                DisplayUtils.gamepad.led.floatLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 1, 5000, 500);
+                DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.2, 0.2, 800);
                 liftGotoPos(200);
                 cameraGotoPos(panScore, tiltScore);
 
