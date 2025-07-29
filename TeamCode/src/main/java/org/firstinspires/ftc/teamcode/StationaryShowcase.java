@@ -172,7 +172,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 1, 1000, 100, DisplayUtils.BlinkType.EVEN);
+        DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 1, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
         DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0, 500);
     }
 
