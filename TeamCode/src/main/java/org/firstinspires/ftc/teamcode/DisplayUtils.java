@@ -21,19 +21,25 @@ public class DisplayUtils {
 
     //region DisplayUtils.helpReference:
      /**
-      * ----------------------------------------Please expand this JavaDoc window so that you can read this sentence on one line----------------------------------------
-      * <br><br>
-      * <strong>Solely here to list all of the functions in DisplayUtils and provide a documentation key.</strong>
+      * -----------------------------------For best readability, please expand this JavaDoc window so you can view this sentence on a single line-----------------------------------
+      * <br>
+      * <h1>DisplayUtils.java functions list and documentation key (helpReference)</h1>
       * <p>
       * <strong>Things to note:</strong><br>
       * You must call one or more of the following from your OpMode’s <code>mainInit()</code> method to use DisplayUtils features:
       * <code>DisplayUtils.init.initTelemetry(telemetry)</code>, <code>initGamepad1(gamepad1)</code>, or <code>initGamepad2(gamepad2)</code>.
       * </p>
-      *
-      * <p><strong>DisplayUtils Documentation Key:</strong><br>
-      * ToDo: Add documentation key here.
+      * <br>
+      * <h3>DisplayUtils Documentation Key:</h3>
+      * <p>
+      * <strong>[Short Explanation]</strong><br>
+      * [Expanded Description]<br>
+      * Dependencies (List)<br>
+      * - Parameter(s)<br>
+      * - Return Value (If any)
       * </p>
-      *
+      * <br>
+      * <h3>DisplayUtils Functions List:</h3>
       * <strong>All Public DisplayUtils Functions:</strong>
       * <ul>
       *     <li><code>DisplayUtils.helpReference();</code></li>
@@ -59,18 +65,21 @@ public class DisplayUtils {
       *     <li><code>DisplayUtils.telemetry.menu.removeMenuItem(menuId, itemName);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuId, caption, dataVariable);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuId);</code></li>
+      *     <br>
       *     <li><code>DisplayUtils.telemetry.log.showLog(visible);</code></li>
-      *     <li><code>DisplayUtils.telemetry.log.addLine(message);</code></li>
-      *     <li><code>DisplayUtils.telemetry.log.clearLog();</code></li>
       *     <li><code>DisplayUtils.telemetry.log.setMaxLines(maxLines);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.addLine(message);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.throwSoftError(object, error, gamepadNotice);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.throwHardError(object, error, safeShutdown);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.clearLog();</code></li>
       * </ul>
-      *
+      * <br>
       * <strong>All Internal DisplayUtils Functions:</strong>
       * <ul>
       *     <li><code>Gamepad.LedEffect LEDSmoothTransition(r1, g1, b1, r2, g2, b2, speed, resolution).setRepeating(repeating).build();</code></li>
       *     <li><code>double interpolate(start, end, progress);</code></li>
       * </ul>
-      * <br>
+      * <br><br><br>
       */
     public static void helpReference() {}
     //endregion
