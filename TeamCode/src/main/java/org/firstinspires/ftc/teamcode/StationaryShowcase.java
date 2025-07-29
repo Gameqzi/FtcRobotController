@@ -130,28 +130,38 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils.init.initTelemetry(telemetry);
         DisplayUtils.init.initGamepad1(gamepad1);
 
-        /*
+
         DisplayUtils.helpReference(); // WIP, Coding
 
         DisplayUtils    .init       .initTelemetry(telemetry); // Done, TBT
         DisplayUtils    .init       .initGamepad1(gamepad1); // Done, Tested
         DisplayUtils    .init       .initGamepad2(gamepad2); // Done, Tested
+        DisplayUtils    .init       .setTelemetryTransmissionRate(0); // Done, TBT
 
         DisplayUtils    .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0); // Done, Tested
         DisplayUtils    .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0); // Done, Tested
-        DisplayUtils    .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // Done, Tested
-        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // Done, Tested
+        DisplayUtils    .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH,0,0,0,0,0,0,0, DisplayUtils.BlinkType.EVEN); // Done, Tested
+        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH,0,0,0,0,0,0,0,0, DisplayUtils.BlinkType.EVEN); // Done, Tested
         DisplayUtils    .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 0, 0); // Done, Tested
 
         DisplayUtils    .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0); // Done, Tested
-        */
 
-        /* WIP, Not Coded:
-        DisplayUtils    .telemetry  .menu   .*
+        // Unfinished/Not Started Functions:
+        DisplayUtils    .telemetry  .menu   .createMenu(MenuID);
+        DisplayUtils    .telemetry  .menu   .removeMenu(MenuID);
+        DisplayUtils    .telemetry  .menu   .addMenuItem(MenuID, ItemName);
+        DisplayUtils    .telemetry  .menu       .addMenuItem(MenuID, ItemName, ItemVariable);
+        DisplayUtils    .telemetry  .menu       .addMenuItem(MenuID, ItemName, ItemVariable, ItemVariableDefault);
+        DisplayUtils    .telemetry  .menu   .removeMenuItem(MenuID, ItemName);
+        DisplayUtils    .telemetry  .menu   .addMenuData(MenuID, Caption, DataVariable);
+        DisplayUtils    .telemetry  .menu   .clearMenuData(MenuID);
+        DisplayUtils    .telemetry  .menu   .updateMenu(MenuID);
 
-        DisplayUtils    .telemetry  .log    .*
+        DisplayUtils    .telemetry  .log    .showLog(Visible);
+        DisplayUtils    .telemetry  .log    .addLine(Message);
+        DisplayUtils    .telemetry  .log    .clearLog();
+        DisplayUtils    .telemetry  .log    .setMaxLines(MaxLines);
 
-        */
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 

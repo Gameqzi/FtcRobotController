@@ -19,28 +19,63 @@ public class DisplayUtils {
     private static double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
     private static double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
 
-    //region GLOBAL FUNCTIONS:
+    //region DisplayUtils.helpReference:
      /**
-     * <strong>Soley here to list all of the functions in DisplayUtils & provide a documentation key.</strong>
-     * <p>
-     * Things to note:<br>
-     * You MUST call AT LEAST 'DisplayUtils.init.*' in your OpMode's mainInit() to use DisplayUtils.*'s functions. *gamepad, telemetry
-     * <br><br>DisplayUtils Documentation Key:<br>
-     * TypeType<br>
-     * </p>
-     * All DisplayUtils Callable Functions:
-     * <ul>
-     * <li>DisplayUtils.helpReference();</li>
-     * </ul>
-     * All Internal DisplayUtils Functions:
-     * <ul>
-     * <li></li>
-     * </ul>
-     */
+      * ----------------------------------------Please expand this JavaDoc window so that you can read this sentence on one line----------------------------------------
+      * <br><br>
+      * <strong>Solely here to list all of the functions in DisplayUtils and provide a documentation key.</strong>
+      * <p>
+      * <strong>Things to note:</strong><br>
+      * You must call one or more of the following from your OpMode’s <code>mainInit()</code> method to use DisplayUtils features:
+      * <code>DisplayUtils.init.initTelemetry(telemetry)</code>, <code>initGamepad1(gamepad1)</code>, or <code>initGamepad2(gamepad2)</code>.
+      * </p>
+      *
+      * <p><strong>DisplayUtils Documentation Key:</strong><br>
+      * ToDo: Add documentation key here.
+      * </p>
+      *
+      * <strong>All Public DisplayUtils Functions:</strong>
+      * <ul>
+      *     <li><code>DisplayUtils.helpReference();</code></li>
+      *     <br>
+      *     <li><code>DisplayUtils.init.initTelemetry(telemetry);</code></li>
+      *     <li><code>DisplayUtils.init.initGamepad1(gamepad1);</code></li>
+      *     <li><code>DisplayUtils.init.initGamepad2(gamepad2);</code></li>
+      *     <li><code>DisplayUtils.init.setTelemetryTransmissionRate(milliseconds);</code></li>
+      *     <br>
+      *     <li><code>DisplayUtils.gamepad.led.setLED(GamepadTarget, r, g, b, duration);</code></li>
+      *     <li><code>DisplayUtils.gamepad.led.floatLED(GamepadTarget, r, g, b, speed, resolution);</code></li>
+      *     <li><code>DisplayUtils.gamepad.led.sharpBlinkLED(GamepadTarget, r1, g1, b1, r2, g2, b2, speed, blinkType);</code></li>
+      *     <li><code>DisplayUtils.gamepad.led.softPulseLED(GamepadTarget, r1, g1, b1, r2, g2, b2, speed, resolution, blinkType);</code></li>
+      *     <li><code>DisplayUtils.gamepad.led.rainbowLED(GamepadTarget, speed, resolution);</code></li>
+      *     <br>
+      *     <li><code>DisplayUtils.gamepad.rumble.advRumble(GamepadTarget, rumbleLeft, rumbleRight, duration);</code></li>
+      *     <br>
+      *     <li><code>DisplayUtils.telemetry.menu.createMenu(menuId);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.removeMenu(menuId);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuId, itemName);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuId, itemName, itemVariable);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuId, itemName, itemVariable, defaultVal);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.removeMenuItem(menuId, itemName);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuId, caption, dataVariable);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuId);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.showLog(visible);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.addLine(message);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.clearLog();</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.setMaxLines(maxLines);</code></li>
+      * </ul>
+      *
+      * <strong>All Internal DisplayUtils Functions:</strong>
+      * <ul>
+      *     <li><code>Gamepad.LedEffect LEDSmoothTransition(r1, g1, b1, r2, g2, b2, speed, resolution).setRepeating(repeating).build();</code></li>
+      *     <li><code>double interpolate(start, end, progress);</code></li>
+      * </ul>
+      * <br>
+      */
     public static void helpReference() {}
     //endregion
 
-    //region DisplayUtils.init
+    //region DisplayUtils.init.*
     public static class init {
 
         public static void initTelemetry(Telemetry telemetry) { // Required
@@ -49,60 +84,65 @@ public class DisplayUtils {
 
         public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions
             SysGamepad1 = gamepad;
-            SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black default
+            SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black as default
             lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
         }
 
-        public  static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad (2) functions
+        public static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad (2) functions
             SysGamepad2 = gamepad;
-            SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black default
+            SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black as default
             lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
+        }
+
+        public static void setTelemetryTransmissionRate(int milliseconds) {
+            SysTelemetry.setMsTransmissionInterval(milliseconds);
         }
     }
     //endregion
 
-    //region DisplayUtils.gamepad
+    //region DisplayUtils.gamepad.*
     public static class gamepad {
 
-        //subregion DisplayUtils.gamepad.led
+        //subregion DisplayUtils.gamepad.led.*
         public static class led {
 
-            public static void setLED(GamepadTarget Gamepad, double R, double G, double B, int Duration) {
+            // ToDo: Note: Set Duration to -1 for inf
+            public static void setLED(GamepadTarget Gamepad, double r, double g, double b, int Duration) {
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
-                    SysGamepad1.setLedColor(R, G, B, Duration);
-                    if (Duration == -1) {lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;}
+                    SysGamepad1.setLedColor(r, g, b, Duration);
+                    if (Duration == -1) {lastGamepad1R = r; lastGamepad1G = g; lastGamepad1B = b;}
                 }
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
-                    SysGamepad2.setLedColor(R, G, B, Duration);
-                    if (Duration == -1) {lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;}
+                    SysGamepad2.setLedColor(r, g, b, Duration);
+                    if (Duration == -1) {lastGamepad2R = r; lastGamepad2G = g; lastGamepad2B = b;}
                 }
             }
 
-            public static void floatLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, int Resolution) { // TODO: Add a notice: Speed/Res = MS per step, recommended: 10 - 40 ms per step (usually Res = Speed/10 is good)
+            public static void floatLED(GamepadTarget Gamepad, double r, double g, double b, int speed, int resolution) { // TODO: Add a notice: Speed/Res = MS per step, recommended: 10 - 40 ms per step (usually Res = Speed/10 is good)
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
-                    Gamepad.LedEffect GP1_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, R, G, B, Speed, Resolution).setRepeating(false).build();
+                    Gamepad.LedEffect GP1_Effect = LEDSmoothTransition(lastGamepad1R, lastGamepad1G, lastGamepad1B, r, g, b, speed, resolution).setRepeating(false).build();
                     SysGamepad1.runLedEffect(GP1_Effect);
-                    lastGamepad1R = R; lastGamepad1G = G; lastGamepad1B = B;
+                    lastGamepad1R = r; lastGamepad1G = g; lastGamepad1B = b;
                 }
 
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
-                    Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad2R, lastGamepad2G, lastGamepad2B, R, G, B, Speed, Resolution).setRepeating(false).build();
+                    Gamepad.LedEffect GP2_Effect = LEDSmoothTransition(lastGamepad2R, lastGamepad2G, lastGamepad2B, r, g, b, speed, resolution).setRepeating(false).build();
                     SysGamepad2.runLedEffect(GP2_Effect);
-                    lastGamepad2R = R; lastGamepad2G = G; lastGamepad2B = B;
+                    lastGamepad2R = r; lastGamepad2G = g; lastGamepad2B = b;
                 }
             }
 
             // ToDo: Note: less precise bcs of required double to int conversion
-            public static void sharpBlinkLED(GamepadTarget Gamepad, double R1, double G1, double B1, double R2, double G2, double B2 , int Speed, BlinkType BlinkType) {
-                double onDuration = Speed * 0.50, offDuration = Speed * 0.50;
-                if (BlinkType == DisplayUtils.BlinkType.EVEN)        {onDuration = Speed * 0.50; offDuration = Speed * 0.50;}
-                if (BlinkType == DisplayUtils.BlinkType.ODD_HIGH)    {onDuration = Speed * 0.75; offDuration = Speed * 0.25;}
-                if (BlinkType == DisplayUtils.BlinkType.ODD_LOW)     {onDuration = Speed * 0.25; offDuration = Speed * 0.75;}
+            public static void sharpBlinkLED(GamepadTarget Gamepad, double r1, double g1, double b1, double r2, double g2, double b2 , int speed, BlinkType blinkType) {
+                double onDuration = speed * 0.50, offDuration = speed * 0.50;
+                if (blinkType == DisplayUtils.BlinkType.EVEN)        {onDuration = speed * 0.50; offDuration = speed * 0.50;}
+                if (blinkType == DisplayUtils.BlinkType.ODD_HIGH)    {onDuration = speed * 0.75; offDuration = speed * 0.25;}
+                if (blinkType == DisplayUtils.BlinkType.ODD_LOW)     {onDuration = speed * 0.25; offDuration = speed * 0.75;}
 
                 Gamepad.LedEffect.Builder SBLED_Builder = new Gamepad.LedEffect.Builder();
 
-                SBLED_Builder.addStep(R1, G1, B1, (int) onDuration);
-                SBLED_Builder.addStep(R2, G2, B2, (int) offDuration);
+                SBLED_Builder.addStep(r1, g1, b1, (int) onDuration);
+                SBLED_Builder.addStep(r2, g2, b2, (int) offDuration);
 
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP1_Effect = SBLED_Builder.setRepeating(true).build();
@@ -116,42 +156,42 @@ public class DisplayUtils {
 
             // @throws IllegalArgumentException if ...
             // ToDo: Note: less precise bcs of required double to int conversion
-            public static void softPulseLED(GamepadTarget Gamepad, double R1, double G1, double B1, double R2, double G2, double B2, int Speed, int Resolution, BlinkType BlinkType) {
-                if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.advBlinkLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
+            public static void softPulseLED(GamepadTarget Gamepad, double r1, double g1, double b1, double r2, double g2, double b2, int speed, int resolution, BlinkType blinkType) {
+                if (resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.advBlinkLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Variable: 'resolution' <= 0)!");}
 
-                int Step;
+                int step;
 
-                double onDuration = Speed * 0.50, offDuration = Speed * 0.50;
-                if (BlinkType == DisplayUtils.BlinkType.EVEN)        {onDuration = Speed * 0.50; offDuration = Speed * 0.50;}
-                if (BlinkType == DisplayUtils.BlinkType.ODD_HIGH)    {onDuration = Speed * 0.75; offDuration = Speed * 0.25;}
-                if (BlinkType == DisplayUtils.BlinkType.ODD_LOW)     {onDuration = Speed * 0.25; offDuration = Speed * 0.75;}
+                double onDuration = speed * 0.50, offDuration = speed * 0.50;
+                if (blinkType == DisplayUtils.BlinkType.EVEN)        {onDuration = speed * 0.50; offDuration = speed * 0.50;}
+                if (blinkType == DisplayUtils.BlinkType.ODD_HIGH)    {onDuration = speed * 0.75; offDuration = speed * 0.25;}
+                if (blinkType == DisplayUtils.BlinkType.ODD_LOW)     {onDuration = speed * 0.25; offDuration = speed * 0.75;}
 
-                int Res = Resolution / 2;
-                Step = (int) onDuration / Res;
+                int res = resolution / 2;
+                step = (int) onDuration / res;
 
                 Gamepad.LedEffect.Builder SPLED_Builder = new Gamepad.LedEffect.Builder();
                 double currentR = 0, currentG = 0, currentB = 0;
 
-                for (int i = 0; i <= Res + 1; i++) {
-                    double progress = (double) i / Res;
+                for (int i = 0; i <= res + 1; i++) {
+                    double progress = (double) i / res;
 
-                    currentR = interpolate(R2, R1, progress);
-                    currentG = interpolate(G2, G1, progress);
-                    currentB = interpolate(B2, B1, progress);
-                    SPLED_Builder.addStep(currentR, currentG, currentB, Step);
+                    currentR = interpolate(r2, r1, progress);
+                    currentG = interpolate(g2, g1, progress);
+                    currentB = interpolate(b2, b1, progress);
+                    SPLED_Builder.addStep(currentR, currentG, currentB, step);
                 }
 
-                Step = (int) offDuration / Res;
+                step = (int) offDuration / res;
 
-                for (int i = 0; i <= Res + 1; i++) {
-                    double progress = (double) i / Res;
+                for (int i = 0; i <= res + 1; i++) {
+                    double progress = (double) i / res;
 
-                    currentR = interpolate(R1, R2, progress);
-                    currentG = interpolate(G1, G2, progress);
-                    currentB = interpolate(B1, B2, progress);
-                    SPLED_Builder.addStep(currentR, currentG, currentB, Step);
+                    currentR = interpolate(r1, r2, progress);
+                    currentG = interpolate(g1, g2, progress);
+                    currentB = interpolate(b1, b2, progress);
+                    SPLED_Builder.addStep(currentR, currentG, currentB, step);
                 }
-                SPLED_Builder.addStep(currentR, currentG, currentB, Step * 5);
+                SPLED_Builder.addStep(currentR, currentG, currentB, step * 5);
 
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP1_Effect = SPLED_Builder.setRepeating(true).build();
@@ -164,40 +204,40 @@ public class DisplayUtils {
             }
 
             // @throws IllegalArgumentException if ...
-            public static void rainbowLED(GamepadTarget Gamepad, int Speed, int Resolution) {
-                if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.rainbowLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
+            public static void rainbowLED(GamepadTarget Gamepad, int speed, int resolution) {
+                if (resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.rainbowLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Variable: 'resolution' <= 0)!");}
 
-                int Res = Resolution / 3;
-                int Step = (Speed / 3) / Res;
+                int res = resolution / 3;
+                int step = (speed / 3) / res;
 
                 Gamepad.LedEffect.Builder RBLED_Builder = new Gamepad.LedEffect.Builder();
                 double currentR = 0, currentG = 0, currentB = 0;
 
-                for (int i = 0; i <= Res + 1; i++) {
-                    double progress = (double) i / Res;
+                for (int i = 0; i <= res + 1; i++) {
+                    double progress = (double) i / res;
 
                     currentR = interpolate(0, 1, progress);
                     currentG = interpolate(0, 0, progress);
                     currentB = interpolate(1, 0, progress);
-                    RBLED_Builder.addStep(currentR, currentG, currentB, Step);
+                    RBLED_Builder.addStep(currentR, currentG, currentB, step);
                 }
-                for (int i = 0; i <= Res + 1; i++) {
-                    double progress = (double) i / Res;
+                for (int i = 0; i <= res + 1; i++) {
+                    double progress = (double) i / res;
 
                     currentR = interpolate(1, 0, progress);
                     currentG = interpolate(0, 1, progress);
                     currentB = interpolate(0, 0, progress);
-                    RBLED_Builder.addStep(currentR, currentG, currentB, Step);
+                    RBLED_Builder.addStep(currentR, currentG, currentB, step);
                 }
-                for (int i = 0; i <= Res + 1; i++) {
-                    double progress = (double) i / Res;
+                for (int i = 0; i <= res + 1; i++) {
+                    double progress = (double) i / res;
 
                     currentR = interpolate(0, 0, progress);
                     currentG = interpolate(1, 0, progress);
                     currentB = interpolate(0, 1, progress);
-                    RBLED_Builder.addStep(currentR, currentG, currentB, Step);
+                    RBLED_Builder.addStep(currentR, currentG, currentB, step);
                 }
-                RBLED_Builder.addStep(currentR, currentG, currentB, Step * 5);
+                RBLED_Builder.addStep(currentR, currentG, currentB, step * 5);
 
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP1_Effect = RBLED_Builder.setRepeating(true).build();
@@ -210,50 +250,64 @@ public class DisplayUtils {
             }
 
             // @throws IllegalArgumentException if ...
-            private static Gamepad.LedEffect.Builder LEDSmoothTransition(double R1, double G1, double B1, double R2, double G2, double B2, int Speed, int Resolution) {
-                if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.LEDSmoothTransition]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
+            private static Gamepad.LedEffect.Builder LEDSmoothTransition(double R1, double G1, double B1, double R2, double G2, double B2, int speed, int resolution) {
+                if (resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.LEDSmoothTransition]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Variable: 'resolution' <= 0)!");}
 
-                int Step = Speed / Resolution;
+                int step = speed / resolution;
 
                 Gamepad.LedEffect.Builder LEDST_Builder = new Gamepad.LedEffect.Builder();
 
-                for (int i = 0; i <= Resolution + 1; i++) {
-                    double progress = (double) i / Resolution;
+                for (int i = 0; i <= resolution + 1; i++) {
+                    double progress = (double) i / resolution;
 
                     double currentR = interpolate(R1, R2, progress);
                     double currentG = interpolate(G1, G2, progress);
                     double currentB = interpolate(B1, B2, progress);
-                    LEDST_Builder.addStep(currentR, currentG, currentB, Step);
+                    LEDST_Builder.addStep(currentR, currentG, currentB, step);
                 }
                 LEDST_Builder.addStep(R2, G2, B2, Integer.MAX_VALUE);
 
                 return LEDST_Builder;
             }
 
-            private static double interpolate(double Start, double End, double Progress) {
-                return Math.max(0.0, Math.min(1.0, Start + (End - Start) * Progress));
+            private static double interpolate(double start, double end, double progress) {
+                return Math.max(0.0, Math.min(1.0, start + (end - start) * progress));
             }
         }
         //endregion
 
-        //subregion DisplayUtils.gamepad.rumble
+        //subregion DisplayUtils.gamepad.rumble.*
         public static class rumble {
 
-            public static void advRumble(GamepadTarget Gamepad, double RumbleLeft, double RumbleRight, int Duration) {
+            public static void advRumble(GamepadTarget Gamepad, double rumbleLeft, double rumbleRight, int duration) {
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
-                    DisplayUtils.SysGamepad1.rumble(RumbleLeft, RumbleRight, Duration);}
+                    DisplayUtils.SysGamepad1.rumble(rumbleLeft, rumbleRight, duration);}
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
-                    DisplayUtils.SysGamepad2.rumble(RumbleLeft, RumbleRight, Duration);}
+                    DisplayUtils.SysGamepad2.rumble(rumbleLeft, rumbleRight, duration);}
             }
         }
         //endregion
     }
-
     //endregion
+
+    //region DisplayUtils.telemetry.*
+    public static class telemetry {
+
+        //subregion DisplayUtils.telemetry.menu.*
+        public static class menu {
+
+        }
+        //endregion
+
+        //subregion DisplayUtils.telemetry.log.*
+        public static class log {
+
+        }
+        //endregion
+    }
 }
 
 // softError(...);
-// for the telemetry TMS rate: (Default: |FTC SDK DEFAULT HERE|)
 // region OLD STUFFS
 
 
