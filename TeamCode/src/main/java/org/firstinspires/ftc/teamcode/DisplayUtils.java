@@ -24,7 +24,7 @@ public class DisplayUtils {
      * <strong>Soley here to list all of the functions in DisplayUtils & provide a documentation key.</strong>
      * <p>
      * Things to note:<br>
-     * You MUST call AT LEAST "DisplayUtils.initialize(gamepad1, gamepad2, telemetry);" in your OpMode's runOpMode() to use DisplayUtils.java's functions.
+     * You MUST call AT LEAST 'DisplayUtils.init.*' in your OpMode's mainInit() to use DisplayUtils.*'s functions. *gamepad, telemetry
      * <br><br>DisplayUtils Documentation Key:<br>
      * TypeType<br>
      * </p>
@@ -114,30 +114,37 @@ public class DisplayUtils {
                 }
             }
 
+            // @throws IllegalArgumentException if ...
+            // ToDo: Note: less precise bcs of required double to int conversion
             public static void softPulseLED(GamepadTarget Gamepad, double R, double G, double B, int Speed, int Resolution, BlinkType BlinkType) {
                 if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.advBlinkLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
+
+                int Step;
 
                 double onDuration = Speed * 0.50, offDuration = Speed * 0.50;
                 if (BlinkType == DisplayUtils.BlinkType.EVEN)        {onDuration = Speed * 0.50; offDuration = Speed * 0.50;}
                 if (BlinkType == DisplayUtils.BlinkType.ODD_HIGH)    {onDuration = Speed * 0.75; offDuration = Speed * 0.25;}
                 if (BlinkType == DisplayUtils.BlinkType.ODD_LOW)     {onDuration = Speed * 0.25; offDuration = Speed * 0.75;}
 
-                int Step = (int) (onDuration / Resolution);
+                int Res = Resolution / 2;
+                Step = (int) onDuration / Res;
 
                 Gamepad.LedEffect.Builder SPLED_Builder = new Gamepad.LedEffect.Builder();
                 double currentR = 0, currentG = 0, currentB = 0;
 
-                for (int i = 0; i <= Resolution + 1; i++) {
-                    double progress = (double) i / Resolution;
+                for (int i = 0; i <= Res + 1; i++) {
+                    double progress = (double) i / Res;
 
                     currentR = interpolate(0, R, progress);
                     currentG = interpolate(0, G, progress);
                     currentB = interpolate(0, B, progress);
                     SPLED_Builder.addStep(currentR, currentG, currentB, Step);
                 }
-                SPLED_Builder.addStep(currentR, currentG, currentB, Step * 5);
-                for (int i = 0; i <= Resolution + 1; i++) {
-                    double progress = (double) i / Resolution;
+
+                Step = (int) offDuration / Res;
+
+                for (int i = 0; i <= Res + 1; i++) {
+                    double progress = (double) i / Res;
 
                     currentR = interpolate(R, 0, progress);
                     currentG = interpolate(G, 0, progress);
@@ -156,35 +163,34 @@ public class DisplayUtils {
                 }
             }
 
-            // TODO: Note: Speed & Resolution is per each RGB transition (Speed * 3 = Total Time, Resolution * 3 = Total Resolution)
+            // @throws IllegalArgumentException if ...
             public static void rainbowLED(GamepadTarget Gamepad, int Speed, int Resolution) {
                 if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.rainbowLED]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
 
-                int Step = Speed / Resolution;
+                int Res = Resolution / 3;
+                int Step = (Speed / 3) / Res;
 
                 Gamepad.LedEffect.Builder RBLED_Builder = new Gamepad.LedEffect.Builder();
                 double currentR = 0, currentG = 0, currentB = 0;
 
-                for (int i = 0; i <= Resolution + 1; i++) {
-                    double progress = (double) i / Resolution;
+                for (int i = 0; i <= Res + 1; i++) {
+                    double progress = (double) i / Res;
 
                     currentR = interpolate(0, 1, progress);
                     currentG = interpolate(0, 0, progress);
                     currentB = interpolate(1, 0, progress);
                     RBLED_Builder.addStep(currentR, currentG, currentB, Step);
                 }
-                RBLED_Builder.addStep(currentR, currentG, currentB, Step * 5);
-                for (int i = 0; i <= Resolution + 1; i++) {
-                    double progress = (double) i / Resolution;
+                for (int i = 0; i <= Res + 1; i++) {
+                    double progress = (double) i / Res;
 
                     currentR = interpolate(1, 0, progress);
                     currentG = interpolate(0, 1, progress);
                     currentB = interpolate(0, 0, progress);
                     RBLED_Builder.addStep(currentR, currentG, currentB, Step);
                 }
-                RBLED_Builder.addStep(currentR, currentG, currentB, Step * 5);
-                for (int i = 0; i <= Resolution + 1; i++) {
-                    double progress = (double) i / Resolution;
+                for (int i = 0; i <= Res + 1; i++) {
+                    double progress = (double) i / Res;
 
                     currentR = interpolate(0, 0, progress);
                     currentG = interpolate(1, 0, progress);
@@ -203,6 +209,7 @@ public class DisplayUtils {
                 }
             }
 
+            // @throws IllegalArgumentException if ...
             private static Gamepad.LedEffect.Builder LEDSmoothTransition(double R1, double G1, double B1, double R2, double G2, double B2, int Speed, int Resolution) {
                 if (Resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.LEDSmoothTransition]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Var: 'Resolution' <= 0)!");}
 
@@ -245,6 +252,7 @@ public class DisplayUtils {
     //endregion
 }
 
+// softError(...);
 // for the telemetry TMS rate: (Default: |FTC SDK DEFAULT HERE|)
 // region OLD STUFFS
 

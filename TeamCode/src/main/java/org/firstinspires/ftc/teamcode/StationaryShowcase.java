@@ -130,21 +130,28 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils.init.initTelemetry(telemetry);
         DisplayUtils.init.initGamepad1(gamepad1);
 
+        /*
+        DisplayUtils.helpReference(); // WIP, Coding
 
-        DisplayUtils.helpReference();
+        DisplayUtils    .init       .initTelemetry(telemetry); // Done, TBT
+        DisplayUtils    .init       .initGamepad1(gamepad1); // Done, Tested
+        DisplayUtils    .init       .initGamepad2(gamepad2); // Done, Tested
 
-        DisplayUtils     .init       .initTelemetry(telemetry);
-        DisplayUtils     .init       .initGamepad1(gamepad1);
-        DisplayUtils     .init       .initGamepad2(gamepad2);
+        DisplayUtils    .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0); // Done, Tested
+        DisplayUtils    .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0); // Done, Tested
+        DisplayUtils    .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // Done, Tested
+        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN); // WIP, Testing
+        DisplayUtils    .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 0, 0); // Done, Tested
 
-        DisplayUtils     .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0);
-        DisplayUtils     .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0);
-        DisplayUtils     .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN);
-        DisplayUtils     .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0, DisplayUtils.BlinkType.EVEN);
-        DisplayUtils     .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 0, 0);
+        DisplayUtils    .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0); // Done, Tested
+        */
 
-        DisplayUtils     .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0);
+        /* WIP, Not Coded:
+        DisplayUtils    .telemetry  .menu   .*
 
+        DisplayUtils    .telemetry  .log    .*
+
+        */
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
@@ -165,7 +172,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
 
-        DisplayUtils.gamepad.led.rainbowLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1000, 200);
+        DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 1, 1000, 100, DisplayUtils.BlinkType.EVEN);
         DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0, 500);
     }
 
