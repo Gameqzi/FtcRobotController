@@ -5,16 +5,21 @@ import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DisplayUtils {
+    // DisplayUtils.*
+    private static Telemetry SysTelemetry;
+    private static Gamepad SysGamepad1;
+    private static Gamepad SysGamepad2;
+
+    private static boolean telemetryInit = false;
+    private static boolean logVisible = false;
+
+    //.gamepad.*
     public enum GamepadTarget {
         GAMEPAD1, GAMEPAD2, BOTH
     }
     public enum BlinkType {
         EVEN, ODD_HIGH, ODD_LOW
     }
-
-    private static Telemetry SysTelemetry;
-    private static Gamepad SysGamepad1;
-    private static Gamepad SysGamepad2;
 
     private static double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
     private static double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
@@ -89,6 +94,8 @@ public class DisplayUtils {
 
         public static void initTelemetry(Telemetry telemetry) { // Required
             SysTelemetry = telemetry;
+            telemetryInit = true;
+            logVisible = true;
         }
 
         public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions
@@ -112,7 +119,7 @@ public class DisplayUtils {
     //region DisplayUtils.gamepad.*
     public static class gamepad {
 
-        //subregion DisplayUtils.gamepad.led.*
+        //region DisplayUtils.gamepad.led.*
         public static class led {
 
             // ToDo: Note: Set Duration to -1 for inf
@@ -285,7 +292,7 @@ public class DisplayUtils {
         }
         //endregion
 
-        //subregion DisplayUtils.gamepad.rumble.*
+        //region DisplayUtils.gamepad.rumble.*
         public static class rumble {
 
             public static void advRumble(GamepadTarget Gamepad, double rumbleLeft, double rumbleRight, int duration) {
@@ -302,18 +309,24 @@ public class DisplayUtils {
     //region DisplayUtils.telemetry.*
     public static class telemetry {
 
-        //subregion DisplayUtils.telemetry.menu.*
+        //region DisplayUtils.telemetry.menu.*
         public static class menu {
 
         }
         //endregion
 
-        //subregion DisplayUtils.telemetry.log.*
+        //region DisplayUtils.telemetry.log.*
         public static class log {
 
+            public static void showLog(boolean visible) {
+                logVisible = visible;
+            }
+
+            public static  void
         }
         //endregion
     }
+    //endregion
 }
 
 // softError(...);

@@ -130,7 +130,6 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils.init.initTelemetry(telemetry);
         DisplayUtils.init.initGamepad1(gamepad1);
 
-        /*
         DisplayUtils.helpReference(); // WIP, Coding
 
         DisplayUtils    .init       .initTelemetry(telemetry); // Done, TBT
@@ -157,11 +156,10 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .telemetry  .menu   .clearMenuData(MenuID);
         DisplayUtils    .telemetry  .menu   .updateMenu(MenuID);
 
-        DisplayUtils    .telemetry  .log    .showLog(Visible);
+        DisplayUtils    .telemetry  .log    .showLog(true);
         DisplayUtils    .telemetry  .log    .addLine(Message);
         DisplayUtils    .telemetry  .log    .clearLog();
         DisplayUtils    .telemetry  .log    .setMaxLines(MaxLines);
-        */
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
