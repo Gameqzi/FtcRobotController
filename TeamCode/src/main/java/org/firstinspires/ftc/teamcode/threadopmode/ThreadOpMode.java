@@ -11,6 +11,7 @@ import java.util.List;
  * Register threads with {@link ThreadOpMode#registerThread(TaskThread)}
  */
 public abstract class ThreadOpMode extends OpMode {
+    /** @noinspection FieldMayBeFinal*/
     private List<TaskThread> threads = new ArrayList<>();
 
     public static ThreadOpMode activeInstance; // So requestShutDown can be called anywhere

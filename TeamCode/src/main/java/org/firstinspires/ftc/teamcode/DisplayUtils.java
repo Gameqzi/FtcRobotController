@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
-import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode.*;
 
 import java.util.LinkedList;
 
@@ -31,6 +30,7 @@ public class DisplayUtils {
     private static final LinkedList<TelemetryEntry> telemetryBuffer = new LinkedList<>();
     private static int maxLogLines = 15; // 15 default
     private static boolean logVisible = false;
+    private static boolean autoDisplayLog = true; // TODO: True by default
 
     private static class TelemetryEntry {
         final String key;
@@ -94,6 +94,7 @@ public class DisplayUtils {
       *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuId);</code></li>
       *     <br>
       *     <li><code>DisplayUtils.telemetry.log.showLog(visible);</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.setAutoDisplay(displayAfterMenu);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.setMaxLines(maxLines);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.addLine(message);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.throwSoftError(object, error, gamepadNotice);</code></li>
@@ -341,10 +342,17 @@ public class DisplayUtils {
 
             public static void showLog(boolean visible) {
                 logVisible = visible;
+                updateLog();
             }
 
             public static void setMaxLines(int maxLines) {
                 maxLogLines = maxLines;
+                updateLog();
+            }
+
+            public static void setAutoDisplay(boolean displayAfterMenu) { // TODO: REMEMBER ME!!!
+                autoDisplayLog = displayAfterMenu;
+                updateLog();
             }
 
             public static void addLine(String message) {
@@ -354,7 +362,7 @@ public class DisplayUtils {
 
                 telemetryBuffer.addLast(new TelemetryEntry(message));
 
-                if (logVisible) updateLog();
+                updateLog();
             }
 
             public static void throwSoftError(String object, String error, boolean gamepadNotice) {
@@ -370,12 +378,23 @@ public class DisplayUtils {
                 addLine("[" + object + "] <ERROR> [HARD] " + error);
 
                 if (safeShutdown) {
+                    addLine("SafeShutdown enabled, shutting down...");
                     ThreadOpMode.activeInstance.requestAutoOpModeStop();
+                } else {
+                    addLine("SafeShutdown disabled, throwing runtime exception...");
+                    throw new RuntimeException("[" + object + "] <ERROR> [HARD] " + error);
                 }
             }
 
             public static void clearLog(boolean displayClearEvent) {
+                addLine("[Clearing Log...]");
+                telemetryBuffer.clear();
 
+                if (displayClearEvent) {
+                    addLine("[Log Cleared]");
+                } else {
+                    updateLog();
+                }
             }
 
             private static void updateLog() {
@@ -384,7 +403,7 @@ public class DisplayUtils {
                 for (TelemetryEntry entry : telemetryBuffer) {
                     SysTelemetry.addLine(entry.value);
                 }
-                SysTelemetry.update();
+                if (logVisible) {SysTelemetry.update();}
             }
         }
         //endregion

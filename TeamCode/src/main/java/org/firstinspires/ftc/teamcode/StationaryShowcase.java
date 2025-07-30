@@ -130,6 +130,7 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils.init.initTelemetry(telemetry);
         DisplayUtils.init.initGamepad1(gamepad1);
 
+        /*
         DisplayUtils.helpReference(); // WIP, Coding
 
         DisplayUtils    .init       .initTelemetry(telemetry); // Done, TBT
@@ -160,6 +161,7 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .telemetry  .log    .addLine("Message");
         DisplayUtils    .telemetry  .log    .clearLog(false);
         DisplayUtils    .telemetry  .log    .setMaxLines(15);
+         */
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
@@ -182,6 +184,49 @@ public class StationaryShowcase extends ThreadOpMode {
 
         DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, 0, 0, 0, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
         DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
+
+        int GRAVY = 5;
+        DisplayUtils.telemetry.log.setMaxLines(GRAVY);
+        DisplayUtils.telemetry.log.addLine("Test1!!!");
+        DisplayUtils.telemetry.log.addLine("Max lines is:" + GRAVY);
+        sleep(1000);
+        DisplayUtils.telemetry.log.addLine("3");
+        DisplayUtils.telemetry.log.addLine("2");
+        DisplayUtils.telemetry.log.addLine("1");
+        sleep(1000);
+        DisplayUtils.telemetry.log.addLine("Gone!");
+        sleep(500);
+        DisplayUtils.telemetry.log.addLine("Gone!");
+        sleep(500);
+        DisplayUtils.telemetry.log.addLine("Gone!");
+
+        DisplayUtils.telemetry.log.addLine("Now Testing Visible!");
+        sleep(500);
+        DisplayUtils.telemetry.log.showLog(false);
+        DisplayUtils.telemetry.log.addLine("Can you see me?");
+        sleep(1000);
+        DisplayUtils.telemetry.log.showLog(true);
+        sleep(500);
+        DisplayUtils.telemetry.log.addLine("AND, Back!");
+        sleep(3000);
+        DisplayUtils.telemetry.log.addLine("Clearing log!");
+        sleep(1000);
+        DisplayUtils.telemetry.log.clearLog(true);
+        sleep(500);
+        DisplayUtils.telemetry.log.addLine("Silent Clear now...");
+        sleep(1000);
+        DisplayUtils.telemetry.log.clearLog(false);
+        DisplayUtils.telemetry.log.addLine("Back!!!");
+        sleep(3000);
+        DisplayUtils.telemetry.log.addLine("Now throwing soft ERROR...");
+        sleep(1000);
+        DisplayUtils.telemetry.log.throwSoftError("com.test.new.new.meNew", "Test Succeeded!", false);
+        sleep(500);
+        DisplayUtils.telemetry.log.addLine("Now testing gamepad soft error...");
+        sleep(1000);
+        DisplayUtils.telemetry.log.throwSoftError("com.test.new.new.newForm", "Game-pad-ded-ed yet?", true);
+        sleep(5000);
+        DisplayUtils.telemetry.log.addLine("TEST DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! <-- (Too much?)");
     }
 
     //endregion
@@ -512,20 +557,20 @@ public class StationaryShowcase extends ThreadOpMode {
     }
 
     private void clearTelemetry() {
-        telemetry.clearAll();
+        //telemetry.clearAll();
     }
 
     private void updateTelemetry() {
-        telemetry.setAutoClear(true);
-        clearTelemetry();
-        for (TelemetryEntry e : telemetryBuffer) {
-            if (e.isPlain()) {
-                telemetry.addLine(e.value);
-            } else {
-                telemetry.addData(e.key, e.value);
-            }
-        }
-        telemetry.update();
+        //telemetry.setAutoClear(true);
+        //clearTelemetry();
+        //for (TelemetryEntry e : telemetryBuffer) {
+        //    if (e.isPlain()) {
+        //        telemetry.addLine(e.value);
+        //    } else {
+        //        telemetry.addData(e.key, e.value);
+        //    }
+        //}
+        //telemetry.update();
     }
 
     public void addTelemetryLine(String msg) {
