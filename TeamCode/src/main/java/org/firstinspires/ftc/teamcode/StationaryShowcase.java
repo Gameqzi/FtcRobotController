@@ -17,7 +17,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
-import java.util.ArrayDeque;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Config
@@ -46,10 +45,6 @@ public class StationaryShowcase extends ThreadOpMode {
     public static final boolean robotQuietMode = false; // If we want less motor wining. ToDo: Maybe for enclosed environments?
     boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode
 
-    // Telemetry:
-    private static final int maxTelemetryLines = 15;
-    private final ArrayDeque<TelemetryEntry> telemetryBuffer = new ArrayDeque<>(maxTelemetryLines);
-
     // Others:
     boolean WiggleDir = false; // True for In, False for Out
     public int colorThreshold, alphaThreshold; // Used for active tuning
@@ -62,7 +57,7 @@ public class StationaryShowcase extends ThreadOpMode {
     String selector;
     boolean editing = false;
 
-    // Active Mode Latches:
+    // Mode Latches:
     public boolean IdleModeActive = true;
     public boolean ActiveModeActive = false;
     public boolean TuningModeActive = false;
@@ -76,12 +71,12 @@ public class StationaryShowcase extends ThreadOpMode {
 
     @Override
     public void mainInit() { // TODO: DO NOT ADD MultipleTelemetry(FtcDashboard), the telemetry is setup for the DRIVER HUB, NOT FTC DASHBOARD!
+        DisplayUtils.init.initTelemetry(telemetry);
+        DisplayUtils.init.initGamepad1(gamepad1);
 
-        // Fix POTENTIAL telemetry flooding lag
-        telemetry.setMsTransmissionInterval(50);  // Send at most 20x/second
+        DisplayUtils.init.setTelemetryTransmissionRate(20);
 
-        clearTelemetry();
-        addTelemetryLine("Setup ~1% Complete: Int Hardware Map...");
+        DisplayUtils.telemetry.log.addLine("Setup ~1% Complete: Int Hardware Map...");
 
         // [SETUP] Hardware Map
         DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -96,7 +91,7 @@ public class StationaryShowcase extends ThreadOpMode {
         CamServoTilt = hardwareMap.get(Servo.class, "CamServoTilt");
         Lift = hardwareMap.get(DcMotorEx.class, "lift");
 
-        addTelemetryLine("Setup ~16% Complete: Motor Config... (1/2)");
+        DisplayUtils.telemetry.log.addLine("Setup ~16% Complete: Motor Config... (1/2)");
 
         // [SETUP] Motor Config.
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -114,21 +109,19 @@ public class StationaryShowcase extends ThreadOpMode {
 
         Lift.setVelocityPIDFCoefficients(LP, LI, LD, LF);
 
-        addTelemetryLine("Setup ~50% Complete: Motor Config... (2/2)");
+        DisplayUtils.telemetry.log.addLine("Setup ~50% Complete: Motor Config... (2/2)");
 
         frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        addTelemetryLine("Setup ~66% Complete: Init Robot.java & DisplayUtils.java Link...");
+        DisplayUtils.telemetry.log.addLine("Setup ~66% Complete: Init Robot.java & DisplayUtils.java Link...");
 
-        // [SETUP] Robot.java & DisplayUtils.java Link
+        // [SETUP] Robot.java Link
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
-        DisplayUtils.init.initTelemetry(telemetry);
-        DisplayUtils.init.initGamepad1(gamepad1);
 
         /*
         DisplayUtils.helpReference(); // WIP, Coding
@@ -163,12 +156,12 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .telemetry  .log    .setMaxLines(15);
          */
 
-        addTelemetryLine("Setup ~83% Complete: IMU Config...");
+        DisplayUtils.telemetry.log.addLine("Setup ~83% Complete: IMU Config...");
 
         // [SETUP] IMU Config.
         configureOtos();
 
-        addTelemetryLine("Setup ~99% Complete: Setting Robot Defaults...");
+        DisplayUtils.telemetry.log.addLine("Setup ~99% Complete: Setting Robot Defaults...");
 
         // [SETUP] Defaults
         robot.stopMotors();
@@ -178,55 +171,12 @@ public class StationaryShowcase extends ThreadOpMode {
         colorThreshold = colorThresholdDefault;
         alphaThreshold = alphaThresholdDefault;
 
-        addTelemetryLine("RobotDefaults: colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
+        DisplayUtils.telemetry.log.addLine("RobotDefaults: colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
 
-        addTelemetryLine("Setup 100% Complete, Status: Waiting for start...");
+        DisplayUtils.telemetry.log.addLine("Setup 100% Complete, Status: Waiting for start...");
 
         DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, 0, 0, 0, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
         DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
-
-        int GRAVY = 5;
-        DisplayUtils.telemetry.log.setMaxLines(GRAVY);
-        DisplayUtils.telemetry.log.addLine("Test1!!!");
-        DisplayUtils.telemetry.log.addLine("Max lines is:" + GRAVY);
-        sleep(1000);
-        DisplayUtils.telemetry.log.addLine("3");
-        DisplayUtils.telemetry.log.addLine("2");
-        DisplayUtils.telemetry.log.addLine("1");
-        sleep(1000);
-        DisplayUtils.telemetry.log.addLine("Gone!");
-        sleep(500);
-        DisplayUtils.telemetry.log.addLine("Gone!");
-        sleep(500);
-        DisplayUtils.telemetry.log.addLine("Gone!");
-
-        DisplayUtils.telemetry.log.addLine("Now Testing Visible!");
-        sleep(500);
-        DisplayUtils.telemetry.log.showLog(false);
-        DisplayUtils.telemetry.log.addLine("Can you see me?");
-        sleep(1000);
-        DisplayUtils.telemetry.log.showLog(true);
-        sleep(500);
-        DisplayUtils.telemetry.log.addLine("AND, Back!");
-        sleep(3000);
-        DisplayUtils.telemetry.log.addLine("Clearing log!");
-        sleep(1000);
-        DisplayUtils.telemetry.log.clearLog(true);
-        sleep(500);
-        DisplayUtils.telemetry.log.addLine("Silent Clear now...");
-        sleep(1000);
-        DisplayUtils.telemetry.log.clearLog(false);
-        DisplayUtils.telemetry.log.addLine("Back!!!");
-        sleep(3000);
-        DisplayUtils.telemetry.log.addLine("Now throwing soft ERROR...");
-        sleep(1000);
-        DisplayUtils.telemetry.log.throwSoftError("com.test.new.new.meNew", "Test Succeeded!", false);
-        sleep(500);
-        DisplayUtils.telemetry.log.addLine("Now testing gamepad soft error...");
-        sleep(1000);
-        DisplayUtils.telemetry.log.throwSoftError("com.test.new.new.newForm", "Game-pad-ded-ed yet?", true);
-        sleep(5000);
-        DisplayUtils.telemetry.log.addLine("TEST DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! <-- (Too much?)");
     }
 
     //endregion
@@ -237,7 +187,6 @@ public class StationaryShowcase extends ThreadOpMode {
     public void mainLoop() {
 
         if (IdleModeActive) {
-            updateTelemetry();
             DisplayUtils.gamepad.led.setLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, -1);
             sleepForRand(500, 2000);
 
@@ -246,25 +195,25 @@ public class StationaryShowcase extends ThreadOpMode {
             if (robotQuietMode) {
                 if (idleChance <= 80) {
                     // 80% chance - Move Camera
-                    addTelemetryLine("Current Idle Movement: Move Camera");
+                    DisplayUtils.telemetry.log.addLine("Current Idle Movement: Move Camera");
                     cameraGotoPos(ThreadLocalRandom.current().nextDouble(panMin, panMax - 0.05), ThreadLocalRandom.current().nextDouble(tiltMin, tiltMax - 0.2));
                 } else {
                     // 20% chance - Wiggle Intake
-                    addTelemetryLine("Current Idle Movement: Wiggle Intake");
+                    DisplayUtils.telemetry.log.addLine("Current Idle Movement: Wiggle Intake");
                     intakeIdleWiggle();
                 }
             } else {
             if (idleChance <= 70) {
                 // 70% chance - Move Camera
-                addTelemetryLine("Current Idle Movement: Move Camera");
+                DisplayUtils.telemetry.log.addLine("Current Idle Movement: Move Camera");
                 cameraGotoPos(ThreadLocalRandom.current().nextDouble(panMin, panMax - 0.05), ThreadLocalRandom.current().nextDouble(tiltMin, tiltMax - 0.2));
             } else if (idleChance <= 90) {
                 // 20% chance - Wiggle Intake
-                addTelemetryLine("Current Idle Movement: Wiggle Intake");
+                DisplayUtils.telemetry.log.addLine("Current Idle Movement: Wiggle Intake");
                 intakeIdleWiggle();
             } else {
                 // 10% chance - Move Lift
-                addTelemetryLine("Current Idle Movement: Move Lift");
+                DisplayUtils.telemetry.log.addLine("Current Idle Movement: Move Lift");
                 liftGotoPos(ThreadLocalRandom.current().nextInt(10, 301));
             }
             }
@@ -281,7 +230,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (ActiveModeActive) {
-            addTelemetryLine("Status: Running Active Mode...");
+            DisplayUtils.telemetry.log.addLine("Status: Running Active Mode...");
             DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
             DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
 
@@ -301,11 +250,11 @@ public class StationaryShowcase extends ThreadOpMode {
 
                 if (block && colorSensor.red() > colorSensor.blue() + colorThreshold) { // If Red Block, Collect
                     correctBlock = true;
-                    addTelemetryLine("ActiveMode: Detected block: RED -> Scoring...");
+                    DisplayUtils.telemetry.log.addLine("ActiveMode: Detected block: RED -> Scoring...");
                     sleep(1000);
                 } else if (block && colorSensor.blue() > colorSensor.red() + colorThreshold) { // If Blue Block, Reject
                     intakeMove(IntakeAction.REJECT);
-                    addTelemetryLine("ActiveMode: Detected block: BLUE -> Rejecting...");
+                    DisplayUtils.telemetry.log.addLine("ActiveMode: Detected block: BLUE -> Rejecting...");
                     sleep(500);
 
                     // NEW: *Shakes Head* LoL
@@ -321,7 +270,7 @@ public class StationaryShowcase extends ThreadOpMode {
                     cameraGotoPos(panHome, tiltMin);
                 } else if (block) { // If Unidentifiable, Reject
                     intakeMove(IntakeAction.REJECT);
-                    addTelemetryLine("<ERROR> Block color could not be identified! Rejecting...");
+                    DisplayUtils.telemetry.log.addLine("<ERROR> Block color could not be identified! Rejecting...");
                     sleep(1000);
                 }
             }
@@ -357,7 +306,7 @@ public class StationaryShowcase extends ThreadOpMode {
 
         if (TuningModeActive) {
             if (tuningFirstTime) {
-                addTelemetryLine("Status: Running Tuning Mode...");
+                DisplayUtils.telemetry.log.addLine("Status: Running Tuning Mode...");
                 DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
                 DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
                 liftGotoPos(200);
@@ -367,7 +316,7 @@ public class StationaryShowcase extends ThreadOpMode {
                 tuningFirstTime = false;
             }
 
-            clearTelemetry();
+            DisplayUtils.telemetry.log.clearLog(false);
             telemetry.addLine("TUNING MODE\n");
 
             if (selectedAction == 1 && editing) {
@@ -481,7 +430,7 @@ public class StationaryShowcase extends ThreadOpMode {
             while (Lift.isBusy()) ; // THIS IS REQUIRED!
         } else {
             Lift.setMotorDisable();
-            addTelemetryLine("<ERROR> [SILENT] Lift was called, but lift is not active!");
+            DisplayUtils.telemetry.log.addLine("<ERROR> [SILENT] Lift was called, but lift is not active!");
         }
     }
 
@@ -544,50 +493,11 @@ public class StationaryShowcase extends ThreadOpMode {
 
     //endregion
 
-    // region Telemetry
-
-    private static class TelemetryEntry {
-        final String key;
-        String value;
-        TelemetryEntry(String message) {
-            this.key   = null;
-            this.value = message;
-        }
-        boolean isPlain() { return key == null; }
-    }
-
-    private void clearTelemetry() {
-        //telemetry.clearAll();
-    }
-
-    private void updateTelemetry() {
-        //telemetry.setAutoClear(true);
-        //clearTelemetry();
-        //for (TelemetryEntry e : telemetryBuffer) {
-        //    if (e.isPlain()) {
-        //        telemetry.addLine(e.value);
-        //    } else {
-        //        telemetry.addData(e.key, e.value);
-        //    }
-        //}
-        //telemetry.update();
-    }
-
-    public void addTelemetryLine(String msg) {
-        if (telemetryBuffer.size() == maxTelemetryLines) {
-            telemetryBuffer.removeFirst();
-        }
-        telemetryBuffer.addLast(new TelemetryEntry(msg));
-        updateTelemetry();
-    }
-
-    //endregion
-
     //region OpModeShutdown
 
     @Override
     protected void onOpModeStop() {
-        addTelemetryLine("Status: Shutting Down...");
+        DisplayUtils.telemetry.log.addLine("Status: Shutting Down...");
 
         intakeMove(IntakeAction.STOP);
         cameraGotoPos(panScore, tiltScore);

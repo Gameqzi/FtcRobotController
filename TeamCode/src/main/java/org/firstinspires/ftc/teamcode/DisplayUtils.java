@@ -12,8 +12,8 @@ public class DisplayUtils {
 
     //.init.*
     private static Telemetry SysTelemetry;
-    private static Gamepad SysGamepad1;
-    private static Gamepad SysGamepad2;
+    private static Gamepad SysGamepad1 = new Gamepad();
+    private static Gamepad SysGamepad2 = new Gamepad();
 
     //.gamepad.*
     public enum GamepadTarget {
@@ -115,21 +115,30 @@ public class DisplayUtils {
     //region DisplayUtils.init.*
     public static class init {
 
-        public static void initTelemetry(Telemetry telemetry) { // Required
-            SysTelemetry = telemetry;
+        public static void initTelemetry(Telemetry initTelemetry) { // Required
+            SysTelemetry = initTelemetry;
             logVisible = true;
+            telemetry.log.clearLog(false);
         }
 
         public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions
-            SysGamepad1 = gamepad;
-            SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black as default
-            lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
+            if (gamepad.id == Gamepad.ID_UNASSOCIATED || gamepad.id == Gamepad.ID_SYNTHETIC) {
+                telemetry.log.throwSoftError("DisplayUtils.init.initGamepad1", "Gamepad1 is NOT connected to the device!", false);
+            } else {
+                SysGamepad1 = gamepad;
+                SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black as default
+                lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
+            }
         }
 
         public static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad (2) functions
-            SysGamepad2 = gamepad;
-            SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black as default
-            lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
+            if (gamepad.id == Gamepad.ID_UNASSOCIATED || gamepad.id == Gamepad.ID_SYNTHETIC) {
+                telemetry.log.throwSoftError("DisplayUtils.init.initGamepad2", "Gamepad2 is NOT connected to the device!", false);
+            } else {
+                SysGamepad2 = gamepad;
+                SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black as default
+                lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
+            }
         }
 
         public static void setTelemetryTransmissionRate(int milliseconds) {
@@ -188,7 +197,7 @@ public class DisplayUtils {
                 }
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP2_Effect = SBLED_Builder.setRepeating(true).build();
-                    SysGamepad1.runLedEffect(GP2_Effect);
+                    SysGamepad2.runLedEffect(GP2_Effect);
                 }
             }
 
@@ -237,7 +246,7 @@ public class DisplayUtils {
                 }
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP2_Effect = SPLED_Builder.setRepeating(true).build();
-                    SysGamepad1.runLedEffect(GP2_Effect);
+                    SysGamepad2.runLedEffect(GP2_Effect);
                 }
             }
 
@@ -283,7 +292,7 @@ public class DisplayUtils {
                 }
                 if (Gamepad == GamepadTarget.GAMEPAD2 || Gamepad == GamepadTarget.BOTH) {
                     Gamepad.LedEffect GP2_Effect = RBLED_Builder.setRepeating(true).build();
-                    SysGamepad1.runLedEffect(GP2_Effect);
+                    SysGamepad2.runLedEffect(GP2_Effect);
                 }
             }
 
@@ -374,6 +383,7 @@ public class DisplayUtils {
                 }
             }
 
+            @Deprecated // FIXME: safeShutDown NOT WORKING
             public static void throwHardError(String object, String error, boolean safeShutdown) {
                 addLine("[" + object + "] <ERROR> [HARD] " + error);
 
@@ -382,28 +392,30 @@ public class DisplayUtils {
                     ThreadOpMode.activeInstance.requestAutoOpModeStop();
                 } else {
                     addLine("SafeShutdown disabled, throwing runtime exception...");
-                    throw new RuntimeException("[" + object + "] <ERROR> [HARD] " + error);
+                    throw new RuntimeException("[" + object + "] ERROR [HARD] " + error);
                 }
             }
 
+            // FIXME: Doesn't quite work
             public static void clearLog(boolean displayClearEvent) {
-                addLine("[Clearing Log...]");
+                if (displayClearEvent) {addLine("[Clearing Log...]");}
                 telemetryBuffer.clear();
+                SysTelemetry.clearAll();
 
-                if (displayClearEvent) {
-                    addLine("[Log Cleared]");
-                } else {
-                    updateLog();
-                }
+                if (displayClearEvent) {addLine("[Log Cleared]");}
+                updateLog();
             }
 
             private static void updateLog() {
                 SysTelemetry.setAutoClear(true);
                 SysTelemetry.clearAll();
-                for (TelemetryEntry entry : telemetryBuffer) {
-                    SysTelemetry.addLine(entry.value);
+
+                if (logVisible) {
+                    for (TelemetryEntry entry : telemetryBuffer) {
+                        SysTelemetry.addLine(entry.value);
+                    }
                 }
-                if (logVisible) {SysTelemetry.update();}
+                SysTelemetry.update();
             }
         }
         //endregion
