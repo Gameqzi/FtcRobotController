@@ -3,15 +3,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
+import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode.*;
 
+import java.util.LinkedList;
+
+@SuppressWarnings("unused") // If a function is not used in any other code, the compiler labels if as "unused"
 public class DisplayUtils {
-    // DisplayUtils.*
+
+    //.init.*
     private static Telemetry SysTelemetry;
     private static Gamepad SysGamepad1;
     private static Gamepad SysGamepad2;
-
-    private static boolean telemetryInit = false;
-    private static boolean logVisible = false;
 
     //.gamepad.*
     public enum GamepadTarget {
@@ -23,6 +26,25 @@ public class DisplayUtils {
 
     private static double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
     private static double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
+
+    //.telemetry.*
+    private static final LinkedList<TelemetryEntry> telemetryBuffer = new LinkedList<>();
+    private static int maxLogLines = 15; // 15 default
+    private static boolean logVisible = false;
+
+    private static class TelemetryEntry {
+        final String key;
+        String value;
+
+        TelemetryEntry(String message) {
+            this.key   = null;
+            this.value = message;
+        }
+
+        boolean isPlain() { return key == null; }
+    }
+
+    //endregion
 
     //region DisplayUtils.helpReference:
      /**
@@ -76,7 +98,7 @@ public class DisplayUtils {
       *     <li><code>DisplayUtils.telemetry.log.addLine(message);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.throwSoftError(object, error, gamepadNotice);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.throwHardError(object, error, safeShutdown);</code></li>
-      *     <li><code>DisplayUtils.telemetry.log.clearLog();</code></li>
+      *     <li><code>DisplayUtils.telemetry.log.clearLog(displayClearEvent);</code></li>
       * </ul>
       * <br>
       * <strong>All Internal DisplayUtils Functions:</strong>
@@ -94,7 +116,6 @@ public class DisplayUtils {
 
         public static void initTelemetry(Telemetry telemetry) { // Required
             SysTelemetry = telemetry;
-            telemetryInit = true;
             logVisible = true;
         }
 
@@ -322,7 +343,49 @@ public class DisplayUtils {
                 logVisible = visible;
             }
 
-            public static  void
+            public static void setMaxLines(int maxLines) {
+                maxLogLines = maxLines;
+            }
+
+            public static void addLine(String message) {
+                if (telemetryBuffer.size() == maxLogLines) {
+                    telemetryBuffer.removeFirst();
+                }
+
+                telemetryBuffer.addLast(new TelemetryEntry(message));
+
+                if (logVisible) updateLog();
+            }
+
+            public static void throwSoftError(String object, String error, boolean gamepadNotice) {
+                addLine("[" + object + "]: <ERROR> [SOFT] " + error);
+
+                if (gamepadNotice) {
+                    gamepad.rumble.advRumble(GamepadTarget.BOTH, 0.3, 0.3, 1000);
+                    gamepad.led.sharpBlinkLED(GamepadTarget.BOTH, 1, 0, 0, 0, 0, 0, 1000, BlinkType.EVEN);
+                }
+            }
+
+            public static void throwHardError(String object, String error, boolean safeShutdown) {
+                addLine("[" + object + "] <ERROR> [HARD] " + error);
+
+                if (safeShutdown) {
+                    ThreadOpMode.activeInstance.requestAutoOpModeStop();
+                }
+            }
+
+            public static void clearLog(boolean displayClearEvent) {
+
+            }
+
+            private static void updateLog() {
+                SysTelemetry.setAutoClear(true);
+                SysTelemetry.clearAll();
+                for (TelemetryEntry entry : telemetryBuffer) {
+                    SysTelemetry.addLine(entry.value);
+                }
+                SysTelemetry.update();
+            }
         }
         //endregion
     }

@@ -157,9 +157,9 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .telemetry  .menu   .updateMenu(MenuID);
 
         DisplayUtils    .telemetry  .log    .showLog(true);
-        DisplayUtils    .telemetry  .log    .addLine(Message);
-        DisplayUtils    .telemetry  .log    .clearLog();
-        DisplayUtils    .telemetry  .log    .setMaxLines(MaxLines);
+        DisplayUtils    .telemetry  .log    .addLine("Message");
+        DisplayUtils    .telemetry  .log    .clearLog(false);
+        DisplayUtils    .telemetry  .log    .setMaxLines(15);
 
         addTelemetryLine("Setup ~83% Complete: IMU Config...");
 
