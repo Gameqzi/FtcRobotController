@@ -11,7 +11,10 @@ import java.util.List;
  * Register threads with {@link ThreadOpMode#registerThread(TaskThread)}
  */
 public abstract class ThreadOpMode extends OpMode {
+    /** @noinspection FieldMayBeFinal*/
     private List<TaskThread> threads = new ArrayList<>();
+
+    public static ThreadOpMode activeInstance; // So requestShutDown can be called anywhere TODO: WIP
 
     private boolean shutdownReady = false;
     private boolean autoShutdownRequested = false;
@@ -40,7 +43,10 @@ public abstract class ThreadOpMode extends OpMode {
         // Reset Shutdown Flags
         shutdownReady = false;
         autoShutdownRequested = false;
-        // Run Main Init
+
+        // Set active instance
+        activeInstance = this;
+
         mainInit();
     }
 
@@ -59,7 +65,7 @@ public abstract class ThreadOpMode extends OpMode {
      */
     @Override
     public final void loop() {
-        // Basically IF(StopRequested) --> Safe Shutdown
+        // IF(StopRequested) --> Safe Shutdown
         if (gamepad1.guide || autoShutdownRequested) {
             if (shutdownReady) {requestOpModeStop();} else {
                 gamepad1.rumble(0.5, 0.5, 1000);
@@ -100,8 +106,6 @@ public abstract class ThreadOpMode extends OpMode {
     /**
      * Call to automatically enable safeShutdown without needing a gamepad input.
      */
-    protected void requestAutoOpModeStop() {
-        autoShutdownRequested = true;
-    }
+    public void requestAutoOpModeStop() {autoShutdownRequested = true;}
 
 }
