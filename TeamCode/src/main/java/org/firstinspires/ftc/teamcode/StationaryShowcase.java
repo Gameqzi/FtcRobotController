@@ -235,7 +235,7 @@ public class StationaryShowcase extends ThreadOpMode {
             DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
 
             liftActive = true;
-            liftGotoPos(30);
+            liftGotoPos(70);
             cameraGotoPos(panHome, tiltMin);
 
             boolean correctBlock = false;

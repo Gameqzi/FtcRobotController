@@ -37,21 +37,21 @@ public class MainTeleOp extends ThreadOpMode {
         backLeft   = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight  = hardwareMap.get(DcMotorEx.class, "backRight");
         lift       = hardwareMap.get(DcMotorEx.class, "lift");
-        Servo1 = hardwareMap.get(CRServo.class, "Servo1");
-        Servo2 = hardwareMap.get(CRServo.class, "Servo2");
+        Servo1 = hardwareMap.get(CRServo.class, "IntakeServo1");
+        Servo2 = hardwareMap.get(CRServo.class, "IntakeServo2");
         colorSensor = hardwareMap.colorSensor.get("ColorSensor");
 
         frontRight.setDirection(DcMotorEx.Direction.REVERSE);
         backRight.setDirection(DcMotorEx.Direction.FORWARD);
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        lift.setDirection(DcMotorEx.Direction.REVERSE);
 
         ResetEncoders();
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.clearAll();
     }
-
 
     @Override
     public void mainLoop() {
@@ -83,20 +83,29 @@ public class MainTeleOp extends ThreadOpMode {
 
         if (gamepad1.cross && Math.abs(lift.getCurrentPosition()) < 2900) {
             if (Math.abs(LiftPos) > 2900) {
-                LiftPos += 15;
+                LiftPos -= 5;
             } else {
-                LiftPos -= 15;
+                LiftPos += 5;
             }
             lift.setVelocity(-1750);
-        } else if (gamepad1.circle && lift.getCurrentPosition() < -10) {
-            if (LiftPos > -10) {
-                LiftPos -= 25;
+        } else if (gamepad1.circle && lift.getCurrentPosition() < 70) {
+            if (Math.abs(LiftPos) > 70) {
+                LiftPos -= 5;
             } else {
-                LiftPos += 25;
+                LiftPos += 5;
             }
-            lift.setVelocity(1000);
         } else {
             lift.setVelocity(0);
+        }
+
+        lift.setVelocity(5000);
+
+        if (gamepad1.triangle) {
+            LiftPos = 2850;
+        }
+
+        if (gamepad1.square) {
+            LiftPos = 70;
         }
 
         if (gamepad1.left_bumper) {Dir = 2;} else if (gamepad1.right_bumper) {Dir = 1;} else {Dir = 0;}
@@ -122,6 +131,9 @@ public class MainTeleOp extends ThreadOpMode {
             } else if (Dir == 0) {
                 Servo1.setPower(0);
                 Servo2.setPower(0);
+            } else if (Dir == 1) {
+                Servo1.setPower(-1);
+                Servo2.setPower(1);
             }
         }
 
