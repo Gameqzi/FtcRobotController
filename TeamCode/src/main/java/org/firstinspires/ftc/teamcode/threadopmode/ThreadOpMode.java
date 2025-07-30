@@ -14,7 +14,7 @@ public abstract class ThreadOpMode extends OpMode {
     /** @noinspection FieldMayBeFinal*/
     private List<TaskThread> threads = new ArrayList<>();
 
-    public static ThreadOpMode activeInstance; // So requestShutDown can be called anywhere TODO: WIP
+    public static ThreadOpMode activeInstance; // So requestShutDown can be called anywhere
 
     private boolean shutdownReady = false;
     private boolean autoShutdownRequested = false;

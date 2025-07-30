@@ -41,9 +41,9 @@ public class StationaryShowcase extends ThreadOpMode {
     public static final double panScore = 0.500, tiltScore = 0.800; // Camera "Score" Position                              | Already Tuned
     public static final int colorThresholdDefault = 30; // ToDo:                                                            | Change For Each Environment?
     public static final int alphaThresholdDefault = 210; // ToDo:                                                           | Change For Each Environment?
-    public static final boolean robotCanMove = true; // ToDo: Can the robot move on the table?
+    public static final boolean robotCanMove = false; // ToDo: Can the robot move on the table?
     public static final boolean robotQuietMode = false; // If we want less motor wining. ToDo: Maybe for enclosed environments?
-    boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode, Don't Change
+    boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode
 
     // Others:
     boolean WiggleDir = false; // True for In, False for Out
