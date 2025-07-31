@@ -71,7 +71,7 @@ public abstract class ThreadOpMode extends OpMode {
                 gamepad1.rumble(0.5, 0.5, 1000);
                 manualOpModStop();
             }
-        } else {
+        } else if (!shutdownReady) {
             // Run Main Loop
             mainLoop();
         }

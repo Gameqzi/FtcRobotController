@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Config
 @TeleOp
-public class StationaryShowcase extends ThreadOpMode { // TODO: Fix block scrapeing!
+public class StationaryShowcase extends ThreadOpMode {
 
     //region GLOBAL VARIABLES
 
@@ -43,7 +43,7 @@ public class StationaryShowcase extends ThreadOpMode { // TODO: Fix block scrape
     public static final int alphaThresholdDefault = 210; // ToDo:                                                           | Change For Each Environment?
     public static final boolean robotCanMove = false; // ToDo: Can the robot move on the table?
     public static final boolean robotQuietMode = false; // If we want less motor wining. ToDo: Maybe for enclosed environments?
-    boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode
+    boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode, don't change
 
     // Others:
     boolean WiggleDir = false; // True for In, False for Out
@@ -274,6 +274,9 @@ public class StationaryShowcase extends ThreadOpMode { // TODO: Fix block scrape
                     sleep(1000);
                 }
             }
+
+            liftGotoPos(100);
+            sleep(500);
 
             cameraGotoPos(panHome, tiltHome);
             if (robotCanMove) {robot.goTo(0.3, "0", "12", "0");}
