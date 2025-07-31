@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Config
 @TeleOp
-public class StationaryShowcase extends ThreadOpMode {
+public class StationaryShowcase extends ThreadOpMode { // TODO: Fix block scrapeing!
 
     //region GLOBAL VARIABLES
 
