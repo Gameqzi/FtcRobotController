@@ -75,6 +75,7 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils.init.initGamepad1(gamepad1);
 
         DisplayUtils.init.setTelemetryTransmissionRate(20);
+        DisplayUtils.telemetry.log.setMaxLines(15);
 
         DisplayUtils.telemetry.log.addLine("Setup ~1% Complete: Int Hardware Map...");
 
@@ -116,7 +117,7 @@ public class StationaryShowcase extends ThreadOpMode {
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        DisplayUtils.telemetry.log.addLine("Setup ~66% Complete: Init Robot.java & DisplayUtils.java Link...");
+        DisplayUtils.telemetry.log.addLine("Setup ~66% Complete: Init Robot.java Link...");
 
         // [SETUP] Robot.java Link
         robot = Robot
@@ -433,7 +434,7 @@ public class StationaryShowcase extends ThreadOpMode {
             while (Lift.isBusy()) ; // THIS IS REQUIRED!
         } else {
             Lift.setMotorDisable();
-            DisplayUtils.telemetry.log.addLine("<ERROR> [SILENT] Lift was called, but lift is not active!");
+            DisplayUtils.telemetry.log.addLine("<ERROR> [SILENT] Lift was called, but lift is not active!"); // FIXME!
         }
     }
 
