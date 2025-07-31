@@ -1,9 +1,23 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.*;
+import static org.firstinspires.ftc.teamcode.Utils.sleep;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
+
+import com.qualcomm.robotcore.hardware.Gamepad;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 
 @SuppressWarnings("unused") // If a function is not used in any other code, the compiler labels if as "unused"
 public class DisplayUtils {
@@ -25,7 +39,12 @@ public class DisplayUtils {
     private static double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
 
     //.telemetry.*
-    // N/A
+    public enum MenuItemType {
+        INTEGER,
+        DOUBLE,
+        FLOAT,
+        BOOLEAN
+    }
 
     //endregion
 
@@ -75,7 +94,7 @@ public class DisplayUtils {
       *     <li><code>DisplayUtils.telemetry.menu.removeMenuItem(menuId, itemName);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuId, caption, dataVariable);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuId);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.updateMenu(menuId);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.displayMenu(menuId);</code></li>
       *     <br>
       *     <li><code>DisplayUtils.telemetry.log.showLog(visible);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.setAutoDisplay(displayAfterMenu);</code></li>
@@ -326,7 +345,195 @@ public class DisplayUtils {
 
         //region DisplayUtils.telemetry.menu.*
         public static class menu {
+            private static final Map<String, Menu> menus = new HashMap<>();
 
+            // Generic MenuItem supporting multiple types
+            public static class MenuItem<T> {
+                public String name;
+                public Supplier<T> getter;
+                public Consumer<T> setter;
+                public T defaultValue;
+                public Class<T> type;
+
+                public MenuItem(String name, Supplier<T> getter, Consumer<T> setter, T defaultValue, Class<T> type) {
+                    this.name = name;
+                    this.getter = getter;
+                    this.setter = setter;
+                    this.defaultValue = defaultValue;
+                    this.type = type;
+                }
+            }
+
+            public static class MenuData {
+                public String caption;
+                public Supplier<String> dataSupplier;
+
+                public MenuData(String caption, Supplier<String> dataSupplier) {
+                    this.caption = caption;
+                    this.dataSupplier = dataSupplier;
+                }
+            }
+
+            public static class Menu {
+                public String id;
+                public List<MenuItem<?>> items = new ArrayList<>();
+                public List<MenuData> dataLines = new ArrayList<>();
+                public int selectedIndex = 0;
+                public boolean editing = false;
+
+                public Menu(String id) {
+                    this.id = id;
+                }
+            }
+
+            public static void createMenu(String id) {
+                menus.put(id, new Menu(id));
+            }
+
+            // Generic method
+            public static <T> void addMenuItem(String id, String name, Supplier<T> getter, Consumer<T> setter, T defaultValue, Class<T> type) {
+                Menu menu = menus.get(id);
+                if (menu != null) {
+                    menu.items.add(new MenuItem<>(name, getter, setter, defaultValue, type));
+                }
+            }
+
+            public static void addMenuItemInt(String id, String name, Supplier<Integer> getter, Consumer<Integer> setter, Integer defaultValue) {
+                addMenuItem(id, name, getter, setter, defaultValue, Integer.class);
+            }
+
+            public static void addMenuItemDouble(String id, String name, Supplier<Double> getter, Consumer<Double> setter, Double defaultValue) {
+                addMenuItem(id, name, getter, setter, defaultValue, Double.class);
+            }
+
+            public static void addMenuItemBoolean(String id, String name, Supplier<Boolean> getter, Consumer<Boolean> setter, Boolean defaultValue) {
+                addMenuItem(id, name, getter, setter, defaultValue, Boolean.class);
+            }
+
+            public static void addMenuItemFloat(String id, String name, Supplier<Float> getter, Consumer<Float> setter, Float defaultValue) {
+                addMenuItem(id, name, getter, setter, defaultValue, Float.class);
+            }
+
+            public static void addMenuData(String id, String caption, Supplier<String> dataSupplier) {
+                Menu menu = menus.get(id);
+                if (menu != null) {
+                    menu.dataLines.add(new MenuData(caption, dataSupplier));
+                }
+            }
+
+            // TODO: CAUTION: BLOCKING!
+            public static void displayMenu(String id, Gamepad gamepad) {
+                Menu menu = menus.get(id);
+                if (menu == null) {
+                    log.throwSoftError("DisplayUtils.telemetry.menu.displayMenu()", "Menu [ID]" + id + " does NOT exist", true);
+                    return;
+                }
+
+                log.addLine("ENTERED MENU: [ID]" + id);
+
+                boolean exitSelected = false;
+
+                while (!exitSelected) {
+
+                    SysTelemetry.addLine(menu + "\n");
+
+                    for (int i = 0; i < menu.items.size(); i++) {
+                        MenuItem<?> item = menu.items.get(i);
+                        String selector = (menu.selectedIndex == i)
+                                ? (menu.editing ? ">> " : "> ")
+                                : "  ";
+
+                        String displayVal;
+                        if (item.type == Boolean.class) {
+                            displayVal = ((Boolean) item.getter.get()) ? "true" : "false";
+                        } else {
+                            displayVal = String.valueOf(item.getter.get());
+                        }
+
+                        SysTelemetry.addLine(selector + item.name + " : " + displayVal + " (Default: " + item.defaultValue + ")");
+                    }
+
+                    // Add EXIT always at bottom
+                    String exitSelector = (menu.selectedIndex == menu.items.size())
+                            ? (menu.editing ? ">> " : "> ")
+                            : "  ";
+                    SysTelemetry.addLine(exitSelector + "EXIT\n");
+
+                    if (menu.dataLines != null && !menu.dataLines.isEmpty()) {
+                        SysTelemetry.addLine("OUTPUT:\n");
+                        for (MenuData data : menu.dataLines) {
+                            SysTelemetry.addLine(data.caption + " : " + data.dataSupplier.get());
+                        }
+                    }
+
+                    if (!menu.editing) {
+                        if (gamepad.dpad_up) {
+                            menu.selectedIndex = Math.max(menu.selectedIndex - 1, 0);
+                            sleep(100);
+                        }
+                        if (gamepad.dpad_down) {
+                            menu.selectedIndex = Math.min(menu.selectedIndex + 1, menu.items.size());
+                            sleep(100);
+                        }
+                        if (gamepad.dpad_right) {
+                            if (menu.selectedIndex == menu.items.size()) {
+                                exitSelected = true;
+                            } else {
+                                menu.editing = true;
+                            }
+                            sleep(100);
+                        }
+                    } else {
+                        MenuItem<?> item = menu.items.get(menu.selectedIndex);
+                        if (item.type == Integer.class) {
+                            int current = (Integer) item.getter.get();
+                            if (gamepad.dpad_up) {
+                                item.setter.accept(current + 1);  // boxed Integer
+                                sleep(100);
+                            }
+                            if (gamepad.dpad_down) {
+                                item.setter.accept(current - 1);
+                                sleep(100);
+                            }
+                        } else if (item.type == Double.class) {
+                            double current = (Double) item.getter.get();
+                            if (gamepad.dpad_up) {
+                                item.setter.accept(current + 0.5);
+                                sleep(100);
+                            }
+                            if (gamepad.dpad_down) {
+                                item.setter.accept(current - 0.5);
+                                sleep(100);
+                            }
+                        } else if (item.type == Float.class) {
+                            float current = (Float) item.getter.get();
+                            if (gamepad.dpad_up) {
+                                item.setter.accept(current + 0.5f);
+                                sleep(100);
+                            }
+                            if (gamepad.dpad_down) {
+                                item.setter.accept(current - 0.5f);
+                                sleep(100);
+                            }
+                        } else if (item.type == Boolean.class) {
+                            boolean current = (Boolean) item.getter.get();
+                            if (gamepad.dpad_up || gamepad.dpad_down) {
+                                item.setter.accept(!current);
+                                sleep(100);
+                            }
+                        }
+                        if (gamepad.dpad_left) {
+                            menu.editing = false;
+                            sleep(100);
+                        }
+                    }
+
+                    sleep(80);
+                    SysTelemetry.update();
+                }
+
+                log.addLine("EXITED MENU: [ID]" + id);
+            }
         }
         //endregion
 
@@ -359,7 +566,7 @@ public class DisplayUtils {
                     ThreadOpMode.activeInstance.requestAutoOpModeStop();
                 } else {
                     addLine("SafeShutdown disabled, throwing runtime exception...");
-                    throw new RuntimeException("[" + object + "] ERROR [HARD] " + error);
+                    throw new RuntimeException("[" + object + "] CUSTOM ERROR [HARD] " + error);
                 }
             }
 

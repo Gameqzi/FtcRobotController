@@ -149,7 +149,7 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .telemetry  .menu   .removeMenuItem(MenuID, ItemName);
         DisplayUtils    .telemetry  .menu   .addMenuData(MenuID, Caption, DataVariable);
         DisplayUtils    .telemetry  .menu   .clearMenuData(MenuID);
-        DisplayUtils    .telemetry  .menu   .updateMenu(MenuID);
+        DisplayUtils    .telemetry  .menu   .displayMenu(MenuID);
 
         DisplayUtils    .telemetry  .log    .showLog(true);
         DisplayUtils    .telemetry  .log    .addLine("Message");
