@@ -178,6 +178,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
         DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, 0, 0, 0, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
         DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
+
+
     }
 
     //endregion

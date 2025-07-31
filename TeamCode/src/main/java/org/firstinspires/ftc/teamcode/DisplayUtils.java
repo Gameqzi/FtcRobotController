@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.Utils.sleep;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
@@ -11,15 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
 
-@SuppressWarnings("unused") // If a function is not used in any other code, the compiler labels if as "unused"
+//@SuppressWarnings("unused") // If a function is not used in any other code, the compiler labels if as "unused"
 public class DisplayUtils {
 
     //.init.*
@@ -37,14 +28,6 @@ public class DisplayUtils {
 
     private static double lastGamepad1R = 0, lastGamepad1G = 0, lastGamepad1B = 0;
     private static double lastGamepad2R = 0, lastGamepad2G = 0, lastGamepad2B = 0;
-
-    //.telemetry.*
-    public enum MenuItemType {
-        INTEGER,
-        DOUBLE,
-        FLOAT,
-        BOOLEAN
-    }
 
     //endregion
 
@@ -86,15 +69,15 @@ public class DisplayUtils {
       *     <br>
       *     <li><code>DisplayUtils.gamepad.rumble.advRumble(GamepadTarget, rumbleLeft, rumbleRight, duration);</code></li>
       *     <br>
-      *     <li><code>DisplayUtils.telemetry.menu.createMenu(menuId);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.removeMenu(menuId);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuId, itemName);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuId, itemName, itemVariable);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuId, itemName, itemVariable, defaultVal);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.removeMenuItem(menuId, itemName);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuId, caption, dataVariable);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuId);</code></li>
-      *     <li><code>DisplayUtils.telemetry.menu.displayMenu(menuId);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.createMenu(menuID);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.removeMenu(menuID);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuID, itemName);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuID, itemName, itemVariable);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuID, itemName, itemVariable, defaultVal);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.removeMenuItem(menuID, itemName);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuID, caption, dataVariable);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuID);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.displayMenu(menuID);</code></li>
       *     <br>
       *     <li><code>DisplayUtils.telemetry.log.showLog(visible);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.setAutoDisplay(displayAfterMenu);</code></li>
@@ -347,89 +330,103 @@ public class DisplayUtils {
         public static class menu {
             private static final Map<String, Menu> menus = new HashMap<>();
 
-            // Generic MenuItem supporting multiple types
-            public static class MenuItem<T> {
-                public String name;
-                public Supplier<T> getter;
-                public Consumer<T> setter;
-                public T defaultValue;
-                public Class<T> type;
+            public static class Menu {
+                public String menuID;
+                public List<MenuItems> items;
+                public List<MenuData> data;
 
-                public MenuItem(String name, Supplier<T> getter, Consumer<T> setter, T defaultValue, Class<T> type) {
+                public Menu(String menuID, List<MenuItems> items, List<MenuData> data) {
+                    this.menuID = menuID;
+                    this.items = items;
+                    this.data = data;
+                }
+            }
+
+            public static class MenuItems {
+                public String name;
+                public Object value;
+                public Object defaultValue;
+
+                public MenuItems(String name, Object value, Object defaultValue) {
                     this.name = name;
-                    this.getter = getter;
-                    this.setter = setter;
+                    this.value = value;
                     this.defaultValue = defaultValue;
-                    this.type = type;
                 }
             }
 
             public static class MenuData {
                 public String caption;
-                public Supplier<String> dataSupplier;
+                public Object value;
 
-                public MenuData(String caption, Supplier<String> dataSupplier) {
+                public MenuData(String caption, Object value) {
                     this.caption = caption;
-                    this.dataSupplier = dataSupplier;
+                    this.value = value;
                 }
             }
 
-            public static class Menu {
-                public String id;
-                public List<MenuItem<?>> items = new ArrayList<>();
-                public List<MenuData> dataLines = new ArrayList<>();
-                public int selectedIndex = 0;
-                public boolean editing = false;
-
-                public Menu(String id) {
-                    this.id = id;
-                }
+            public static void createMenu(String menuID) {
+                menus.put(menuID, new Menu(menuID, new ArrayList<>(), new ArrayList<>()));
             }
 
-            public static void createMenu(String id) {
-                menus.put(id, new Menu(id));
+            public static void removeMenu(String menuID) {
+                menus.remove(menuID);
             }
 
-            // Generic method
-            public static <T> void addMenuItem(String id, String name, Supplier<T> getter, Consumer<T> setter, T defaultValue, Class<T> type) {
-                Menu menu = menus.get(id);
+            public static void addMenuItem(String menuID, String name) {
+                addMenuItem(menuID, name, null, null);
+            }
+
+            public static void addMenuItem(String menuID, String name, Object variable) {
+                addMenuItem(menuID, name, variable, null);
+            }
+
+            public static void addMenuItem(String menuID, String name, Object variable, Object defaultValue) {
+                Menu menu = menus.get(menuID);
                 if (menu != null) {
-                    menu.items.add(new MenuItem<>(name, getter, setter, defaultValue, type));
+                    menu.items.add(new MenuItems(name, variable, defaultValue));
                 }
             }
 
-            public static void addMenuItemInt(String id, String name, Supplier<Integer> getter, Consumer<Integer> setter, Integer defaultValue) {
-                addMenuItem(id, name, getter, setter, defaultValue, Integer.class);
-            }
-
-            public static void addMenuItemDouble(String id, String name, Supplier<Double> getter, Consumer<Double> setter, Double defaultValue) {
-                addMenuItem(id, name, getter, setter, defaultValue, Double.class);
-            }
-
-            public static void addMenuItemBoolean(String id, String name, Supplier<Boolean> getter, Consumer<Boolean> setter, Boolean defaultValue) {
-                addMenuItem(id, name, getter, setter, defaultValue, Boolean.class);
-            }
-
-            public static void addMenuItemFloat(String id, String name, Supplier<Float> getter, Consumer<Float> setter, Float defaultValue) {
-                addMenuItem(id, name, getter, setter, defaultValue, Float.class);
-            }
-
-            public static void addMenuData(String id, String caption, Supplier<String> dataSupplier) {
-                Menu menu = menus.get(id);
+            public static void removeMenuItem(String menuID, String itemName) {
+                Menu menu = menus.get(menuID);
                 if (menu != null) {
-                    menu.dataLines.add(new MenuData(caption, dataSupplier));
+                    menu.items.removeIf(item -> item.name.equals(itemName));
                 }
             }
 
+            public static void addMenuData(String menuID, String caption, Object variable) {
+                Menu menu = menus.get(menuID);
+                if (menu != null) {
+                    menu.data.add(new MenuData(caption, variable));
+                }
+            }
+
+            public static void clearMenuData(String menuID) {
+                Menu menu = menus.get(menuID);
+                if (menu != null) {
+                    menu.data.clear();
+                }
+            }
+
+            
+
+
+
+
+
+
+
+
+            /*
             // TODO: CAUTION: BLOCKING!
-            public static void displayMenu(String id, Gamepad gamepad) {
-                Menu menu = menus.get(id);
+            public static void displayMenu(String MenuID, Gamepad gamepad) {
+                Menu menu = menus.get(MenuID);
                 if (menu == null) {
-                    log.throwSoftError("DisplayUtils.telemetry.menu.displayMenu()", "Menu [ID]" + id + " does NOT exist", true);
+                    log.throwSoftError("DisplayUtils.telemetry.menu.displayMenu()", "Menu [ID]" + MenuID + " does NOT exist", true);
                     return;
                 }
 
-                log.addLine("ENTERED MENU: [ID]" + id);
+                log.addLine("ENTERED MENU: [ID]" + MenuID);
 
                 boolean exitSelected = false;
 
@@ -532,8 +529,8 @@ public class DisplayUtils {
                     SysTelemetry.update();
                 }
 
-                log.addLine("EXITED MENU: [ID]" + id);
-            }
+                log.addLine("EXITED MENU: [ID]" + MenuID);
+            }*/
         }
         //endregion
 
