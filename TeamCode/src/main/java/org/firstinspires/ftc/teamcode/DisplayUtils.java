@@ -36,8 +36,8 @@ public class DisplayUtils {
     public enum ValueType {
         INT,
         DOUBLE,
-        BOOLEAN,
-        STRING
+        FLOAT,
+        BOOLEAN
     }
 
     //endregion
@@ -364,28 +364,13 @@ public class DisplayUtils {
 
             private static class MenuItems {
                 private String name;
-                private ValueRef<?> ref;
+                private Object variable;
                 private Object defaultValue;
 
-                private MenuItems(String name, ValueRef<?> ref, Object defaultValue) {
+                private MenuItems(String name, Object variable, Object defaultValue) {
                     this.name = name;
-                    this.ref = ref;
+                    this.variable = variable;
                     this.defaultValue = defaultValue;
-                }
-
-                private Object getValue() {
-                    return ref.value;
-                }
-
-                private void setValue(Object newValue) {
-                    setValueCaptured(ref, newValue);
-                }
-
-                // Generic helper method to capture the wildcard type and assign
-                private static <T> void setValueCaptured(ValueRef<T> ref, Object newValue) {
-                    if (ref.value != null && !ref.value.getClass().isInstance(newValue)) {
-                        log.throwHardError("DisplayUtils.telemetry.menu.Menu.setValueCaptured", "Type mismatch: expected " + ref.value.getClass().getSimpleName() + ", got " + newValue.getClass().getSimpleName(), true);
-                    } else {ref.value = (T) newValue;}
                 }
             }
 
@@ -395,14 +380,6 @@ public class DisplayUtils {
 
                 private MenuData(String caption, Object value) {
                     this.caption = caption;
-                    this.value = value;
-                }
-            }
-
-            private static class ValueRef<T> {
-                private T value;
-
-                private ValueRef(T value) {
                     this.value = value;
                 }
             }
@@ -419,11 +396,11 @@ public class DisplayUtils {
                 addMenuItem(menuID, name, null, null);
             }
 
-            public static void addMenuItem(String menuID, String name, ValueRef<?> variable) {
+            public static void addMenuItem(String menuID, String name, Object variable) {
                 addMenuItem(menuID, name, variable, null);
             }
 
-            public static void addMenuItem(String menuID, String name, ValueRef<?> variable, Object defaultValue) {
+            public static void addMenuItem(String menuID, String name, Object variable, Object defaultValue) {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return;
                 menu.items.add(new MenuItems(name, variable, defaultValue));
@@ -478,9 +455,8 @@ public class DisplayUtils {
                     for (int i = 0; i < menu.items.size(); i++) {
                         MenuItems item = menu.items.get(i);
                         String selector = (selectedItem == i) ? (editing ? ">>" : "> ") : "  ";
-                        Object val = item.getValue();
 
-                        SysTelemetry.addLine(selector + item.name + " : " + val + " (Default: " + item.defaultValue + ")");
+                        SysTelemetry.addLine(selector + item.name + " : " + item.variable + " (Default: " + item.defaultValue + ")");
                     }
 
                     if (menu.data != null && !menu.data.isEmpty()) {
@@ -518,17 +494,10 @@ public class DisplayUtils {
                             }
                         }
                     } else {
-                        MenuItems item = menu.items.get(selectedItem);
-                        Object val = item.getValue();
 
                         if (selectorGamepad.dpad_up) {
                             sleep(100);
-                            if (val instanceof Number) {
-                                double newVal = ((Number) val).doubleValue() + 1;
-                                setTypedValue(item, newVal);
-                            } else if (val instanceof Boolean) {
-                                item.setValue(!(Boolean) val);
-                            }
+                            // TODO: HELP!
                         }
                         if (selectorGamepad.dpad_down) {
                             sleep(100);
@@ -544,20 +513,6 @@ public class DisplayUtils {
                     sleep(80);
                 }
                 log.addLine("Exited Menu [ID]" + menuID);
-            }
-
-            private static void setTypedValue(MenuItems item, double newVal) {
-                Object val = item.getValue();
-
-                if (val instanceof Integer) {
-                    item.setValue((int) newVal);
-                } else if (val instanceof Float) {
-                    item.setValue((float) newVal);
-                } else if (val instanceof Long) {
-                    item.setValue((long) newVal);
-                } else if (val instanceof Double) {
-                    item.setValue(newVal);
-                }
             }
         }
         //endregion
@@ -582,7 +537,6 @@ public class DisplayUtils {
                 }
             }
 
-            @Deprecated // FIXME: safeShutDown NOT WORKING
             public static void throwHardError(String object, String error, boolean safeShutdown) {
                 addLine("[" + object + "] <ERROR> [HARD] " + error);
 
