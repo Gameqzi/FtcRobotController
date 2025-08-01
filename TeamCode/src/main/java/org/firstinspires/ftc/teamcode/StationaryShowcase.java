@@ -275,6 +275,9 @@ public class StationaryShowcase extends ThreadOpMode {
                 }
             }
 
+            liftGotoPos(120);
+            sleep(500);
+
             cameraGotoPos(panHome, tiltHome);
             if (robotCanMove) {robot.goTo(0.3, "0", "12", "0");}
 
