@@ -234,6 +234,12 @@ public class StationaryShowcase extends ThreadOpMode {
             DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
             DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
 
+            robot.getImu().calibrateImu();
+            robot.getImu().resetTracking();
+
+            SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+            robot.getImu().setPosition(currentPosition);
+
             liftActive = true;
             liftGotoPos(70);
             cameraGotoPos(panHome, tiltMin);
