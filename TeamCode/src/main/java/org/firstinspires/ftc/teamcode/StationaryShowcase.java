@@ -123,39 +123,6 @@ public class StationaryShowcase extends ThreadOpMode {
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
 
-        /*
-        DisplayUtils.helpReference(); // WIP, Coding
-
-        DisplayUtils    .init       .initTelemetry(telemetry); // Done, TBT
-        DisplayUtils    .init       .initGamepad1(gamepad1); // Done, Tested
-        DisplayUtils    .init       .initGamepad2(gamepad2); // Done, Tested
-        DisplayUtils    .init       .setTelemetryTransmissionRate(0); // Done, TBT
-
-        DisplayUtils    .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0); // Done, Tested
-        DisplayUtils    .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0, 0, 0); // Done, Tested
-        DisplayUtils    .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH,0,0,0,0,0,0,0, DisplayUtils.BlinkType.EVEN); // Done, Tested
-        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH,0,0,0,0,0,0,0,0, DisplayUtils.BlinkType.EVEN); // Done, Tested
-        DisplayUtils    .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 0, 0); // Done, Tested
-
-        DisplayUtils    .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 0, 0, 0); // Done, Tested
-
-        // Unfinished/Not Started Functions:
-        DisplayUtils    .telemetry  .menu   .createMenu(MenuID);
-        DisplayUtils    .telemetry  .menu   .removeMenu(MenuID);
-        DisplayUtils    .telemetry  .menu   .addMenuItem(MenuID, ItemName);
-        DisplayUtils    .telemetry  .menu       .addMenuItem(MenuID, ItemName, ItemVariable);
-        DisplayUtils    .telemetry  .menu       .addMenuItem(MenuID, ItemName, ItemVariable, ItemVariableDefault);
-        DisplayUtils    .telemetry  .menu   .removeMenuItem(MenuID, ItemName);
-        DisplayUtils    .telemetry  .menu   .addMenuData(MenuID, Caption, DataVariable);
-        DisplayUtils    .telemetry  .menu   .clearMenuData(MenuID);
-        DisplayUtils    .telemetry  .menu   .updateMenu(MenuID);
-
-        DisplayUtils    .telemetry  .log    .showLog(true);
-        DisplayUtils    .telemetry  .log    .addLine("Message");
-        DisplayUtils    .telemetry  .log    .clearLog(false);
-        DisplayUtils    .telemetry  .log    .setMaxLines(15);
-         */
-
         DisplayUtils.telemetry.log.addLine("Setup ~83% Complete: IMU Config...");
 
         // [SETUP] IMU Config.
@@ -233,6 +200,13 @@ public class StationaryShowcase extends ThreadOpMode {
             DisplayUtils.telemetry.log.addLine("Status: Running Active Mode...");
             DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
             DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
+
+            robot.getImu().calibrateImu();
+
+            robot.getImu().resetTracking();
+
+            SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+            robot.getImu().setPosition(currentPosition);
 
             liftActive = true;
             liftGotoPos(70);
