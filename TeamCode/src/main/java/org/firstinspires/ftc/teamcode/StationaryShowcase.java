@@ -164,6 +164,12 @@ public class StationaryShowcase extends ThreadOpMode {
 
         DisplayUtils.telemetry.log.addLine("Setup ~99% Complete: Setting Robot Defaults...");
 
+        int speedRef = 10;
+
+        // [SETUP] Tuning Mode Menu
+        DisplayUtils.telemetry.menu.createMenu("TUNING MODE");
+        DisplayUtils.telemetry.menu.addMenuItem("TUNING MODE", "TEST", speedRef, 6);
+
         // [SETUP] Defaults
         robot.stopMotors();
         cameraGotoPos(panHome, tiltHome);
@@ -178,8 +184,6 @@ public class StationaryShowcase extends ThreadOpMode {
 
         DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 1, 0, 0, 0, 0, 1000, 100, DisplayUtils.BlinkType.ODD_LOW);
         DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
-
-
     }
 
     //endregion
@@ -311,109 +315,107 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (TuningModeActive) {
-            if (tuningFirstTime) {
-                DisplayUtils.telemetry.log.addLine("Status: Running Tuning Mode...");
-                DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
-                DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
-                liftGotoPos(200);
-                cameraGotoPos(panScore, tiltScore);
+            DisplayUtils.telemetry.log.addLine("Status: Running Tuning Mode...");
+            DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
+            DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
+            liftGotoPos(200);
+            cameraGotoPos(panScore, tiltScore);
 
-                telemetry.setAutoClear(false);
-                tuningFirstTime = false;
-            }
 
-            DisplayUtils.telemetry.log.clearLog(false);
-            telemetry.addLine("TUNING MODE\n");
 
-            if (selectedAction == 1 && editing) {
-                selector = ">>";
-            } else if (selectedAction == 1) {
-                selector = "> ";
-            } else {
-                selector = "  ";
-            }
-            telemetry.addLine(selector + "Color Threshold : " + colorThreshold + "(Default: " + colorThresholdDefault + ")");
-
-            if (selectedAction == 2 && editing) {
-                selector = ">>";
-            } else if (selectedAction == 2) {
-                selector = "> ";
-            } else {
-                selector = "  ";
-            }
-            telemetry.addLine(selector + "Alpha Threshold : " + alphaThreshold + "(Default: " + alphaThresholdDefault + ")");
-
-            if (selectedAction == 3) {
-                selector = "> ";
-            } else {
-                selector = "  ";
-            }
-            telemetry.addLine(selector + "EXIT TUNING MODE\n\n");
-
-            telemetry.addLine("OUTPUT:\n");
-
-            blockDetected = colorSensor.alpha() > alphaThreshold;
-            telemetry.addLine("Block Detected? : " + blockDetected);
-
-            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {
-                blockColor = "RED";
-            } else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {
-                blockColor = "BLUE";
-            } else {
-                blockColor = "UNKNOWN";
-            }
-            telemetry.addLine("Block Color : " + blockColor);
-
-            if (!editing) {
-                if (gamepad1.dpad_up) {
-                    sleep(100);
-                    if (selectedAction != 1) {
-                        selectedAction -= 1;
-                    }
-                }
-                if (gamepad1.dpad_down) {
-                    sleep(100);
-                    if (selectedAction != 3) {
-                        selectedAction += 1;
-                    }
-                }
-                if (gamepad1.dpad_right) {
-                    sleep(100);
-                    if (selectedAction != 3) {
-                        editing = true;
-                    } else {
-                        selectedAction = 1;
-                        tuningFirstTime = true;
-                        TuningModeActive = false;
-                        IdleModeActive = true;
-                        editing = false;
-                    }
-                }
-            } else {
-                if (gamepad1.dpad_up) {
-                    sleep(100);
-                    if (selectedAction == 1) {
-                        colorThreshold += 5;
-                    } else {
-                        alphaThreshold += 5;
-                    }
-                }
-                if (gamepad1.dpad_down) {
-                    sleep(100);
-                    if (selectedAction == 1) {
-                        colorThreshold -= 5;
-                    } else {
-                        alphaThreshold -= 5;
-                    }
-                }
-                if (gamepad1.dpad_left) {
-                    sleep(100);
-                    editing = false;
-                }
-                sleep(80);
-            }
+//            DisplayUtils.telemetry.log.clearLog(false);
+//            telemetry.addLine("TUNING MODE\n");
+//
+//            if (selectedAction == 1 && editing) {
+//                selector = ">>";
+//            } else if (selectedAction == 1) {
+//                selector = "> ";
+//            } else {
+//                selector = "  ";
+//            }
+//            telemetry.addLine(selector + "Color Threshold : " + colorThreshold + "(Default: " + colorThresholdDefault + ")");
+//
+//            if (selectedAction == 2 && editing) {
+//                selector = ">>";
+//            } else if (selectedAction == 2) {
+//                selector = "> ";
+//            } else {
+//                selector = "  ";
+//            }
+//            telemetry.addLine(selector + "Alpha Threshold : " + alphaThreshold + "(Default: " + alphaThresholdDefault + ")");
+//
+//            if (selectedAction == 3) {
+//                selector = "> ";
+//            } else {
+//                selector = "  ";
+//            }
+//            telemetry.addLine(selector + "EXIT TUNING MODE\n\n");
+//
+//            telemetry.addLine("OUTPUT:\n");
+//
+//            blockDetected = colorSensor.alpha() > alphaThreshold;
+//            telemetry.addLine("Block Detected? : " + blockDetected);
+//
+//            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {
+//                blockColor = "RED";
+//            } else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {
+//                blockColor = "BLUE";
+//            } else {
+//                blockColor = "UNKNOWN";
+//            }
+//            telemetry.addLine("Block Color : " + blockColor);
+//
+//            if (!editing) {
+//                if (gamepad1.dpad_up) {
+//                    sleep(100);
+//                    if (selectedAction != 1) {
+//                        selectedAction -= 1;
+//                    }
+//                }
+//                if (gamepad1.dpad_down) {
+//                    sleep(100);
+//                    if (selectedAction != 3) {
+//                        selectedAction += 1;
+//                    }
+//                }
+//                if (gamepad1.dpad_right) {
+//                    sleep(100);
+//                    if (selectedAction != 3) {
+//                        editing = true;
+//                    } else {
+//                        selectedAction = 1;
+//                        tuningFirstTime = true;
+//                        TuningModeActive = false;
+//                        IdleModeActive = true;
+//                        editing = false;
+//                    }
+//                }
+//            } else {
+//                if (gamepad1.dpad_up) {
+//                    sleep(100);
+//                    if (selectedAction == 1) {
+//                        colorThreshold += 5;
+//                    } else {
+//                        alphaThreshold += 5;
+//                    }
+//                }
+//                if (gamepad1.dpad_down) {
+//                    sleep(100);
+//                    if (selectedAction == 1) {
+//                        colorThreshold -= 5;
+//                    } else {
+//                        alphaThreshold -= 5;
+//                    }
+//                }
+//                if (gamepad1.dpad_left) {
+//                    sleep(100);
+//                    editing = false;
+//                }
+//                sleep(80);
+//            }
+//        }
+//        // ToDo: Note for Part 2: setTheToggle(</NaN/>), THEN: goToPos(30);
         }
-        // ToDo: Note for Part 2: setTheToggle(</NaN/>), THEN: goToPos(30);
     }
 
     //endregion

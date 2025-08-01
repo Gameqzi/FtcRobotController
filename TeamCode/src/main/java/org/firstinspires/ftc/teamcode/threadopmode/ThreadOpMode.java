@@ -108,4 +108,12 @@ public abstract class ThreadOpMode extends OpMode {
      */
     public void requestAutoOpModeStop() {autoShutdownRequested = true;}
 
+    /**
+     * Immediately stops the OpMode, without a loop() iteration.
+     */
+    public void demandOpModeStop() {
+        onOpModeStop();
+        sleep(1000);
+        requestOpModeStop();
+    }
 }
