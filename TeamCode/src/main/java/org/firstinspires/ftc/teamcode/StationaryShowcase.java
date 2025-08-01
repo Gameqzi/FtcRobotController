@@ -41,8 +41,8 @@ public class StationaryShowcase extends ThreadOpMode {
     public static final double panScore = 0.500, tiltScore = 0.800; // Camera "Score" Position                              | Already Tuned
     public static final int colorThresholdDefault = 30; // ToDo:                                                            | Change For Each Environment?
     public static final int alphaThresholdDefault = 210; // ToDo:                                                           | Change For Each Environment?
-    public static final boolean robotCanMove = false; // ToDo: Can the robot move on the table?
-    public static final boolean robotQuietMode = false; // If we want less motor wining. ToDo: Maybe for enclosed environments?
+    public static boolean robotCanMove = false; // ToDo: Can the robot move on the table?
+    public static boolean robotQuietMode = false; // If we want less motor wining. ToDo: Maybe for enclosed environments?
     boolean liftActive = !robotQuietMode; // Sub-Variable for Quiet Mode, don't change
 
     // Others:
@@ -164,12 +164,6 @@ public class StationaryShowcase extends ThreadOpMode {
 
         DisplayUtils.telemetry.log.addLine("Setup ~99% Complete: Setting Robot Defaults...");
 
-        int speedRef = 10;
-
-        // [SETUP] Tuning Mode Menu
-        DisplayUtils.telemetry.menu.createMenu("TUNING MODE");
-        DisplayUtils.telemetry.menu.addMenuItem("TUNING MODE", "TEST", speedRef, 6);
-
         // [SETUP] Defaults
         robot.stopMotors();
         cameraGotoPos(panHome, tiltHome);
@@ -177,8 +171,6 @@ public class StationaryShowcase extends ThreadOpMode {
 
         colorThreshold = colorThresholdDefault;
         alphaThreshold = alphaThresholdDefault;
-
-        DisplayUtils.telemetry.log.addLine("RobotDefaults: colorThreshold:" + colorThresholdDefault + ", alphaThreshold:" + alphaThresholdDefault + ", canRobotMove?:" + robotCanMove);
 
         DisplayUtils.telemetry.log.addLine("Setup 100% Complete, Status: Waiting for start...");
 
@@ -237,12 +229,13 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (ActiveModeActive) {
-            DisplayUtils.telemetry.log.addLine("Status: Running Active Mode...");
+            DisplayUtils.telemetry.log.addLine(" ");
+            DisplayUtils.telemetry.log.addLine("Status: Running Active Mode..."); // TODO: Will never be fixed, but small <ERROR> Here
             DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 1, 0, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
             DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
 
             liftActive = true;
-            liftGotoPos(30);
+            liftGotoPos(70);
             cameraGotoPos(panHome, tiltMin);
 
             boolean correctBlock = false;
@@ -282,7 +275,7 @@ public class StationaryShowcase extends ThreadOpMode {
                 }
             }
 
-            liftGotoPos(100);
+            liftGotoPos(120);
             sleep(500);
 
             cameraGotoPos(panHome, tiltHome);
@@ -315,106 +308,148 @@ public class StationaryShowcase extends ThreadOpMode {
 
 
         if (TuningModeActive) {
-            DisplayUtils.telemetry.log.addLine("Status: Running Tuning Mode...");
-            DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
-            DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
-            liftGotoPos(200);
-            cameraGotoPos(panScore, tiltScore);
+            if (tuningFirstTime) {
+                DisplayUtils.telemetry.log.addLine(" ");
+                DisplayUtils.telemetry.log.addLine("Status: Running Tuning Mode..."); // TODO: Will never be fixed, but small <ERROR> Here
+                DisplayUtils.gamepad.led.softPulseLED(DisplayUtils.GamepadTarget.GAMEPAD1, 0, 1, 0, 0, 0, 1, 2000, 100, DisplayUtils.BlinkType.EVEN);
+                DisplayUtils.gamepad.rumble.advRumble(DisplayUtils.GamepadTarget.GAMEPAD1, 0.05, 0.05, 500);
+                liftGotoPos(200);
+                cameraGotoPos(panScore, tiltScore);
 
+                tuningFirstTime = false;
+            }
 
+            telemetry.clearAll();
+            telemetry.addLine("TUNING MODE\n");
 
-//            DisplayUtils.telemetry.log.clearLog(false);
-//            telemetry.addLine("TUNING MODE\n");
-//
-//            if (selectedAction == 1 && editing) {
-//                selector = ">>";
-//            } else if (selectedAction == 1) {
-//                selector = "> ";
-//            } else {
-//                selector = "  ";
-//            }
-//            telemetry.addLine(selector + "Color Threshold : " + colorThreshold + "(Default: " + colorThresholdDefault + ")");
-//
-//            if (selectedAction == 2 && editing) {
-//                selector = ">>";
-//            } else if (selectedAction == 2) {
-//                selector = "> ";
-//            } else {
-//                selector = "  ";
-//            }
-//            telemetry.addLine(selector + "Alpha Threshold : " + alphaThreshold + "(Default: " + alphaThresholdDefault + ")");
-//
-//            if (selectedAction == 3) {
-//                selector = "> ";
-//            } else {
-//                selector = "  ";
-//            }
-//            telemetry.addLine(selector + "EXIT TUNING MODE\n\n");
-//
-//            telemetry.addLine("OUTPUT:\n");
-//
-//            blockDetected = colorSensor.alpha() > alphaThreshold;
-//            telemetry.addLine("Block Detected? : " + blockDetected);
-//
-//            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {
-//                blockColor = "RED";
-//            } else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {
-//                blockColor = "BLUE";
-//            } else {
-//                blockColor = "UNKNOWN";
-//            }
-//            telemetry.addLine("Block Color : " + blockColor);
-//
-//            if (!editing) {
-//                if (gamepad1.dpad_up) {
-//                    sleep(100);
-//                    if (selectedAction != 1) {
-//                        selectedAction -= 1;
-//                    }
-//                }
-//                if (gamepad1.dpad_down) {
-//                    sleep(100);
-//                    if (selectedAction != 3) {
-//                        selectedAction += 1;
-//                    }
-//                }
-//                if (gamepad1.dpad_right) {
-//                    sleep(100);
-//                    if (selectedAction != 3) {
-//                        editing = true;
-//                    } else {
-//                        selectedAction = 1;
-//                        tuningFirstTime = true;
-//                        TuningModeActive = false;
-//                        IdleModeActive = true;
-//                        editing = false;
-//                    }
-//                }
-//            } else {
-//                if (gamepad1.dpad_up) {
-//                    sleep(100);
-//                    if (selectedAction == 1) {
-//                        colorThreshold += 5;
-//                    } else {
-//                        alphaThreshold += 5;
-//                    }
-//                }
-//                if (gamepad1.dpad_down) {
-//                    sleep(100);
-//                    if (selectedAction == 1) {
-//                        colorThreshold -= 5;
-//                    } else {
-//                        alphaThreshold -= 5;
-//                    }
-//                }
-//                if (gamepad1.dpad_left) {
-//                    sleep(100);
-//                    editing = false;
-//                }
-//                sleep(80);
-//            }
-//        }
-//        // ToDo: Note for Part 2: setTheToggle(</NaN/>), THEN: goToPos(30);
+            if (selectedAction == 1 && editing) {
+                selector = ">>";
+            } else if (selectedAction == 1) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
+            telemetry.addLine(selector + "Color Threshold : " + colorThreshold + "(Default: " + colorThresholdDefault + ")");
+
+            if (selectedAction == 2 && editing) {
+                selector = ">>";
+            } else if (selectedAction == 2) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
+            telemetry.addLine(selector + "Alpha Threshold : " + alphaThreshold + "(Default: " + alphaThresholdDefault + ")");
+
+            if (selectedAction == 3 && editing) {
+                selector = ">>";
+            } else if (selectedAction == 3) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
+            telemetry.addLine(selector + "Robot Can Move : " + robotCanMove + "(Default: false)");
+
+            if (selectedAction == 4 && editing) {
+                selector = ">>";
+            } else if (selectedAction == 4) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
+            telemetry.addLine(selector + "Robot Quiet Mode : " + robotQuietMode + "(Default: false)");
+
+            if (selectedAction == 5) {
+                selector = "> ";
+            } else {
+                selector = "  ";
+            }
+            telemetry.addLine(selector + "EXIT TUNING MODE\n\n");
+
+            telemetry.addLine("OUTPUT:\n");
+
+            blockDetected = colorSensor.alpha() > alphaThreshold;
+            telemetry.addLine("Block Detected? : " + blockDetected);
+
+            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {
+                blockColor = "RED";
+            } else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {
+                blockColor = "BLUE";
+            } else {
+                blockColor = "UNKNOWN";
+            }
+            telemetry.addLine("Block Color : " + blockColor);
+
+            telemetry.addLine("\n\n\n");
+
+            if (!editing) {
+                if (gamepad1.dpad_up) {
+                    sleep(100);
+                    if (selectedAction != 1) {
+                        selectedAction -= 1;
+                    }
+                }
+                if (gamepad1.dpad_down) {
+                    sleep(100);
+                    if (selectedAction != 5) {
+                        selectedAction += 1;
+                    }
+                }
+                if (gamepad1.dpad_right) {
+                    sleep(100);
+                    if (selectedAction != 5) {
+                        editing = true;
+                    } else {
+                        selectedAction = 1;
+                        tuningFirstTime = true;
+                        TuningModeActive = false;
+                        IdleModeActive = true;
+                        telemetry.clearAll();
+                        liftActive = !robotQuietMode;
+                        liftGotoPos(30);
+                        editing = false;
+                    }
+                }
+            } else {
+                if (gamepad1.dpad_up) {
+                    sleep(100);
+                    switch (selectedAction) {
+                        case 1:
+                            colorThreshold += 5;
+                            break;
+                        case 2:
+                            alphaThreshold += 5;
+                            break;
+                        case 3:
+                            robotCanMove = true;
+                            break;
+                        case 4:
+                            robotQuietMode = true;
+                            break;
+                    }
+                }
+                if (gamepad1.dpad_down) {
+                    sleep(100);
+                    switch (selectedAction) {
+                        case 1:
+                            colorThreshold -= 5;
+                            break;
+                        case 2:
+                            alphaThreshold -= 5;
+                            break;
+                        case 3:
+                            robotCanMove = false;
+                            break;
+                        case 4:
+                            robotQuietMode = false;
+                            break;
+                    }
+                }
+                if (gamepad1.dpad_left) {
+                    sleep(100);
+                    editing = false;
+                }
+            }
+            sleep(80);
         }
     }
 

@@ -337,6 +337,7 @@ public class DisplayUtils {
     //region DisplayUtils.telemetry.*
     public static class telemetry {
 
+        @Deprecated
         //region DisplayUtils.telemetry.menu.*
         public static class menu {
             private static final Map<String, Menu> menus = new HashMap<>();
@@ -497,11 +498,11 @@ public class DisplayUtils {
 
                         if (selectorGamepad.dpad_up) {
                             sleep(100);
-                            // TODO: HELP!
+                            // TODO: Add Variable Editing, HELP!
                         }
                         if (selectorGamepad.dpad_down) {
                             sleep(100);
-                            // TODO: Add Variable Editing
+                            // TODO: Add Variable Editing, HELP!
                         }
                         if (selectorGamepad.dpad_left) {
                             sleep(100);
