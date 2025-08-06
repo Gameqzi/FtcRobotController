@@ -2,34 +2,25 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp(name = "Sensor: SparkFun OTOS + REV IMU", group = "Sensor")
+@TeleOp(name = "Sensor: SparkFun OTOS", group = "Sensor")
 public class SensorSparkFunOTOS extends LinearOpMode {
     // SparkFun OTOS sensor
     SparkFunOTOS myOtos;
-
-    private BNO055IMU imu;
-    private Orientation imuAngles;
 
     @Override
     public void runOpMode() {
         // Get a reference to the OTOS sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        // ✅ Get a reference to the REV IMU (must match name in RC config)
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-
         // Configure OTOS and IMU
         configureOtos();
-        configureRevImu();
 
         waitForStart();
 
@@ -37,9 +28,6 @@ public class SensorSparkFunOTOS extends LinearOpMode {
             // OTOS position
             SparkFunOTOS.Pose2D pos = myOtos.getPosition();
 
-            // REV IMU heading
-            imuAngles = imu.getAngularOrientation();
-            double imuHeading = imuAngles.firstAngle; // Z-axis = yaw
 
             // Gamepad controls
             if (gamepad1.triangle) {
@@ -58,8 +46,6 @@ public class SensorSparkFunOTOS extends LinearOpMode {
             telemetry.addData("OTOS Y coordinate", pos.y);
             telemetry.addData("OTOS Heading", pos.h);
 
-            telemetry.addData("REV IMU Heading", imuHeading);
-
             telemetry.update();
         }
     }
@@ -75,8 +61,8 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0);
         myOtos.setOffset(offset);
 
-        myOtos.setLinearScalar(1.0);
-        myOtos.setAngularScalar(1.0);
+        myOtos.setLinearScalar(0.989);
+        myOtos.setAngularScalar(0.9933);
 
         myOtos.calibrateImu();
         myOtos.resetTracking();
@@ -92,16 +78,6 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         telemetry.addLine();
         telemetry.addLine(String.format("OTOS Hardware Version: v%d.%d", hwVersion.major, hwVersion.minor));
         telemetry.addLine(String.format("OTOS Firmware Version: v%d.%d", fwVersion.major, fwVersion.minor));
-        telemetry.update();
-    }
-
-    private void configureRevImu() {
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-
-        imu.initialize(parameters);
-        telemetry.addLine("REV IMU initialized!");
         telemetry.update();
     }
 }

@@ -334,7 +334,7 @@ public class MentorChallengeOne extends ThreadOpMode {
         robot.getImu().setAngularUnit(AngleUnit.DEGREES);
 
         robot.getImu().setLinearScalar(1.0);
-        robot.getImu().setAngularScalar(1.0);
+        robot.getImu().setAngularScalar(0.9933);
 
         robot.getImu().calibrateImu();
 
