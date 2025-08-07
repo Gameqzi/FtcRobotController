@@ -138,7 +138,7 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     //region Exe Functions
     public void TriangulateBasketPos() {
-        robot.goTo(0.2, "18", "18", "0");
+        robot.goTo(0.2, "18", "18", "~");
 
         SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
 

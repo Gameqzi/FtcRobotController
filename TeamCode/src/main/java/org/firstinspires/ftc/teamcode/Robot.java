@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Represents the robot chassis and provides methods to control its movement.
@@ -35,10 +36,11 @@ public class Robot {
 
     /**
      * Constructor for RobotChassis. This initializes the motors for the robot chassis.
-     * @param frontLeft Front left motor
+     *
+     * @param frontLeft  Front left motor
      * @param frontRight Front right motor
-     * @param backLeft Back left motor
-     * @param backRight Back right motor
+     * @param backLeft   Back left motor
+     * @param backRight  Back right motor
      */
     private Robot(DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
         frontLeftMotor = frontLeft;
@@ -75,6 +77,7 @@ public class Robot {
 
     /**
      * Returns the singleton instance of Robot. Throws an exception if not initialized.
+     *
      * @return The single instance of Robot.
      */
     public static Robot getInstance() {
@@ -108,6 +111,7 @@ public class Robot {
     //endregion
 
     //region Setters
+
     /**
      * Sets the IMU (Inertial Measurement Unit) for the robot.
      * <p>
@@ -142,8 +146,10 @@ public class Robot {
 
 
     //region BASIC RELATIVE ROBOT MOVEMENT COMMANDS
+
     /**
      * Strafe left using mecanum drive.
+     *
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      */
     public void strafeLeft(double power) {
@@ -159,6 +165,7 @@ public class Robot {
 
     /**
      * Strafe right using mecanum drive.
+     *
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
      */
     public void strafeRight(double power) {
@@ -183,7 +190,7 @@ public class Robot {
      * @throws IllegalArgumentException if the power is outside the range \[-1.0, 1.0\].
      */
     public void rotate(double power) {
-        if(power > 0) {
+        if (power > 0) {
             rotateRight(power);
         } else {
             rotateLeft(power);
@@ -193,6 +200,7 @@ public class Robot {
     /**
      * Rotates the robot counterclockwise in place using mecanum drive.
      * Useful for turning the robot to a new heading.
+     *
      * @param power Motor power, between -1.0 and 1.0.
      */
     public void rotateLeft(double power) {
@@ -209,6 +217,7 @@ public class Robot {
     /**
      * Rotates the robot clockwise in place using mecanum drive.
      * Useful for turning the robot to a new heading.
+     *
      * @param power Motor power, between -1.0 and 1.0.
      */
     public void rotateRight(double power) {
@@ -224,6 +233,7 @@ public class Robot {
 
     /**
      * Drives the robot forward in a straight line using mecanum drive.
+     *
      * @param power Motor power, between -1.0 and 1.0.
      */
     public void driveForward(double power) {
@@ -239,6 +249,7 @@ public class Robot {
 
     /**
      * Drives the robot backward in a straight line using mecanum drive.
+     *
      * @param power Motor power, between -1.0 and 1.0.
      */
     public void driveBackward(double power) {
@@ -264,13 +275,15 @@ public class Robot {
     //endregion
 
     //region ADVANCED RELATIVE ROBOT MOVEMENT COMMANDS
+
     /**
      * Strafe for a set distance on the robot's relative X axis. Negative = Left, Positive = Right. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
-     * @param power The power level to set for the motors, typically between -1.0 and 1.0.
+     *
+     * @param power      The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move. (Relative Distance)
      */
     public void strafeRelDist(double power, double targetDist) {
-        if(imu == null) {
+        if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
 
@@ -300,11 +313,12 @@ public class Robot {
 
     /**
      * Drive for a set distance on the robot's relative Y axis. Negative = Backward, Positive = Forward. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
-     * @param power The power level to set for the motors, typically between -1.0 and 1.0.
+     *
+     * @param power      The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move.
      */
     public void driveRelDist(double power, double targetDist) {
-        if(imu == null) {
+        if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
 
@@ -332,10 +346,12 @@ public class Robot {
     //endregion
 
     //region ADVANCED GLOBAL ROBOT MOVEMENT COMMANDS:
+
     /**
      * Rotate to a set global angle. Negative = CCW, Positive = CW. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
+     *
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
-     * @param TH The desired angle you want the robot to rotate to. (Global Angle)
+     * @param TH    The desired angle you want the robot to rotate to. (Global Angle)
      */
     public void rotateTo(double power, double TH) {
         if (imu == null) {
@@ -367,10 +383,11 @@ public class Robot {
 
     /**
      * Move to a set global X & Y coordinate, as well as a set heading angle. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
+     *
      * @param power The power level to set for the motors, typically between -1.0 and 1.0.
-     * @param FX The desired X coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param FY The desired Y coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
-     * @param FH The desired heading angle in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param FX    The desired X coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param FY    The desired Y coordinate in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
+     * @param FH    The desired heading angle in the field that you want the robot to move to. (NOTE: SET TO "~" FOR 'NO CHANGE')
      */
     public void goTo(double power, String FX, String FY, String FH) {
         if (imu == null) {
@@ -440,12 +457,71 @@ public class Robot {
                 backLeftPower /= maxPower;
                 backRightPower /= maxPower;
             }
+            // --- MULTI-THREADED LATCH START ---
+            final double fl = -frontLeftPower;
+            final double fr =  frontRightPower;
+            final double bl = -backLeftPower;
+            final double br =  backRightPower;
 
-            frontLeftMotor.setPower(-frontLeftPower);
-            frontRightMotor.setPower(frontRightPower);
-            backLeftMotor.setPower(-backLeftPower);
-            backRightMotor.setPower(backRightPower);
+            CountDownLatch startSignal = new CountDownLatch(1);
+
+            Thread flThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    frontLeftMotor.setPower(fl);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "FL-Thread");
+
+            Thread frThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    frontRightMotor.setPower(fr);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "FR-Thread");
+
+            Thread blThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    backLeftMotor.setPower(bl);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "BL-Thread");
+
+            Thread brThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    backRightMotor.setPower(br);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "BR-Thread");
+
+            // start all four threads
+            flThread.start();
+            frThread.start();
+            blThread.start();
+            brThread.start();
+
+            // “green light” — they all fire almost simultaneously
+            startSignal.countDown();
+
+            // wait for each to apply its power before continuing
+            try {
+                flThread.join();
+                frThread.join();
+                blThread.join();
+                brThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // --- MULTI-THREADED LATCH END ---
         }
+
         stopMotors();
 
         rotateTo(rotSpeed, -TH);
