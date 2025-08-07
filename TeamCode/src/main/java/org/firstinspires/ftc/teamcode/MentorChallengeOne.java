@@ -274,7 +274,7 @@ public class MentorChallengeOne extends ThreadOpMode {
                         robot.rotateLeft(Math.max(Math.abs(targetError) / 1500, 0.05));
                     }
 
-                    sleep(25);
+                    sleep(10); // If it's still jittery, try 5 ms
                 }
 
                 // finally, stop any motion
