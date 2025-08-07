@@ -404,6 +404,9 @@ public class DisplayUtils {
             public static void addMenuItem(String menuID, String name, Object variable, Object defaultValue) {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return;
+
+                if (variable instanceof Integer i) {} // TODO!
+
                 menu.items.add(new MenuItems(name, variable, defaultValue));
             }
 
