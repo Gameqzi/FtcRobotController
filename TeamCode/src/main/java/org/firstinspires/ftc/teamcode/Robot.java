@@ -334,33 +334,31 @@ public class Robot {
     //region ADVANCED GLOBAL ROBOT MOVEMENT COMMANDS:
     /**
      * Rotate to a set global angle. Negative = CCW, Positive = CW. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
-     * @param power The power level to set for the motors, typically between -1.0 and 1.0.
+     * @param maxPower The maximum power level to set for the motors, typically between -1.0 and 1.0.
+     * @param minPower The minimum power level to set for the motors, typically between -1.0 and 1.0.
      * @param TH The desired angle you want the robot to rotate to. (Global Angle)
      */
-    public void rotateTo(double power, double TH) {
+    public void rotateTo(double maxPower, double minPower, double TH) { // FIXME: Temp Replacement
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
-        if (!isValidPower(power)) {
+        if (!isValidPower(maxPower) || !isValidPower(minPower)) {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double ANGLE_THRESHOLD = 2.0; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 2.0; // Degrees
 
-        // Calculate initial angle error
-        double angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
+        double error = Utils.normalizeAngle(-TH - imu.getPosition().h);
 
-        // Continue rotating while the error is outside the threshold
-        while (Math.abs(angleError) > ANGLE_THRESHOLD) {
-            double direction = Math.signum(angleError); // +1 for CCW, -1 for CW
-            // Set all motors to rotate in the same direction
-            frontLeftMotor.setPower(power * direction);
-            frontRightMotor.setPower(power * direction);
-            backLeftMotor.setPower(power * direction);
-            backRightMotor.setPower(power * direction);
+        while (Math.abs(error) > ANGLE_THRESHOLD) {
+            error = Utils.normalizeAngle(-TH - imu.getPosition().h);
+            double power = Math.copySign(Math.max(minPower, Math.min(error, maxPower)), error);
 
-            // Update angle error
-            angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
+            frontLeftMotor.setPower(power);
+            frontRightMotor.setPower(power);
+            backLeftMotor.setPower(power);
+            backRightMotor.setPower(power);
+
         }
         stopMotors();
     }
@@ -386,7 +384,8 @@ public class Robot {
         final double minSpeed = 0.15;           // Minimum speed the robot can drive at
         final double maxSpeed = 0.50;           // Maximum speed the robot can drive at
 
-        final double rotSpeed = 0.1;           // Proportional gain for rotation
+        final double maxRotSpeed = 0.5;           // Max proportional gain for rotation
+        final double minRotSpeed = 0.1;           // min proportional gain for rotation
 
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
@@ -448,7 +447,7 @@ public class Robot {
         }
         stopMotors();
 
-        rotateTo(rotSpeed, -TH);
+        rotateTo(maxRotSpeed, minRotSpeed, TH);
         //}
         stopMotors();
     }
