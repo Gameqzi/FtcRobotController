@@ -208,10 +208,67 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
-        backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
+        final double RLfl = power;
+        final double RLfr =  power;
+        final double RLbl = power;
+        final double RLbr =  power;
+
+        CountDownLatch RLstartSignal = new CountDownLatch(1);
+
+        Thread RLflThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                frontLeftMotor.setPower(RLfl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "rotateLeft-FL-Thread");
+
+        Thread RLfrThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                frontRightMotor.setPower(RLfr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "rotateLeft-FR-Thread");
+
+        Thread RLblThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                backLeftMotor.setPower(RLbl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "RotateLeft-BL-Thread");
+
+        Thread RLbrThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                backRightMotor.setPower(RLbr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "RotateLeft-BR-Thread");
+
+        // start all four threads
+        RLflThread.start();
+        RLfrThread.start();
+        RLblThread.start();
+        RLbrThread.start();
+
+        // “green light” — they all fire almost simultaneously
+        RLstartSignal.countDown();
+
+        // wait for each to apply its power before continuing
+        try {
+            RLflThread.join();
+            RLfrThread.join();
+            RLblThread.join();
+            RLbrThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -225,10 +282,67 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        final double RRfl = -power;
+        final double RRfr =  -power;
+        final double RRbl = -power;
+        final double RRbr =  -power;
+
+        CountDownLatch RRstartSignal = new CountDownLatch(1);
+
+        Thread RRflThread = new Thread(() -> {
+            try {
+                RRstartSignal.await();
+                frontLeftMotor.setPower(RRfl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "rotateRight-FL-Thread");
+
+        Thread RRfrThread = new Thread(() -> {
+            try {
+                RRstartSignal.await();
+                frontRightMotor.setPower(RRfr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "rotateRight-FR-Thread");
+
+        Thread RRblThread = new Thread(() -> {
+            try {
+                RRstartSignal.await();
+                backLeftMotor.setPower(RRbl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "RotateRight-BL-Thread");
+
+        Thread RRbrThread = new Thread(() -> {
+            try {
+                RRstartSignal.await();
+                backRightMotor.setPower(RRbr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "RotateRight-BR-Thread");
+
+        // start all four threads
+        RRflThread.start();
+        RRfrThread.start();
+        RRblThread.start();
+        RRbrThread.start();
+
+        // “green light” — they all fire almost simultaneously
+        RRstartSignal.countDown();
+
+        // wait for each to apply its power before continuing
+        try {
+            RRflThread.join();
+            RRfrThread.join();
+            RRblThread.join();
+            RRbrThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -267,10 +381,69 @@ public class Robot {
      * Immediately stops all drive motors, halting the robot's movement.
      */
     public void stopMotors() {
-        frontLeftMotor.setPower(0);
-        frontRightMotor.setPower(0);
-        backLeftMotor.setPower(0);
-        backRightMotor.setPower(0);
+        // --- MULTI-THREADED LATCH START ---
+        final double SMfl = 0;
+        final double SMfr =  0;
+        final double SMbl = 0;
+        final double SMbr =  0;
+
+        CountDownLatch SMstartSignal = new CountDownLatch(1);
+
+        Thread SMflThread = new Thread(() -> {
+            try {
+                SMstartSignal.await();
+                frontLeftMotor.setPower(SMfl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "stopMotors-FL-Thread");
+
+        Thread SMfrThread = new Thread(() -> {
+            try {
+                SMstartSignal.await();
+                frontRightMotor.setPower(SMfr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "stopMotors-FR-Thread");
+
+        Thread SMblThread = new Thread(() -> {
+            try {
+                SMstartSignal.await();
+                backLeftMotor.setPower(SMbl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "stopMotors-BL-Thread");
+
+        Thread SMbrThread = new Thread(() -> {
+            try {
+                SMstartSignal.await();
+                backRightMotor.setPower(SMbr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "stopMotors-BR-Thread");
+
+        // start all four threads
+        SMflThread.start();
+        SMfrThread.start();
+        SMblThread.start();
+        SMbrThread.start();
+
+        // “green light” — they all fire almost simultaneously
+        SMstartSignal.countDown();
+
+        // wait for each to apply its power before continuing
+        try {
+            SMflThread.join();
+            SMfrThread.join();
+            SMblThread.join();
+            SMbrThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        // --- MULTI-THREADED LATCH END ---
     }
     //endregion
 
@@ -301,10 +474,69 @@ public class Robot {
             double headingError = startPos.h - imu.getPosition().h;
             double headingCorrection = Kp * Utils.normalizeAngle(headingError);
 
-            frontLeftMotor.setPower((power * -strafe) + headingCorrection);
-            frontRightMotor.setPower((power * -strafe) + headingCorrection);
-            backLeftMotor.setPower((power * strafe) + headingCorrection);
-            backRightMotor.setPower((power * strafe) + headingCorrection);
+            // --- MULTI-THREADED LATCH START ---
+            final double SRDfl = (power * -strafe) + headingCorrection;
+            final double SRDfr =  (power * -strafe) + headingCorrection;
+            final double SRDbl = (power * strafe) + headingCorrection;
+            final double SRDbr =  (power * strafe) + headingCorrection;
+
+            CountDownLatch SRDstartSignal = new CountDownLatch(1);
+
+            Thread SRDflThread = new Thread(() -> {
+                try {
+                    SRDstartSignal.await();
+                    frontLeftMotor.setPower(SRDfl);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "strafeRelDist-FL-Thread");
+
+            Thread SRDfrThread = new Thread(() -> {
+                try {
+                    SRDstartSignal.await();
+                    frontRightMotor.setPower(SRDfr);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "strafeRelDist-FR-Thread");
+
+            Thread SRDblThread = new Thread(() -> {
+                try {
+                    SRDstartSignal.await();
+                    backLeftMotor.setPower(SRDbl);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "strafeRelDist-BL-Thread");
+
+            Thread SRDbrThread = new Thread(() -> {
+                try {
+                    SRDstartSignal.await();
+                    backRightMotor.setPower(SRDbr);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "strafeRelDist-BR-Thread");
+
+            // start all four threads
+            SRDflThread.start();
+            SRDfrThread.start();
+            SRDblThread.start();
+            SRDbrThread.start();
+
+            // “green light” — they all fire almost simultaneously
+            SRDstartSignal.countDown();
+
+            // wait for each to apply its power before continuing
+            try {
+                SRDflThread.join();
+                SRDfrThread.join();
+                SRDblThread.join();
+                SRDbrThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // --- MULTI-THREADED LATCH END ---
 
             // TODO: !IMPORTANT! - Needs some sort of cooldown. Apparently Thread.sleep(10); will not work. Thread.yield();?
         }
@@ -317,7 +549,7 @@ public class Robot {
      * @param power      The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move.
      */
-    public void driveRelDist(double power, double targetDist) {
+    public void driveRelDist(double power, double targetDist) { // FIXME add threading latch
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -350,33 +582,94 @@ public class Robot {
     /**
      * Rotate to a set global angle. Negative = CCW, Positive = CW. NOTE: CURRENTLY ONLY FOR SPARKFUNOTOS!
      *
-     * @param power The power level to set for the motors, typically between -1.0 and 1.0.
+     * @param maxPower The power level to set for the motors, typically between -1.0 and 1.0.
+     * @param minPower The power level to set for the motors, typically between -1.0 and 1.0.
      * @param TH    The desired angle you want the robot to rotate to. (Global Angle)
      */
-    public void rotateTo(double power, double TH) {
+    public void rotateTo(double maxPower, double minPower, double TH) {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
-        if (!isValidPower(power)) {
+        if (!isValidPower(maxPower) || !isValidPower(minPower)) {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double ANGLE_THRESHOLD = 2.0; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 0.5; // Acceptable error in degrees
 
         // Calculate initial angle error
-        double angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
+        double angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
 
         // Continue rotating while the error is outside the threshold
         while (Math.abs(angleError) > ANGLE_THRESHOLD) {
-            double direction = Math.signum(angleError); // +1 for CCW, -1 for CW
+            angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
+            double power = Math.copySign(Math.max(minPower, Math.min(angleError, maxPower)), angleError);
             // Set all motors to rotate in the same direction
-            frontLeftMotor.setPower(power * direction);
-            frontRightMotor.setPower(power * direction);
-            backLeftMotor.setPower(power * direction);
-            backRightMotor.setPower(power * direction);
+            // --- MULTI-THREADED LATCH START ---
+            final double RTfl = power;
+            final double RTfr =  power;
+            final double RTbl = power;
+            final double RTbr =  power;
+
+            CountDownLatch RTstartSignal = new CountDownLatch(1);
+
+            Thread RTflThread = new Thread(() -> {
+                try {
+                    RTstartSignal.await();
+                    frontLeftMotor.setPower(RTfl);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "rotateTo-FL-Thread");
+
+            Thread RTfrThread = new Thread(() -> {
+                try {
+                    RTstartSignal.await();
+                    frontRightMotor.setPower(RTfr);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "rotateTo-FR-Thread");
+
+            Thread RTblThread = new Thread(() -> {
+                try {
+                    RTstartSignal.await();
+                    backLeftMotor.setPower(RTbl);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "rotateTo-BL-Thread");
+
+            Thread RTbrThread = new Thread(() -> {
+                try {
+                    RTstartSignal.await();
+                    backRightMotor.setPower(RTbr);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "rotateTo-BR-Thread");
+
+            // start all four threads
+            RTflThread.start();
+            RTfrThread.start();
+            RTblThread.start();
+            RTbrThread.start();
+
+            // “green light” — they all fire almost simultaneously
+            RTstartSignal.countDown();
+
+            // wait for each to apply its power before continuing
+            try {
+                RTflThread.join();
+                RTfrThread.join();
+                RTblThread.join();
+                RTbrThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // --- MULTI-THREADED LATCH END ---
 
             // Update angle error
-            angleError = Utils.normalizeAngle(TH - imu.getPosition().h);
+            angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
         }
         stopMotors();
     }
@@ -403,7 +696,8 @@ public class Robot {
         final double minSpeed = 0.15;           // Minimum speed the robot can drive at
         final double maxSpeed = 0.50;           // Maximum speed the robot can drive at
 
-        final double rotSpeed = 0.1;           // Proportional gain for rotation
+        final double maxRotSpeed = 0.5;
+        final double minRotSpeed = 0.1;           // Proportional gain for rotation
 
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
@@ -458,64 +752,64 @@ public class Robot {
                 backRightPower /= maxPower;
             }
             // --- MULTI-THREADED LATCH START ---
-            final double fl = -frontLeftPower;
-            final double fr =  frontRightPower;
-            final double bl = -backLeftPower;
-            final double br =  backRightPower;
+            final double GTfl = -frontLeftPower;
+            final double GTfr =  frontRightPower;
+            final double GTbl = -backLeftPower;
+            final double GTbr =  backRightPower;
 
-            CountDownLatch startSignal = new CountDownLatch(1);
+            CountDownLatch GTstartSignal = new CountDownLatch(1);
 
-            Thread flThread = new Thread(() -> {
+            Thread GTflThread = new Thread(() -> {
                 try {
-                    startSignal.await();
-                    frontLeftMotor.setPower(fl);
+                    GTstartSignal.await();
+                    frontLeftMotor.setPower(GTfl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }, "FL-Thread");
+            }, "GoTo-FL-Thread");
 
-            Thread frThread = new Thread(() -> {
+            Thread GTfrThread = new Thread(() -> {
                 try {
-                    startSignal.await();
-                    frontRightMotor.setPower(fr);
+                    GTstartSignal.await();
+                    frontRightMotor.setPower(GTfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }, "FR-Thread");
+            }, "GoTo-FR-Thread");
 
-            Thread blThread = new Thread(() -> {
+            Thread GTblThread = new Thread(() -> {
                 try {
-                    startSignal.await();
-                    backLeftMotor.setPower(bl);
+                    GTstartSignal.await();
+                    backLeftMotor.setPower(GTbl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }, "BL-Thread");
+            }, "GoTo-BL-Thread");
 
-            Thread brThread = new Thread(() -> {
+            Thread GTbrThread = new Thread(() -> {
                 try {
-                    startSignal.await();
-                    backRightMotor.setPower(br);
+                    GTstartSignal.await();
+                    backRightMotor.setPower(GTbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }, "BR-Thread");
+            }, "GoTo-BR-Thread");
 
             // start all four threads
-            flThread.start();
-            frThread.start();
-            blThread.start();
-            brThread.start();
+            GTflThread.start();
+            GTfrThread.start();
+            GTblThread.start();
+            GTbrThread.start();
 
             // “green light” — they all fire almost simultaneously
-            startSignal.countDown();
+            GTstartSignal.countDown();
 
             // wait for each to apply its power before continuing
             try {
-                flThread.join();
-                frThread.join();
-                blThread.join();
-                brThread.join();
+                GTflThread.join();
+                GTfrThread.join();
+                GTblThread.join();
+                GTbrThread.join();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -524,7 +818,7 @@ public class Robot {
 
         stopMotors();
 
-        rotateTo(rotSpeed, -TH);
+        rotateTo(maxRotSpeed, minRotSpeed, TH);
         //}
         stopMotors();
     }

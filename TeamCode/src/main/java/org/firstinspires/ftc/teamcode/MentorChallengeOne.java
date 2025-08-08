@@ -138,19 +138,46 @@ public class MentorChallengeOne extends ThreadOpMode {
 
     //region Exe Functions
     public void TriangulateBasketPos() {
+        telemetry.addData("IH", robot.getImu().getPosition().h);
+        telemetry.update();
+        sleep(10);
         robot.goTo(0.2, "18", "18", "~");
+
+
+        telemetry.addData("PX", robot.getImu().getPosition().x);
+        telemetry.addData("PY", robot.getImu().getPosition().y);
+        telemetry.addData("PH", robot.getImu().getPosition().h);
+        telemetry.update();
+
+
+        sleep(500);
+
+        requestOpModeStop();
 
         SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
 
         CenterTag(17);
         pos = robot.getImu().getPosition();
 
-        // Get heading, inverted so CW is positive & CCW is negative
         H1 = -pos.h;
         // Get X & Y, accounting for camera offset
         double theta1 = Math.toRadians(90 - (H1 + hCorrection));
-        X1 = pos.x + CamRelOffsetX * Math.cos(theta1) - CamRelOffsetY * Math.sin(theta1);
-        Y1 = pos.y + CamRelOffsetX * Math.sin(theta1) + CamRelOffsetY * Math.cos(theta1);
+
+        // Get heading, inverted so CW is positive & CCW is negative
+        X1 = pos.x; // + CamRelOffsetX * Math.cos(theta1) - CamRelOffsetY * Math.sin(theta1);
+        Y1 = pos.y; // + CamRelOffsetX * Math.sin(theta1) + CamRelOffsetY * Math.cos(theta1);
+
+        telemetry.addData("X", robot.getImu().getPosition().x);
+        telemetry.addData("Y", robot.getImu().getPosition().y);
+        telemetry.addData("H", robot.getImu().getPosition().h);
+        telemetry.addData("WX", robot.getImu().getPosition().x + CamRelOffsetX * Math.cos(theta1) - CamRelOffsetY * Math.sin(theta1));
+        telemetry.addData("WY", robot.getImu().getPosition().y + CamRelOffsetX * Math.sin(theta1) + CamRelOffsetY * Math.cos(theta1));
+        telemetry.addData("theta1", theta1);
+        telemetry.update();
+
+        sleep(250);
+
+        requestOpModeStop();
 
         robot.strafeRelDist(0.2, 18);
 
@@ -161,8 +188,8 @@ public class MentorChallengeOne extends ThreadOpMode {
         H2 = -pos.h;
         // Get X & Y, accounting for camera offset
         double theta2 = Math.toRadians(90 - (H2 + hCorrection));
-        X2 = pos.x + CamRelOffsetX * Math.cos(theta2) - CamRelOffsetY * Math.sin(theta2);
-        Y2 = pos.y + CamRelOffsetX * Math.sin(theta2) + CamRelOffsetY * Math.cos(theta2);
+        X2 = pos.x; // + CamRelOffsetX * Math.cos(theta2) - CamRelOffsetY * Math.sin(theta2);
+        Y2 = pos.y; // + CamRelOffsetX * Math.sin(theta2) + CamRelOffsetY * Math.cos(theta2);
 
         telemetry.addData("X1:", X1);
         telemetry.addData("Y1:", Y1);
@@ -248,8 +275,8 @@ public class MentorChallengeOne extends ThreadOpMode {
             double targetError;
             targetError = target.center.x - centerX;
 
-            while (Math.abs(targetError) > 3) {
-                while (Math.abs(targetError) > 3) {
+            while (Math.abs(targetError) > 2) {
+                while (Math.abs(targetError) > 2) {
                     // re-fetch detections each pass
                     target = null;
                     for (AprilTagDetection det : tagProcessor.getDetections()) {

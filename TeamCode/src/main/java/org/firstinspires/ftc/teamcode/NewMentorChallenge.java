@@ -82,7 +82,7 @@ public class NewMentorChallenge extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        robot.goTo(0.2, "12", "12", "0");
+        //robot.goTo(0.2, "12", "12", "0");
 
         SparkFunOTOS.Pose2D pos = robot.getImu().getPosition();
 
