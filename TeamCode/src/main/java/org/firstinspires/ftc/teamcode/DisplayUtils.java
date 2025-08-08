@@ -405,7 +405,7 @@ public class DisplayUtils {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return;
 
-                if (variable instanceof Integer i) {} // TODO!
+                if (variable instanceof Integer) {} // TODO!
 
                 menu.items.add(new MenuItems(name, variable, defaultValue));
             }
