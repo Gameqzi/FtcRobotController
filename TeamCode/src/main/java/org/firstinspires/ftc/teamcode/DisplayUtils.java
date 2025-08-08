@@ -365,6 +365,7 @@ public class DisplayUtils {
 
             private static class MenuItems {
                 private String name;
+                private String type;
                 private Object variable;
                 private Object defaultValue;
 
