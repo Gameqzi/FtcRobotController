@@ -14,7 +14,7 @@ public abstract class ThreadOpMode extends OpMode {
     /** @noinspection FieldMayBeFinal*/
     private List<TaskThread> threads = new ArrayList<>();
 
-    public static ThreadOpMode activeInstance; // So requestShutDown can be called anywhere TODO: WIP
+    public static ThreadOpMode activeInstance; // So requestShutDown can be called anywhere
 
     private boolean shutdownReady = false;
     private boolean autoShutdownRequested = false;
@@ -71,7 +71,7 @@ public abstract class ThreadOpMode extends OpMode {
                 gamepad1.rumble(0.5, 0.5, 1000);
                 manualOpModStop();
             }
-        } else {
+        } else if (!shutdownReady) {
             // Run Main Loop
             mainLoop();
         }
@@ -108,4 +108,12 @@ public abstract class ThreadOpMode extends OpMode {
      */
     public void requestAutoOpModeStop() {autoShutdownRequested = true;}
 
+    /**
+     * Immediately stops the OpMode, without a loop() iteration.
+     */
+    public void demandOpModeStop() {
+        onOpModeStop();
+        sleep(1000);
+        requestOpModeStop();
+    }
 }
