@@ -365,12 +365,13 @@ public class DisplayUtils {
 
             private static class MenuItems {
                 private String name;
-                private String type;
+                private ValueType type;
                 private Object variable;
                 private Object defaultValue;
 
-                private MenuItems(String name, Object variable, Object defaultValue) {
+                private MenuItems(String name, ValueType type, Object variable, Object defaultValue) {
                     this.name = name;
+                    this.type = type;
                     this.variable = variable;
                     this.defaultValue = defaultValue;
                 }
@@ -406,9 +407,10 @@ public class DisplayUtils {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return;
 
-                if (variable instanceof Integer) {} // TODO!
-
-                menu.items.add(new MenuItems(name, variable, defaultValue));
+                if (variable instanceof Integer) {menu.items.add(new MenuItems(name, ValueType.INT,variable, defaultValue));}
+                if (variable instanceof Float) {menu.items.add(new MenuItems(name, ValueType.FLOAT,variable, defaultValue));}
+                if (variable instanceof Double) {menu.items.add(new MenuItems(name, ValueType.DOUBLE,variable, defaultValue));}
+                if (variable instanceof Boolean) {menu.items.add(new MenuItems(name, ValueType.BOOLEAN,variable, defaultValue));}
             }
 
             public static void removeMenuItem(String menuID, String itemName) {
