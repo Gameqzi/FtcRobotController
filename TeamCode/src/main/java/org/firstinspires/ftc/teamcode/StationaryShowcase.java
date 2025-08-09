@@ -57,6 +57,9 @@ public class StationaryShowcase extends ThreadOpMode {
     String selector;
     boolean editing = false;
 
+    int test = 1;
+    String sensor6 = "N/A";
+
     // Mode Latches:
     public boolean IdleModeActive = true;
     public boolean ActiveModeActive = false;
@@ -293,17 +296,21 @@ public class StationaryShowcase extends ThreadOpMode {
                 tuningFirstTime = false;
             }
 
-            DisplayUtils.telemetry.menu.createMenu("TEST");
+            DisplayUtils.telemetry.menu.createMenu("MyMenu");
+
+            DisplayUtils.telemetry.menu.addMenuItem("MyMenu", "Test", test, 6);
 
             DisplayUtils.telemetry.menu.setOnMenuUpdate("MyMenu", menuID -> {
-                System.out.println("Menu updated: " + menuID);
+                test = (int) DisplayUtils.telemetry.menu.getMenuItemValue(menuID, "Test"); // Update all of the caller's variables, notice that there is NO 'int'!!!
+
+                DisplayUtils.telemetry.menu.clearMenuData("MyMenu"); // Clear the data displayed at the bottom of the menu (For info & live debugging updates)
+
+                if (test > 3) {sensor6 = "Detected!";} // Run/calculate some debug live updates
+
+                DisplayUtils.telemetry.menu.addMenuData("MyMenu", "Data For Senser6", sensor6); // Update the data
             });
 
         }
-    }
-
-    Runnable onMenuUpdate; {
-
     }
 
     //endregion
