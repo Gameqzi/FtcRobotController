@@ -590,11 +590,11 @@ public class Robot {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
-        if (!isValidPower(maxPower) || !isValidPower(minPower)) {
+        /*if (!isValidPower(maxPower) || !isValidPower(minPower)) {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
-        }
+        }*/
 
-        final double ANGLE_THRESHOLD = 0.5; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 1; // Acceptable error in degrees
 
         // Calculate initial angle error
         double angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
@@ -615,7 +615,7 @@ public class Robot {
             Thread RTflThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    frontLeftMotor.setPower(RTfl);
+                    frontLeftMotor.setVelocity(RTfl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -624,7 +624,7 @@ public class Robot {
             Thread RTfrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    frontRightMotor.setPower(RTfr);
+                    frontRightMotor.setVelocity(RTfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -633,7 +633,7 @@ public class Robot {
             Thread RTblThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backLeftMotor.setPower(RTbl);
+                    backLeftMotor.setVelocity(RTbl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -642,7 +642,7 @@ public class Robot {
             Thread RTbrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backRightMotor.setPower(RTbr);
+                    backRightMotor.setVelocity(RTbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
