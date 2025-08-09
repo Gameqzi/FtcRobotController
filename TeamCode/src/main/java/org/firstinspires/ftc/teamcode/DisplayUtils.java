@@ -342,24 +342,34 @@ public class DisplayUtils {
         public static class menu {
             private static final Map<String, Menu> menus = new HashMap<>();
 
-            public static class Menu {
+            // Define interface for update callback
+            public interface MenuUpdateListener {
+                void onMenuUpdate(String menuID);
+            }
+
+            private static class Menu {
                 public String menuID;
                 public List<MenuItems> items;
                 public List<MenuData> data;
 
-                public Runnable onUpdateData;
+                private MenuUpdateListener updateListener;
 
                 public Menu(String menuID, List<MenuItems> items, List<MenuData> data) {
                     this.menuID = menuID;
                     this.items = items;
                     this.data = data;
                 }
-            }
 
-            public static void setOnUpdateData(String menuId, Runnable callback) {
-                Menu menu = menus.get(menuId);
-                if (menu != null) {
-                    menu.onUpdateData = callback;
+                // Setter for update listener
+                public void setOnMenuUpdate(MenuUpdateListener listener) {
+                    this.updateListener = listener;
+                }
+
+                // Call the listener if present
+                public void onMenuUpdate() {
+                    if (updateListener != null) {
+                        updateListener.onMenuUpdate(menuID);
+                    }
                 }
             }
 
@@ -391,6 +401,14 @@ public class DisplayUtils {
                 menus.put(menuID, new Menu(menuID, new ArrayList<>(), new ArrayList<>()));
             }
 
+            // New method to set the listener from outside
+            public static void setOnMenuUpdate(String menuID, MenuUpdateListener listener) {
+                Menu menu = menus.get(menuID);
+                if (menu != null) {
+                    menu.setOnMenuUpdate(listener);
+                }
+            }
+
             public static void removeMenu(String menuID) {
                 menus.remove(menuID);
             }
@@ -407,10 +425,17 @@ public class DisplayUtils {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return;
 
-                if (variable instanceof Integer) {menu.items.add(new MenuItems(name, ValueType.INT,variable, defaultValue));}
-                if (variable instanceof Float) {menu.items.add(new MenuItems(name, ValueType.FLOAT,variable, defaultValue));}
-                if (variable instanceof Double) {menu.items.add(new MenuItems(name, ValueType.DOUBLE,variable, defaultValue));}
-                if (variable instanceof Boolean) {menu.items.add(new MenuItems(name, ValueType.BOOLEAN,variable, defaultValue));}
+                if (variable instanceof Integer) {
+                    menu.items.add(new MenuItems(name, ValueType.INT, variable, defaultValue));
+                } else if (variable instanceof Float) {
+                    menu.items.add(new MenuItems(name, ValueType.FLOAT, variable, defaultValue));
+                } else if (variable instanceof Double) {
+                    menu.items.add(new MenuItems(name, ValueType.DOUBLE, variable, defaultValue));
+                } else if (variable instanceof Boolean) {
+                    menu.items.add(new MenuItems(name, ValueType.BOOLEAN, variable, defaultValue));
+                } else {
+                    menu.items.add(new MenuItems(name, null, variable, defaultValue));
+                }
             }
 
             public static void removeMenuItem(String menuID, String itemName) {
@@ -434,10 +459,22 @@ public class DisplayUtils {
                 }
             }
 
+            public static Object getMenuItemValue(String menuID, String itemName) {
+                Menu menu = menus.get(menuID);
+                if (menu == null) return null;
+
+                for (MenuItems item : menu.items) {
+                    if (item.name.equals(itemName)) {
+                        return item.variable;
+                    }
+                }
+                return null;
+            }
+
             public static void displayMenu(String menuID, Gamepad gamepad) {
                 Menu menu = menus.get(menuID);
                 if (menu == null) {
-                    log.throwSoftError("DisplayUtils.telemetry.menu.displayMenu()", "Menu [ID]" + menuID + " does NOT exist", false);
+                    log.throwSoftError("DisplayUtils.telemetry.menu.displayMenu()", "Menu [ID]" + menuID + " does NOT exist!", true);
                     return;
                 }
 
@@ -451,9 +488,13 @@ public class DisplayUtils {
                 boolean hasExit = false;
                 for (int i = 0; i < menu.items.size(); i++) {
                     MenuItems item = menu.items.get(i);
-                    if (Objects.equals(item.name, "EXIT")) {hasExit = true;}
+                    if (Objects.equals(item.name, "EXIT")) {
+                        hasExit = true;
+                    }
                 }
-                if (!hasExit) {addMenuItem(menuID, "EXIT");}
+                if (!hasExit) {
+                    addMenuItem(menuID, "EXIT");
+                }
 
                 while (!exitSelected) {
                     SysTelemetry.clearAll();
@@ -468,10 +509,6 @@ public class DisplayUtils {
 
                     if (menu.data != null && !menu.data.isEmpty()) {
                         SysTelemetry.addLine("\n\nOUTPUT:\n");
-
-                        if (menu.onUpdateData != null) {
-                            menu.onUpdateData.run();
-                        }
 
                         for (int i = 0; i < menu.data.size(); i++) {
                             MenuData data = menu.data.get(i);
@@ -501,14 +538,45 @@ public class DisplayUtils {
                             }
                         }
                     } else {
+                        MenuItems item = menu.items.get(selectedItem);
 
                         if (selectorGamepad.dpad_up) {
                             sleep(100);
-                            // TODO: Add Variable Editing, HELP!
+                            switch (item.type) {
+                                case INT:
+                                    item.variable = (Integer) item.variable + 5;
+                                    break;
+                                case FLOAT:
+                                    item.variable = (Float) item.variable + 0.5;
+                                    break;
+                                case DOUBLE:
+                                    item.variable = (Double) item.variable + 0.5;
+                                    break;
+                                case BOOLEAN:
+                                    item.variable = true;
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                         if (selectorGamepad.dpad_down) {
                             sleep(100);
-                            // TODO: Add Variable Editing, HELP!
+                            switch (item.type) {
+                                case INT:
+                                    item.variable = (Integer) item.variable - 5;
+                                    break;
+                                case FLOAT:
+                                    item.variable = (Float) item.variable - 0.5;
+                                    break;
+                                case DOUBLE:
+                                    item.variable = (Double) item.variable - 0.5;
+                                    break;
+                                case BOOLEAN:
+                                    item.variable = false;
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                         if (selectorGamepad.dpad_left) {
                             sleep(100);
@@ -516,9 +584,12 @@ public class DisplayUtils {
                         }
                     }
 
+                    menu.onMenuUpdate();
+
                     SysTelemetry.update();
                     sleep(80);
                 }
+                SysTelemetry.clearAll();
                 log.addLine("Exited Menu [ID]" + menuID);
             }
         }

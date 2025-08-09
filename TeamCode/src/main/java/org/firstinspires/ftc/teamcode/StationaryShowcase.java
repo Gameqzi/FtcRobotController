@@ -293,98 +293,17 @@ public class StationaryShowcase extends ThreadOpMode {
                 tuningFirstTime = false;
             }
 
-            DisplayUtils.telemetry.log.clearLog(false);
-            telemetry.addLine("TUNING MODE\n");
+            DisplayUtils.telemetry.menu.createMenu("TEST");
 
-            if (selectedAction == 1 && editing) {
-                selector = ">>";
-            } else if (selectedAction == 1) {
-                selector = "> ";
-            } else {
-                selector = "  ";
-            }
-            telemetry.addLine(selector + "Color Threshold : " + colorThreshold + "(Default: " + colorThresholdDefault + ")");
+            DisplayUtils.telemetry.menu.setOnMenuUpdate("MyMenu", menuID -> {
+                System.out.println("Menu updated: " + menuID);
+            });
 
-            if (selectedAction == 2 && editing) {
-                selector = ">>";
-            } else if (selectedAction == 2) {
-                selector = "> ";
-            } else {
-                selector = "  ";
-            }
-            telemetry.addLine(selector + "Alpha Threshold : " + alphaThreshold + "(Default: " + alphaThresholdDefault + ")");
-
-            if (selectedAction == 3) {
-                selector = "> ";
-            } else {
-                selector = "  ";
-            }
-            telemetry.addLine(selector + "EXIT TUNING MODE\n\n");
-
-            telemetry.addLine("OUTPUT:\n");
-
-            blockDetected = colorSensor.alpha() > alphaThreshold;
-            telemetry.addLine("Block Detected? : " + blockDetected);
-
-            if (colorSensor.red() > colorSensor.blue() + colorThreshold) {
-                blockColor = "RED";
-            } else if (colorSensor.blue() > colorSensor.red() + colorThreshold) {
-                blockColor = "BLUE";
-            } else {
-                blockColor = "UNKNOWN";
-            }
-            telemetry.addLine("Block Color : " + blockColor);
-
-            if (!editing) {
-                if (gamepad1.dpad_up) {
-                    sleep(100);
-                    if (selectedAction != 1) {
-                        selectedAction -= 1;
-                    }
-                }
-                if (gamepad1.dpad_down) {
-                    sleep(100);
-                    if (selectedAction != 3) {
-                        selectedAction += 1;
-                    }
-                }
-                if (gamepad1.dpad_right) {
-                    sleep(100);
-                    if (selectedAction != 3) {
-                        editing = true;
-                    } else {
-                        selectedAction = 1;
-                        tuningFirstTime = true;
-                        TuningModeActive = false;
-                        IdleModeActive = true;
-                        editing = false;
-                    }
-                }
-            } else {
-                if (gamepad1.dpad_up) {
-                    sleep(100);
-                    if (selectedAction == 1) {
-                        colorThreshold += 5;
-                    } else {
-                        alphaThreshold += 5;
-                    }
-                }
-                if (gamepad1.dpad_down) {
-                    sleep(100);
-                    if (selectedAction == 1) {
-                        colorThreshold -= 5;
-                    } else {
-                        alphaThreshold -= 5;
-                    }
-                }
-                if (gamepad1.dpad_left) {
-                    sleep(100);
-                    editing = false;
-                }
-                sleep(80);
-            }
         }
-        // ToDo: Note for Part 2: setTheToggle(</NaN/>), THEN: goToPos(30);
+    }
+
+    Runnable onMenuUpdate; {
+
     }
 
     //endregion
