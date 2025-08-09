@@ -157,10 +157,69 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
-        backLeftMotor.setPower(-power);
-        backRightMotor.setPower(-power);
+        // --- MULTI-THREADED LATCH START ---
+        final double SLfl = power;
+        final double SLfr =  power;
+        final double SLbl = -power;
+        final double SLbr =  -power;
+
+        CountDownLatch SLstartSignal = new CountDownLatch(1);
+
+        Thread SLflThread = new Thread(() -> {
+            try {
+                SLstartSignal.await();
+                frontLeftMotor.setPower(SLfl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "strafeLeft-FL-Thread");
+
+        Thread SLfrThread = new Thread(() -> {
+            try {
+                SLstartSignal.await();
+                frontRightMotor.setPower(SLfr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "strafeLeft-FR-Thread");
+
+        Thread SLblThread = new Thread(() -> {
+            try {
+                SLstartSignal.await();
+                backLeftMotor.setPower(SLbl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "strafeLeft-BL-Thread");
+
+        Thread SLbrThread = new Thread(() -> {
+            try {
+                SLstartSignal.await();
+                backRightMotor.setPower(SLbr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "strafeLeft-BR-Thread");
+
+        // start all four threads
+        SLflThread.start();
+        SLfrThread.start();
+        SLblThread.start();
+        SLbrThread.start();
+
+        // “green light” — they all fire almost simultaneously
+        SLstartSignal.countDown();
+
+        // wait for each to apply its power before continuing
+        try {
+            SLflThread.join();
+            SLfrThread.join();
+            SLblThread.join();
+            SLbrThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        // --- MULTI-THREADED LATCH END ---
     }
 
     /**
@@ -173,103 +232,65 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(power);
-        backRightMotor.setPower(power);
-    }
+        // Mecanum strafe right power mapping
+        final double leftFrontPower  = -power;
+        final double rightFrontPower = -power;
+        final double leftBackPower   =  power;
+        final double rightBackPower  =  power;
 
-    /**
-     * Rotates the robot in place using mecanum drive.
-     * <p>
-     * If the power is positive, the robot rotates clockwise (right).
-     * If the power is negative, the robot rotates counterclockwise (left).
-     * </p>
-     *
-     * @param power Motor power, between -1.0 and 1.0. Positive for right, negative for left.
-     * @throws IllegalArgumentException if the power is outside the range \[-1.0, 1.0\].
-     */
-    public void rotate(double power) {
-        if (power > 0) {
-            rotateRight(power);
-        } else {
-            rotateLeft(power);
-        }
-    }
+        final CountDownLatch startSignal = new CountDownLatch(1);
 
-    /**
-     * Rotates the robot counterclockwise in place using mecanum drive.
-     * Useful for turning the robot to a new heading.
-     *
-     * @param power Motor power, between -1.0 and 1.0.
-     */
-    public void rotateLeft(double power) {
-        if (!isValidPower(power)) {
-            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
-        }
-
-        final double RLfl = power;
-        final double RLfr =  power;
-        final double RLbl = power;
-        final double RLbr =  power;
-
-        CountDownLatch RLstartSignal = new CountDownLatch(1);
-
-        Thread RLflThread = new Thread(() -> {
+        Thread leftFrontThread = new Thread(() -> {
             try {
-                RLstartSignal.await();
-                frontLeftMotor.setPower(RLfl);
+                startSignal.await();
+                frontLeftMotor.setPower(leftFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, "rotateLeft-FL-Thread");
-
-        Thread RLfrThread = new Thread(() -> {
+        });
+        Thread rightFrontThread = new Thread(() -> {
             try {
-                RLstartSignal.await();
-                frontRightMotor.setPower(RLfr);
+                startSignal.await();
+                frontRightMotor.setPower(rightFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, "rotateLeft-FR-Thread");
-
-        Thread RLblThread = new Thread(() -> {
+        });
+        Thread leftBackThread = new Thread(() -> {
             try {
-                RLstartSignal.await();
-                backLeftMotor.setPower(RLbl);
+                startSignal.await();
+                backLeftMotor.setPower(leftBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RotateLeft-BL-Thread");
-
-        Thread RLbrThread = new Thread(() -> {
+        });
+        Thread rightBackThread = new Thread(() -> {
             try {
-                RLstartSignal.await();
-                backRightMotor.setPower(RLbr);
+                startSignal.await();
+                backRightMotor.setPower(rightBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RotateLeft-BR-Thread");
+        });
 
-        // start all four threads
-        RLflThread.start();
-        RLfrThread.start();
-        RLblThread.start();
-        RLbrThread.start();
+        leftFrontThread.start();
+        rightFrontThread.start();
+        leftBackThread.start();
+        rightBackThread.start();
 
-        // “green light” — they all fire almost simultaneously
-        RLstartSignal.countDown();
+        // Release the latch so all four threads set power at the same time
+        startSignal.countDown();
 
-        // wait for each to apply its power before continuing
         try {
-            RLflThread.join();
-            RLfrThread.join();
-            RLblThread.join();
-            RLbrThread.join();
+            leftFrontThread.join();
+            rightFrontThread.join();
+            leftBackThread.join();
+            rightBackThread.join();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
+
 
     /**
      * Rotates the robot clockwise in place using mecanum drive.
@@ -355,11 +376,64 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(-power);
-        frontRightMotor.setPower(power);
-        backLeftMotor.setPower(-power);
-        backRightMotor.setPower(power);
+        // Mecanum forward power mapping
+        final double leftFrontPower  = -power;
+        final double rightFrontPower =  power;
+        final double leftBackPower   = -power;
+        final double rightBackPower  =  power;
+
+        final CountDownLatch startSignal = new CountDownLatch(1);
+
+        Thread leftFrontThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                frontLeftMotor.setPower(leftFrontPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread rightFrontThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                frontRightMotor.setPower(rightFrontPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread leftBackThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                backLeftMotor.setPower(leftBackPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread rightBackThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                backRightMotor.setPower(rightBackPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        leftFrontThread.start();
+        rightFrontThread.start();
+        leftBackThread.start();
+        rightBackThread.start();
+
+        startSignal.countDown();
+
+        try {
+            leftFrontThread.join();
+            rightFrontThread.join();
+            leftBackThread.join();
+            rightBackThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
+
 
     /**
      * Drives the robot backward in a straight line using mecanum drive.
@@ -371,11 +445,64 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        frontLeftMotor.setPower(power);
-        frontRightMotor.setPower(-power);
-        backLeftMotor.setPower(power);
-        backRightMotor.setPower(-power);
+        // Mecanum backward power mapping
+        final double leftFrontPower  =  power;
+        final double rightFrontPower = -power;
+        final double leftBackPower   =  power;
+        final double rightBackPower  = -power;
+
+        final CountDownLatch startSignal = new CountDownLatch(1);
+
+        Thread leftFrontThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                frontLeftMotor.setPower(leftFrontPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread rightFrontThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                frontRightMotor.setPower(rightFrontPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread leftBackThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                backLeftMotor.setPower(leftBackPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread rightBackThread = new Thread(() -> {
+            try {
+                startSignal.await();
+                backRightMotor.setPower(rightBackPower);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        leftFrontThread.start();
+        rightFrontThread.start();
+        leftBackThread.start();
+        rightBackThread.start();
+
+        startSignal.countDown();
+
+        try {
+            leftFrontThread.join();
+            rightFrontThread.join();
+            leftBackThread.join();
+            rightBackThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
+
 
     /**
      * Immediately stops all drive motors, halting the robot's movement.
@@ -549,7 +676,7 @@ public class Robot {
      * @param power      The power level to set for the motors, typically between -1.0 and 1.0.
      * @param targetDist The desired distance you want the robot to move.
      */
-    public void driveRelDist(double power, double targetDist) { // FIXME add threading latch
+    public void driveRelDist(double power, double targetDist) {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
@@ -559,7 +686,7 @@ public class Robot {
         }
 
         final double THRESHOLD = 0.5; // Acceptable distance error in units
-        final double Kp = 0.02; // Proportional gain for heading correction, tune this value
+        final double Kp = 0.02;       // Proportional gain for heading correction, tune this value
         SparkFunOTOS.Pose2D startPos = imu.getPosition();
 
         while (Math.abs(getRobotYDisplacement(startPos, imu.getPosition())) < Math.abs(targetDist) - THRESHOLD) {
@@ -568,13 +695,65 @@ public class Robot {
             double headingError = startPos.h - imu.getPosition().h;
             double headingCorrection = Kp * Utils.normalizeAngle(headingError);
 
-            frontLeftMotor.setPower((power * -drive) + headingCorrection);
-            frontRightMotor.setPower((power * drive) + headingCorrection);
-            backLeftMotor.setPower((power * -drive) + headingCorrection);
-            backRightMotor.setPower((power * drive) + headingCorrection);
+            final double leftFrontPower  = (power * -drive) + headingCorrection;
+            final double rightFrontPower = (power *  drive) + headingCorrection;
+            final double leftBackPower   = (power * -drive) + headingCorrection;
+            final double rightBackPower  = (power *  drive) + headingCorrection;
+
+            final CountDownLatch startSignal = new CountDownLatch(1);
+
+            Thread leftFrontThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    frontLeftMotor.setPower(leftFrontPower);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+            Thread rightFrontThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    frontRightMotor.setPower(rightFrontPower);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+            Thread leftBackThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    backLeftMotor.setPower(leftBackPower);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+            Thread rightBackThread = new Thread(() -> {
+                try {
+                    startSignal.await();
+                    backRightMotor.setPower(rightBackPower);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+
+            leftFrontThread.start();
+            rightFrontThread.start();
+            leftBackThread.start();
+            rightBackThread.start();
+
+            startSignal.countDown();
+
+            try {
+                leftFrontThread.join();
+                rightFrontThread.join();
+                leftBackThread.join();
+                rightBackThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         stopMotors();
     }
+
     //endregion
 
     //region ADVANCED GLOBAL ROBOT MOVEMENT COMMANDS:
