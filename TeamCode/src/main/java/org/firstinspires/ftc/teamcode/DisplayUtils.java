@@ -113,9 +113,13 @@ public class DisplayUtils {
     public static class init {
 
         public static void initTelemetry(Telemetry initTelemetry) { // Required
-            SysTelemetry = initTelemetry;
-            SysTelemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.OLDEST_FIRST);
-            SysTelemetry.log().clear();
+            if (initTelemetry == null) {
+                telemetry.log.throwHardError("DisplayUtils.init.initTelemetry", "Telemetry retuned NULL!", false);
+            } else {
+                SysTelemetry = initTelemetry;
+                SysTelemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.OLDEST_FIRST);
+                SysTelemetry.log().clear();
+            }
         }
 
         public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions
@@ -337,42 +341,47 @@ public class DisplayUtils {
     //region DisplayUtils.telemetry.*
     public static class telemetry {
 
-        @Deprecated
+        
+
         //region DisplayUtils.telemetry.menu.*
+        /** Status: 95%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
         public static class menu {
             private static final Map<String, Menu> menus = new HashMap<>();
 
             // Define interface for update callback
+            /** Status: 99%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public interface MenuUpdateListener {
                 void onMenuUpdate(String menuID);
             }
 
+            /** @noinspection FieldMayBeFinal*/ // To suppress warnings in 'menuID', 'items', & 'data'
             private static class Menu {
-                public String menuID;
-                public List<MenuItems> items;
-                public List<MenuData> data;
+                private String menuID;
+                private List<MenuItems> items;
+                private List<MenuData> data;
 
                 private MenuUpdateListener updateListener;
 
-                public Menu(String menuID, List<MenuItems> items, List<MenuData> data) {
+                private Menu(String menuID, List<MenuItems> items, List<MenuData> data) {
                     this.menuID = menuID;
                     this.items = items;
                     this.data = data;
                 }
 
                 // Setter for update listener
-                public void setOnMenuUpdate(MenuUpdateListener listener) {
+                private void setOnMenuUpdate(MenuUpdateListener listener) {
                     this.updateListener = listener;
                 }
 
                 // Call the listener if present
-                public void onMenuUpdate() {
+                private void onMenuUpdate() {
                     if (updateListener != null) {
                         updateListener.onMenuUpdate(menuID);
                     }
                 }
             }
 
+            /** @noinspection FieldMayBeFinal*/ // To suppress warnings in 'name', 'type', & 'defaultValue'
             private static class MenuItems {
                 private String name;
                 private ValueType type;
@@ -387,6 +396,7 @@ public class DisplayUtils {
                 }
             }
 
+            /** @noinspection FieldMayBeFinal*/ // To suppress warnings in 'caption' & 'value'
             private static class MenuData {
                 private String caption;
                 private Object value;
@@ -397,11 +407,13 @@ public class DisplayUtils {
                 }
             }
 
+            /** Status: 99%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void createMenu(String menuID) {
                 menus.put(menuID, new Menu(menuID, new ArrayList<>(), new ArrayList<>()));
             }
 
             // New method to set the listener from outside
+            /** Status: 95%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void setOnMenuUpdate(String menuID, MenuUpdateListener listener) {
                 Menu menu = menus.get(menuID);
                 if (menu != null) {
@@ -409,18 +421,22 @@ public class DisplayUtils {
                 }
             }
 
+            /** Status: 99%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void removeMenu(String menuID) {
                 menus.remove(menuID);
             }
 
+            /** Status: 96%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void addMenuItem(String menuID, String name) {
                 addMenuItem(menuID, name, null, null);
             }
 
+            /** Status: 96%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void addMenuItem(String menuID, String name, Object variable) {
                 addMenuItem(menuID, name, variable, null);
             }
 
+            /** Status: 96%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void addMenuItem(String menuID, String name, Object variable, Object defaultValue) {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return;
@@ -438,6 +454,7 @@ public class DisplayUtils {
                 }
             }
 
+            /** Status: 98%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void removeMenuItem(String menuID, String itemName) {
                 Menu menu = menus.get(menuID);
                 if (menu != null) {
@@ -445,6 +462,15 @@ public class DisplayUtils {
                 }
             }
 
+            /** Status: 98%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
+            public static void addMenuData(String menuID, String caption) {
+                Menu menu = menus.get(menuID);
+                if (menu != null) {
+                    menu.data.add(new MenuData(caption, null));
+                }
+            }
+
+            /** Status: 99%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void addMenuData(String menuID, String caption, Object variable) {
                 Menu menu = menus.get(menuID);
                 if (menu != null) {
@@ -452,6 +478,7 @@ public class DisplayUtils {
                 }
             }
 
+            /** Status: 99%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void clearMenuData(String menuID) {
                 Menu menu = menus.get(menuID);
                 if (menu != null) {
@@ -459,6 +486,7 @@ public class DisplayUtils {
                 }
             }
 
+            /** Status: 95%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static Object getMenuItemValue(String menuID, String itemName) {
                 Menu menu = menus.get(menuID);
                 if (menu == null) return null;
@@ -471,6 +499,7 @@ public class DisplayUtils {
                 return null;
             }
 
+            /** Status: 95%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void displayMenu(String menuID, Gamepad gamepad) {
                 Menu menu = menus.get(menuID);
                 if (menu == null) {
