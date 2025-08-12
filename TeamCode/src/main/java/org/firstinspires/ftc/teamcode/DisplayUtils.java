@@ -86,12 +86,13 @@ public class DisplayUtils {
       *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuID, itemName, itemVariable);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.addMenuItem(menuID, itemName, itemVariable, defaultVal);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.removeMenuItem(menuID, itemName);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuID, caption);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.addMenuData(menuID, caption, dataVariable);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.clearMenuData(menuID);</code></li>
       *     <li><code>DisplayUtils.telemetry.menu.displayMenu(menuID, gamepad);</code></li>
+      *     <li><code>DisplayUtils.telemetry.menu.setOnMenuUpdate(menuID, menuID -> {...});</code></li>
+      *     <li><code><b>[Object]</b> DisplayUtils.telemetry.menu.getMenuItemValue(menuID, itemName);</code></li>
       *     <br>
-      *     <li><code>DisplayUtils.telemetry.log.showLog(visible);</code></li>
-      *     <li><code>DisplayUtils.telemetry.log.setAutoDisplay(displayAfterMenu);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.setMaxLines(maxLines);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.addLine(message);</code></li>
       *     <li><code>DisplayUtils.telemetry.log.throwSoftError(object, error, gamepadNotice);</code></li>
@@ -99,10 +100,14 @@ public class DisplayUtils {
       *     <li><code>DisplayUtils.telemetry.log.clearLog(displayClearEvent);</code></li>
       * </ul>
       * <br>
-      * <strong>All Internal DisplayUtils Functions:</strong>
+      * <strong>All Internal DisplayUtils Functions: (For Debugging)</strong>
       * <ul>
       *     <li><code>Gamepad.LedEffect LEDSmoothTransition(r1, g1, b1, r2, g2, b2, speed, resolution).setRepeating(repeating).build();</code></li>
       *     <li><code>double interpolate(start, end, progress);</code></li>
+      *     <br>
+      *     <li><code>interface MenuUpdateListener;</code></li>
+      *     <li><code>.setOnMenuUpdate(listener);</code></li>
+      *     <li><code>.onMenuUpdate(menuID);</code></li>
       * </ul>
       * <br><br><br>
       */
@@ -298,7 +303,7 @@ public class DisplayUtils {
             }
 
             // @throws IllegalArgumentException if ...
-            private static Gamepad.LedEffect.Builder LEDSmoothTransition(double R1, double G1, double B1, double R2, double G2, double B2, int speed, int resolution) {
+            private static Gamepad.LedEffect.Builder LEDSmoothTransition(double r1, double g1, double b1, double r2, double g2, double b2, int speed, int resolution) {
                 if (resolution <= 0) {throw new IllegalArgumentException("[DisplayUtils.gamepad.led.LEDSmoothTransition]: <ERROR> When calculating smooth LED transition, precation caught DIVIDE BY ZERO (Variable: 'resolution' <= 0)!");}
 
                 int step = speed / resolution;
@@ -308,12 +313,12 @@ public class DisplayUtils {
                 for (int i = 0; i <= resolution + 1; i++) {
                     double progress = (double) i / resolution;
 
-                    double currentR = interpolate(R1, R2, progress);
-                    double currentG = interpolate(G1, G2, progress);
-                    double currentB = interpolate(B1, B2, progress);
+                    double currentR = interpolate(r1, r2, progress);
+                    double currentG = interpolate(g1, g2, progress);
+                    double currentB = interpolate(b1, b2, progress);
                     LEDST_Builder.addStep(currentR, currentG, currentB, step);
                 }
-                LEDST_Builder.addStep(R2, G2, B2, Integer.MAX_VALUE);
+                LEDST_Builder.addStep(r2, g2, b2, Integer.MAX_VALUE);
 
                 return LEDST_Builder;
             }
@@ -470,7 +475,7 @@ public class DisplayUtils {
                 }
             }
 
-            /** Status: 99%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
+            /** Status: 98%! - To Be Tested! */ // TODO: REMOVE AFTER TESTING!
             public static void addMenuData(String menuID, String caption, Object variable) {
                 Menu menu = menus.get(menuID);
                 if (menu != null) {
