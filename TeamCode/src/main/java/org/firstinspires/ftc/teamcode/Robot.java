@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * Represents the robot chassis and provides methods to control its movement.
@@ -919,7 +919,7 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double ANGLE_THRESHOLD = 2; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 5; // Acceptable error in degrees
 
         // Calculate initial angle error
         double angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
