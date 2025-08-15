@@ -894,7 +894,7 @@ public class Robot {
             Thread RTbrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backRightMotor.setVelocity(RTbr);
+                    backRightMotor.setPower(RTbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
