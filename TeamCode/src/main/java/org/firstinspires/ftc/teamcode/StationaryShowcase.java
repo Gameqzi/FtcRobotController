@@ -152,7 +152,7 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .init       .initTelemetry(FakeTelemetry);
         DisplayUtils    .init       .initGamepad1(FakeGamepad1);
         DisplayUtils    .init       .initGamepad2(FakeGamepad2);
-        DisplayUtils    .init       .setTelemetryTransmissionRate(INT);
+        DisplayUtils    .init       .setTelemetryTransmissionRate(2222);
         
         DisplayUtils    .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 5.55, 2222);
         DisplayUtils    .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 5.55, 2222, 2222);
@@ -168,25 +168,25 @@ public class StationaryShowcase extends ThreadOpMode {
         DisplayUtils    .telemetry  .log    .throwSoftError("\n", "\n", true);
         DisplayUtils    .telemetry  .log    .throwHardError("\n", "\n", true);
 
-        DisplayUtils    .telemetry  .menu   .createMenu("\n");
-        DisplayUtils    .telemetry  .menu   .removeMenu("\n");
-        DisplayUtils    .telemetry  .menu   .addMenuItem("\n", "\n");
-        DisplayUtils    .telemetry  .menu   .addMenuItem("\n", "\n", null);
-        DisplayUtils    .telemetry  .menu   .addMenuItem("\n", "\n", null, null);
-        DisplayUtils    .telemetry  .menu   .removeMenuItem("\n", "\n");
-        DisplayUtils    .telemetry  .menu   .addMenuData("\n", "\n");
-        DisplayUtils    .telemetry  .menu   .addMenuData("\n", "\n", null);
-        DisplayUtils    .telemetry  .menu   .clearMenuData("\n");
-        DisplayUtils    .telemetry  .menu   .displayMenu("\n", FakeGamepad1);
+        DisplayUtils    .telemetry  .unstable.menu   .createMenu("\n");
+        DisplayUtils    .telemetry  .unstable.menu   .removeMenu("\n");
+        DisplayUtils    .telemetry  .unstable.menu   .addMenuItem("\n", "\n");
+        DisplayUtils    .telemetry  .unstable.menu   .addMenuItem("\n", "\n", null);
+        DisplayUtils    .telemetry  .unstable.menu   .addMenuItem("\n", "\n", null, null);
+        DisplayUtils    .telemetry  .unstable.menu   .removeMenuItem("\n", "\n");
+        DisplayUtils    .telemetry  .unstable.menu   .addMenuData("\n", "\n");
+        DisplayUtils    .telemetry  .unstable.menu   .addMenuData("\n", "\n", null);
+        DisplayUtils    .telemetry  .unstable.menu   .clearMenuData("\n");
+        DisplayUtils    .telemetry  .unstable.menu   .displayMenu("\n", FakeGamepad1);
 
-        DisplayUtils.telemetry.menu.setOnMenuUpdate("\n", menuID -> {
-            test = (int) DisplayUtils.telemetry.menu.getMenuItemValue(menuID, "\n"); // Update all of the caller's variables
+        DisplayUtils.telemetry.unstable.menu.setOnMenuUpdate("\n", menuID -> {
+            test = (int) DisplayUtils.telemetry.unstable.menu.getMenuItemValue(menuID, "\n"); // Update all of the caller's variables
 
-            DisplayUtils.telemetry.menu.clearMenuData("MyMenu"); // Clear the data displayed at the bottom of the menu (For info & live debugging updates)
+            DisplayUtils.telemetry.unstable.menu.clearMenuData("MyMenu"); // Clear the data displayed at the bottom of the menu (For info & live debugging updates)
 
             if (test > 3) {sensor6 = "Detected!";} // Run/calculate some debug live updates
 
-            DisplayUtils.telemetry.menu.addMenuData("MyMenu", "Data For Senser6", sensor6); // Update the data
+            DisplayUtils.telemetry.unstable.menu.addMenuData("MyMenu", "Data For Senser6", sensor6); // Update the data
         });
 
 
@@ -353,18 +353,18 @@ public class StationaryShowcase extends ThreadOpMode {
                 tuningFirstTime = false;
             }
 
-            DisplayUtils.telemetry.menu.createMenu("MyMenu");
+            DisplayUtils.telemetry.unstable.menu.createMenu("MyMenu");
 
-            DisplayUtils.telemetry.menu.addMenuItem("MyMenu", "Test", test, 6);
+            DisplayUtils.telemetry.unstable.menu.addMenuItem("MyMenu", "Test", test, 6);
 
-            DisplayUtils.telemetry.menu.setOnMenuUpdate("MyMenu", menuID -> {
-                test = (int) DisplayUtils.telemetry.menu.getMenuItemValue(menuID, "Test"); // Update all of the caller's variables, notice that there is NO 'int'!!!
+            DisplayUtils.telemetry.unstable.menu.setOnMenuUpdate("MyMenu", menuID -> {
+                test = (int) DisplayUtils.telemetry.unstable.menu.getMenuItemValue(menuID, "Test"); // Update all of the caller's variables, notice that there is NO 'int'!!!
 
-                DisplayUtils.telemetry.menu.clearMenuData("MyMenu"); // Clear the data displayed at the bottom of the menu (For info & live debugging updates)
+                DisplayUtils.telemetry.unstable.menu.clearMenuData("MyMenu"); // Clear the data displayed at the bottom of the menu (For info & live debugging updates)
 
                 if (test > 3) {sensor6 = "Detected!";} // Run/calculate some debug live updates
 
-                DisplayUtils.telemetry.menu.addMenuData("MyMenu", "Data For Senser6", sensor6); // Update the data
+                DisplayUtils.telemetry.unstable.menu.addMenuData("MyMenu", "Data For Senser6", sensor6); // Update the data
             });
 
         }
