@@ -59,7 +59,7 @@ public class RotateTest extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        robot.rotateTo(1000, 400, 90);
+        robot.rotateTo(0.5, 0.3, 90);
         telemetry.addData("H", robot.getImu().getPosition().h);
         telemetry.update();
     }

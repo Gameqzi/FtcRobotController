@@ -291,6 +291,79 @@ public class Robot {
         }
     }
 
+    /**
+     * Rotates the robot counterclockwise in place using mecanum drive.
+     * Useful for turning the robot to a new heading.
+     *
+     * @param power Motor power, between -1.0 and 1.0.
+     */
+    public void rotateLeft(double power) {
+        if (!isValidPower(power)) {
+            throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
+        }
+
+        final double RLfl = power;
+        final double RLfr =  power;
+        final double RLbl = power;
+        final double RLbr =  power;
+
+        CountDownLatch RLstartSignal = new CountDownLatch(1);
+
+        Thread RLflThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                frontLeftMotor.setPower(RLfl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "rotateLeft-FL-Thread");
+
+        Thread RLfrThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                frontRightMotor.setPower(RLfr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "rotateLeft-FR-Thread");
+
+        Thread RLblThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                backLeftMotor.setPower(RLbl);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "RotateLeft-BL-Thread");
+
+        Thread RLbrThread = new Thread(() -> {
+            try {
+                RLstartSignal.await();
+                backRightMotor.setPower(RLbr);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "RotateLeft-BR-Thread");
+
+        // start all four threads
+        RLflThread.start();
+        RLfrThread.start();
+        RLblThread.start();
+        RLbrThread.start();
+
+        // “green light” — they all fire almost simultaneously
+        RLstartSignal.countDown();
+
+        // wait for each to apply its power before continuing
+        try {
+            RLflThread.join();
+            RLfrThread.join();
+            RLblThread.join();
+            RLbrThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     /**
      * Rotates the robot clockwise in place using mecanum drive.
@@ -769,11 +842,11 @@ public class Robot {
         if (imu == null) {
             throw new IllegalStateException("IMU not initialized. Set the IMU using setImu() before calling this method.");
         }
-        /*if (!isValidPower(maxPower) || !isValidPower(minPower)) {
+        if (!isValidPower(maxPower) || !isValidPower(minPower)) {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
-        }*/
+        }
 
-        final double ANGLE_THRESHOLD = 1; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 3; // Acceptable error in degrees
 
         // Calculate initial angle error
         double angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
@@ -794,7 +867,7 @@ public class Robot {
             Thread RTflThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    frontLeftMotor.setVelocity(RTfl);
+                    frontLeftMotor.setPower(RTfl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -803,7 +876,7 @@ public class Robot {
             Thread RTfrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    frontRightMotor.setVelocity(RTfr);
+                    frontRightMotor.setPower(RTfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -812,7 +885,7 @@ public class Robot {
             Thread RTblThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backLeftMotor.setVelocity(RTbl);
+                    backLeftMotor.setPower(RTbl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -821,7 +894,7 @@ public class Robot {
             Thread RTbrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backRightMotor.setVelocity(RTbr);
+                    backRightMotor.setPower(RTbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -950,7 +1023,7 @@ public class Robot {
             Thread GTfrThread = new Thread(() -> {
                 try {
                     GTstartSignal.await();
-                    frontRightMotor.setPower(GTfr);
+                    frontRightMotor.setVelocity(GTfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
