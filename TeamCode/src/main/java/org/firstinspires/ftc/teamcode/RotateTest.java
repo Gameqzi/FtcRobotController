@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -29,28 +28,11 @@ public class RotateTest extends ThreadOpMode {
         DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         SparkFunOTOS sparkFun = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-
-        frontRight.setVelocityPIDFCoefficients(P, I, D, F);
-        backRight.setVelocityPIDFCoefficients(P, I, D, F);
-        frontLeft.setVelocityPIDFCoefficients(P, I, D, F);
-        backLeft.setVelocityPIDFCoefficients(P, I, D, F);
-
         robot = Robot
                 .getInstance(frontLeft, frontRight, backLeft, backRight)
                 .setImu(sparkFun);
+
+        Robot.getInstance().setVelocityPIDF(10, 3, 0, 8);
 
         configureOtos();
 
@@ -59,8 +41,8 @@ public class RotateTest extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        robot.rotateTo(0.5, 0.3, 90);
-        telemetry.addData("H", robot.getImu().getPosition().h);
+        robot.rotateTo(0.3, 0.1, 90);
+        telemetry.addData("H", Math.abs(robot.getImu().getPosition().h));
         telemetry.update();
     }
 

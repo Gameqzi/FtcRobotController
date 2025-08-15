@@ -7,6 +7,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * Represents the robot chassis and provides methods to control its movement.
@@ -47,6 +50,10 @@ public class Robot {
         frontRightMotor = frontRight;
         backLeftMotor = backLeft;
         backRightMotor = backRight;
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     /**
@@ -145,6 +152,72 @@ public class Robot {
     //endregion
 
 
+    //region Velocity control helpers
+    private volatile boolean velocityModeInitialized = false;
+    private double velocityPowerScale = 0.85; // scales requested "power" to a gentler velocity target
+
+    /**
+     * Optionally tune how aggressively setVelocity maps from [-1..1] power to ticks/sec.
+     * 1.0 = full no-load max, values < 1 reduce current draw / wheelspin.
+     */
+    public Robot setVelocityPowerScale(double scale) {
+        this.velocityPowerScale = Range.clip(scale, 0.0, 1.0);
+        return this;
+    }
+
+    /** Ensure all motors are in RUN_USING_ENCODER for velocity PID to work. */
+    private void ensureVelocityMode() {
+        if (!velocityModeInitialized) {
+            frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            velocityModeInitialized = true;
+        }
+    }
+
+    /**
+     * Map a pseudo-power [-1..1] to target ticks/second for the specific motor.
+     * This keeps all existing math that produced "power" but drives with velocity control.
+     */
+    private double powerToTicksPerSecond(DcMotorEx motor, double power) {
+        double clipped = Math.max(-1.0, Math.min(1.0, power));
+        double maxRpm = motor.getMotorType().getMaxRPM(); // no-load
+        double tpr = motor.getMotorType().getTicksPerRev();
+        double maxTicksPerSec = (maxRpm * tpr) / 60.0;
+        return clipped * velocityPowerScale * maxTicksPerSec;
+    }
+
+    /** Apply velocity based on existing power math, preserving variable names & threading. */
+    private void setMotorVelocityFromPseudoPower(DcMotorEx motor, double power) {
+        ensureVelocityMode();
+        double tps = powerToTicksPerSecond(motor, power);
+        motor.setVelocity(tps);
+    }
+
+    /**
+     * Set velocity PIDF for all drive motors, similar to setImu(...).
+     */
+    public Robot setVelocityPIDF(double p, double i, double d, double f) {
+        ensureVelocityMode();
+        // Prefer the direct velocity PIDF API when available
+        try {
+            frontLeftMotor.setVelocityPIDFCoefficients(p, i, d, f);
+            frontRightMotor.setVelocityPIDFCoefficients(p, i, d, f);
+            backLeftMotor.setVelocityPIDFCoefficients(p, i, d, f);
+            backRightMotor.setVelocityPIDFCoefficients(p, i, d, f);
+        } catch (Throwable t) {
+            // Fallback for older SDKs
+            PIDFCoefficients coeffs = new PIDFCoefficients(p, i, d, f);
+            frontLeftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+            frontRightMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+            backLeftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+            backRightMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+        }
+        return this;
+    }
+    //endregion
+
     //region BASIC RELATIVE ROBOT MOVEMENT COMMANDS
 
     /**
@@ -168,7 +241,7 @@ public class Robot {
         Thread SLflThread = new Thread(() -> {
             try {
                 SLstartSignal.await();
-                frontLeftMotor.setPower(SLfl);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, SLfl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -177,7 +250,7 @@ public class Robot {
         Thread SLfrThread = new Thread(() -> {
             try {
                 SLstartSignal.await();
-                frontRightMotor.setPower(SLfr);
+                setMotorVelocityFromPseudoPower(frontRightMotor, SLfr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -186,7 +259,7 @@ public class Robot {
         Thread SLblThread = new Thread(() -> {
             try {
                 SLstartSignal.await();
-                backLeftMotor.setPower(SLbl);
+                setMotorVelocityFromPseudoPower(backLeftMotor, SLbl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -195,7 +268,7 @@ public class Robot {
         Thread SLbrThread = new Thread(() -> {
             try {
                 SLstartSignal.await();
-                backRightMotor.setPower(SLbr);
+                setMotorVelocityFromPseudoPower(backRightMotor, SLbr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -243,7 +316,7 @@ public class Robot {
         Thread leftFrontThread = new Thread(() -> {
             try {
                 startSignal.await();
-                frontLeftMotor.setPower(leftFrontPower);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, leftFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -251,7 +324,7 @@ public class Robot {
         Thread rightFrontThread = new Thread(() -> {
             try {
                 startSignal.await();
-                frontRightMotor.setPower(rightFrontPower);
+                setMotorVelocityFromPseudoPower(frontRightMotor, rightFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -259,7 +332,7 @@ public class Robot {
         Thread leftBackThread = new Thread(() -> {
             try {
                 startSignal.await();
-                backLeftMotor.setPower(leftBackPower);
+                setMotorVelocityFromPseudoPower(backLeftMotor, leftBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -267,7 +340,7 @@ public class Robot {
         Thread rightBackThread = new Thread(() -> {
             try {
                 startSignal.await();
-                backRightMotor.setPower(rightBackPower);
+                setMotorVelocityFromPseudoPower(backRightMotor, rightBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -312,7 +385,7 @@ public class Robot {
         Thread RLflThread = new Thread(() -> {
             try {
                 RLstartSignal.await();
-                frontLeftMotor.setPower(RLfl);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, RLfl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -321,7 +394,7 @@ public class Robot {
         Thread RLfrThread = new Thread(() -> {
             try {
                 RLstartSignal.await();
-                frontRightMotor.setPower(RLfr);
+                setMotorVelocityFromPseudoPower(frontRightMotor, RLfr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -330,7 +403,7 @@ public class Robot {
         Thread RLblThread = new Thread(() -> {
             try {
                 RLstartSignal.await();
-                backLeftMotor.setPower(RLbl);
+                setMotorVelocityFromPseudoPower(backLeftMotor, RLbl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -339,7 +412,7 @@ public class Robot {
         Thread RLbrThread = new Thread(() -> {
             try {
                 RLstartSignal.await();
-                backRightMotor.setPower(RLbr);
+                setMotorVelocityFromPseudoPower(backRightMotor, RLbr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -386,7 +459,7 @@ public class Robot {
         Thread RRflThread = new Thread(() -> {
             try {
                 RRstartSignal.await();
-                frontLeftMotor.setPower(RRfl);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, RRfl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -395,7 +468,7 @@ public class Robot {
         Thread RRfrThread = new Thread(() -> {
             try {
                 RRstartSignal.await();
-                frontRightMotor.setPower(RRfr);
+                setMotorVelocityFromPseudoPower(frontRightMotor, RRfr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -404,7 +477,7 @@ public class Robot {
         Thread RRblThread = new Thread(() -> {
             try {
                 RRstartSignal.await();
-                backLeftMotor.setPower(RRbl);
+                setMotorVelocityFromPseudoPower(backLeftMotor, RRbl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -413,7 +486,7 @@ public class Robot {
         Thread RRbrThread = new Thread(() -> {
             try {
                 RRstartSignal.await();
-                backRightMotor.setPower(RRbr);
+                setMotorVelocityFromPseudoPower(backRightMotor, RRbr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -460,7 +533,7 @@ public class Robot {
         Thread leftFrontThread = new Thread(() -> {
             try {
                 startSignal.await();
-                frontLeftMotor.setPower(leftFrontPower);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, leftFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -468,7 +541,7 @@ public class Robot {
         Thread rightFrontThread = new Thread(() -> {
             try {
                 startSignal.await();
-                frontRightMotor.setPower(rightFrontPower);
+                setMotorVelocityFromPseudoPower(frontRightMotor, rightFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -476,7 +549,7 @@ public class Robot {
         Thread leftBackThread = new Thread(() -> {
             try {
                 startSignal.await();
-                backLeftMotor.setPower(leftBackPower);
+                setMotorVelocityFromPseudoPower(backLeftMotor, leftBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -484,7 +557,7 @@ public class Robot {
         Thread rightBackThread = new Thread(() -> {
             try {
                 startSignal.await();
-                backRightMotor.setPower(rightBackPower);
+                setMotorVelocityFromPseudoPower(backRightMotor, rightBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -529,7 +602,7 @@ public class Robot {
         Thread leftFrontThread = new Thread(() -> {
             try {
                 startSignal.await();
-                frontLeftMotor.setPower(leftFrontPower);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, leftFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -537,7 +610,7 @@ public class Robot {
         Thread rightFrontThread = new Thread(() -> {
             try {
                 startSignal.await();
-                frontRightMotor.setPower(rightFrontPower);
+                setMotorVelocityFromPseudoPower(frontRightMotor, rightFrontPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -545,7 +618,7 @@ public class Robot {
         Thread leftBackThread = new Thread(() -> {
             try {
                 startSignal.await();
-                backLeftMotor.setPower(leftBackPower);
+                setMotorVelocityFromPseudoPower(backLeftMotor, leftBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -553,7 +626,7 @@ public class Robot {
         Thread rightBackThread = new Thread(() -> {
             try {
                 startSignal.await();
-                backRightMotor.setPower(rightBackPower);
+                setMotorVelocityFromPseudoPower(backRightMotor, rightBackPower);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -592,7 +665,7 @@ public class Robot {
         Thread SMflThread = new Thread(() -> {
             try {
                 SMstartSignal.await();
-                frontLeftMotor.setPower(SMfl);
+                setMotorVelocityFromPseudoPower(frontLeftMotor, SMfl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -601,7 +674,7 @@ public class Robot {
         Thread SMfrThread = new Thread(() -> {
             try {
                 SMstartSignal.await();
-                frontRightMotor.setPower(SMfr);
+                setMotorVelocityFromPseudoPower(frontRightMotor, SMfr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -610,7 +683,7 @@ public class Robot {
         Thread SMblThread = new Thread(() -> {
             try {
                 SMstartSignal.await();
-                backLeftMotor.setPower(SMbl);
+                setMotorVelocityFromPseudoPower(backLeftMotor, SMbl);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -619,7 +692,7 @@ public class Robot {
         Thread SMbrThread = new Thread(() -> {
             try {
                 SMstartSignal.await();
-                backRightMotor.setPower(SMbr);
+                setMotorVelocityFromPseudoPower(backRightMotor, SMbr);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -685,7 +758,7 @@ public class Robot {
             Thread SRDflThread = new Thread(() -> {
                 try {
                     SRDstartSignal.await();
-                    frontLeftMotor.setPower(SRDfl);
+                    setMotorVelocityFromPseudoPower(frontLeftMotor, SRDfl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -694,7 +767,7 @@ public class Robot {
             Thread SRDfrThread = new Thread(() -> {
                 try {
                     SRDstartSignal.await();
-                    frontRightMotor.setPower(SRDfr);
+                    setMotorVelocityFromPseudoPower(frontRightMotor, SRDfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -703,7 +776,7 @@ public class Robot {
             Thread SRDblThread = new Thread(() -> {
                 try {
                     SRDstartSignal.await();
-                    backLeftMotor.setPower(SRDbl);
+                    setMotorVelocityFromPseudoPower(backLeftMotor, SRDbl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -712,7 +785,7 @@ public class Robot {
             Thread SRDbrThread = new Thread(() -> {
                 try {
                     SRDstartSignal.await();
-                    backRightMotor.setPower(SRDbr);
+                    setMotorVelocityFromPseudoPower(backRightMotor, SRDbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -778,7 +851,7 @@ public class Robot {
             Thread leftFrontThread = new Thread(() -> {
                 try {
                     startSignal.await();
-                    frontLeftMotor.setPower(leftFrontPower);
+                    setMotorVelocityFromPseudoPower(frontLeftMotor, leftFrontPower);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -786,7 +859,7 @@ public class Robot {
             Thread rightFrontThread = new Thread(() -> {
                 try {
                     startSignal.await();
-                    frontRightMotor.setPower(rightFrontPower);
+                    setMotorVelocityFromPseudoPower(frontRightMotor, rightFrontPower);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -794,7 +867,7 @@ public class Robot {
             Thread leftBackThread = new Thread(() -> {
                 try {
                     startSignal.await();
-                    backLeftMotor.setPower(leftBackPower);
+                    setMotorVelocityFromPseudoPower(backLeftMotor, leftBackPower);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -802,7 +875,7 @@ public class Robot {
             Thread rightBackThread = new Thread(() -> {
                 try {
                     startSignal.await();
-                    backRightMotor.setPower(rightBackPower);
+                    setMotorVelocityFromPseudoPower(backRightMotor, rightBackPower);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -846,7 +919,7 @@ public class Robot {
             throw new IllegalArgumentException("Power must be between -1.0 and 1.0");
         }
 
-        final double ANGLE_THRESHOLD = 3; // Acceptable error in degrees
+        final double ANGLE_THRESHOLD = 2; // Acceptable error in degrees
 
         // Calculate initial angle error
         double angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
@@ -854,7 +927,8 @@ public class Robot {
         // Continue rotating while the error is outside the threshold
         while (Math.abs(angleError) > ANGLE_THRESHOLD) {
             angleError = Utils.normalizeAngle(-TH - imu.getPosition().h);
-            double power = Math.copySign(Math.max(minPower, Math.min(angleError, maxPower)), angleError);
+            double mag = Math.max(minPower, Math.min(Math.abs(angleError), maxPower));
+            double power = Math.copySign(mag, angleError);
             // Set all motors to rotate in the same direction
             // --- MULTI-THREADED LATCH START ---
             final double RTfl = power;
@@ -867,7 +941,7 @@ public class Robot {
             Thread RTflThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    frontLeftMotor.setPower(RTfl);
+                    setMotorVelocityFromPseudoPower(frontLeftMotor, RTfl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -876,7 +950,7 @@ public class Robot {
             Thread RTfrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    frontRightMotor.setPower(RTfr);
+                    setMotorVelocityFromPseudoPower(frontRightMotor, RTfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -885,7 +959,7 @@ public class Robot {
             Thread RTblThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backLeftMotor.setPower(RTbl);
+                    setMotorVelocityFromPseudoPower(backLeftMotor, RTbl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -894,7 +968,7 @@ public class Robot {
             Thread RTbrThread = new Thread(() -> {
                 try {
                     RTstartSignal.await();
-                    backRightMotor.setPower(RTbr);
+                    setMotorVelocityFromPseudoPower(backRightMotor, RTbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -1014,7 +1088,7 @@ public class Robot {
             Thread GTflThread = new Thread(() -> {
                 try {
                     GTstartSignal.await();
-                    frontLeftMotor.setPower(GTfl);
+                    setMotorVelocityFromPseudoPower(frontLeftMotor, GTfl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -1023,7 +1097,7 @@ public class Robot {
             Thread GTfrThread = new Thread(() -> {
                 try {
                     GTstartSignal.await();
-                    frontRightMotor.setPower(GTfr);
+                    setMotorVelocityFromPseudoPower(frontRightMotor, GTfr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -1032,7 +1106,7 @@ public class Robot {
             Thread GTblThread = new Thread(() -> {
                 try {
                     GTstartSignal.await();
-                    backLeftMotor.setPower(GTbl);
+                    setMotorVelocityFromPseudoPower(backLeftMotor, GTbl);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -1041,7 +1115,7 @@ public class Robot {
             Thread GTbrThread = new Thread(() -> {
                 try {
                     GTstartSignal.await();
-                    backRightMotor.setPower(GTbr);
+                    setMotorVelocityFromPseudoPower(backRightMotor, GTbr);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
