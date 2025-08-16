@@ -120,7 +120,7 @@ public class DisplayUtils {
 
         /**
          * <strong>Initializes the DisplayUtils telemetry instance.</strong><br>
-         * <br>It is <strong>REQUIRED</strong> that you call this method BEFORE calling any other DisplayUtils methods!<br><br>
+         * <br>It is <strong>REQUIRED</strong> that you call this method BEFORE calling any other {@code DisplayUtils.*} methods!<br><br>
          * <strong>Dependencies:</strong> None
          * @param initTelemetry The {@link Telemetry} instance to be used by DisplayUtils.
          * @throws RuntimeException If {@code initTelemetry} is {@code null} (thrown via {@code .throwHardError()}).<br>
@@ -136,16 +136,17 @@ public class DisplayUtils {
         }
 
         /**
-         * <strong></strong><br>
-         * <br><br>
-         * Dependencies:<br>
+         * <strong>Initializes the DisplayUtils gamepad1 instance.</strong><br>
+         * <br>It is <strong>REQUIRED</strong> that you call this method BEFORE calling any other {@code DisplayUtils.gamepad.*} methods!<br><br>
+         * <strong>Dependencies:</strong><br>
          * <ul>
          *     <li></li>
          * </ul>
-         * @param
-         * @return
-         * @throws
+         * @param  
+         * @return  
+         * @throws  
          */
+        
         public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions | REQUIRES Telemetry
             if (gamepad.id == Gamepad.ID_UNASSOCIATED || gamepad.id == Gamepad.ID_SYNTHETIC) {
                 telemetry.log.throwSoftError("DisplayUtils.init.initGamepad1", "Gamepad1 is NOT connected to the device!", false);
