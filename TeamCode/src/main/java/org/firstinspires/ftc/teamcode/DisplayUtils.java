@@ -138,39 +138,39 @@ public class DisplayUtils {
         /**
          * <strong>Initializes the DisplayUtils gamepad1 instance.</strong><br>
          * <br>It is <strong>REQUIRED</strong> that you call this method BEFORE calling any other {@code DisplayUtils.gamepad.*} methods!<br><br>
-         * <strong>Dependencies:</strong><br>
+         * <strong>Dependencies:</strong>
          * <ul>
-         *     <li></li>
+         *     <li><code>initTelemetry();</code></li>
          * </ul>
-         * @param  
-         * @return  
-         * @throws  
+         * @param initgamepad The first {@link Gamepad} instance to be used by DisplayUtils.
+         * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initTelemetry} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
          */
-        
-        public static void initGamepad1(Gamepad gamepad) { // Optional, Required for .gamepad (1) functions | REQUIRES Telemetry
-            if (gamepad.id == Gamepad.ID_UNASSOCIATED || gamepad.id == Gamepad.ID_SYNTHETIC) {
+        public static void initGamepad1(Gamepad initgamepad) { // Optional, Required for .gamepad (1) functions | REQUIRES Telemetry
+            if (initgamepad.id == Gamepad.ID_UNASSOCIATED || initgamepad.id == Gamepad.ID_SYNTHETIC) {
                 telemetry.log.throwSoftError("DisplayUtils.init.initGamepad1", "Gamepad1 is NOT connected to the device!", false);
             } else {
-                SysGamepad1 = gamepad;
+                SysGamepad1 = initgamepad;
                 SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black as default
                 lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
             }
         }
 
         /**
-         * <strong>[Short Explanation]</strong><br>
-         * [Expanded Description]<br>
-         * Dependencies:<br>
+         * <strong>Initializes the DisplayUtils gamepad1 instance.</strong><br>
+         * <br>It is <strong>REQUIRED</strong> that you call this method BEFORE calling any other {@code DisplayUtils.gamepad.*} methods!<br><br>
+         * <strong>Dependencies:</strong><br>
          * <ul>
          *     <li></li>
          * </ul>
-         * @param <> [Explanation]
+         * @param
+         * @return
+         * @throws
          */
-        public static void initGamepad2(Gamepad gamepad) { // Optional, Required for .gamepad (2) functions
-            if (gamepad.id == Gamepad.ID_UNASSOCIATED || gamepad.id == Gamepad.ID_SYNTHETIC) {
+        public static void initGamepad2(Gamepad initgamepad) { // Optional, Required for .gamepad (2) functions
+            if (initgamepad.id == Gamepad.ID_UNASSOCIATED || initgamepad.id == Gamepad.ID_SYNTHETIC) {
                 telemetry.log.throwSoftError("DisplayUtils.init.initGamepad2", "Gamepad2 is NOT connected to the device!", false);
             } else {
-                SysGamepad2 = gamepad;
+                SysGamepad2 = initgamepad;
                 SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black as default
                 lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
             }
