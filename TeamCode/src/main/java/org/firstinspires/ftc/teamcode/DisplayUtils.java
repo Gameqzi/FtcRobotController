@@ -156,15 +156,14 @@ public class DisplayUtils {
         }
 
         /**
-         * <strong>Initializes the DisplayUtils gamepad1 instance.</strong><br>
+         * <strong>Initializes the DisplayUtils gamepad2 instance.</strong><br>
          * <br>It is <strong>REQUIRED</strong> that you call this method BEFORE calling any other {@code DisplayUtils.gamepad.*} methods!<br><br>
-         * <strong>Dependencies:</strong><br>
+         * <strong>Dependencies:</strong>
          * <ul>
-         *     <li></li>
+         *     <li><code>initTelemetry();</code></li>
          * </ul>
-         * @param
-         * @return
-         * @throws
+         * @param initgamepad The first {@link Gamepad} instance to be used by DisplayUtils.
+         * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initTelemetry} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
          */
         public static void initGamepad2(Gamepad initgamepad) { // Optional, Required for .gamepad (2) functions
             if (initgamepad.id == Gamepad.ID_UNASSOCIATED || initgamepad.id == Gamepad.ID_SYNTHETIC) {
@@ -188,6 +187,7 @@ public class DisplayUtils {
         public static void setTelemetryTransmissionRate(int milliseconds) { // default: 250 ms
             SysTelemetry.setMsTransmissionInterval(milliseconds);
         }
+
     }
     //endregion
 
