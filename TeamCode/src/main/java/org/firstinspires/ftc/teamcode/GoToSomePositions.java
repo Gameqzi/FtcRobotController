@@ -83,6 +83,9 @@ public class GoToSomePositions extends ThreadOpMode {
         // SparkFun.setAngularUnit(AngleUnit.RADIANS);
         robot.getImu().setAngularUnit(AngleUnit.DEGREES);
 
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, -3);
+        robot.getImu.setOffset(offset);
+
         robot.getImu().setLinearScalar(0.965);
         robot.getImu().setAngularScalar(0.9933);
 
