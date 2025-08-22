@@ -51,16 +51,18 @@ public class GoToSomePositions extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        robot.goTo(0.2, "12", "0", "0");
+        robot.goTo(0.2, "45", "100", "0");
         sleep(1000);
-        robot.goTo(0.2, "24", "0", "0");
+        robot.goTo(0.2, "90", "40", "0");
         sleep(1000);
-        robot.goTo(0.2, "36", "0", "0");
+        robot.goTo(0.2, "18", "18", "0");
         sleep(1000);
-        robot.goTo(0.2, "48", "0", "0");
+        robot.goTo(0.2, "72", "30", "0");
         sleep(1000);
-        robot.goTo(0.2, "60", "0", "0");
+        robot.goTo(0.2, "100", "100", "0");
         sleep(1000);
+        requestOpModeStop();
+        sleep(5000);
         robot.goTo(0.2, "72", "0", "0");
         sleep(1000);
         robot.goTo(0.2, "84", "0", "0");
@@ -68,6 +70,7 @@ public class GoToSomePositions extends ThreadOpMode {
         requestOpModeStop();
         sleep(5000);
     }
+
 
     private void SomeData() {
         telemetry.addData("X", robot.getImu().getPosition().x);
@@ -83,10 +86,10 @@ public class GoToSomePositions extends ThreadOpMode {
         // SparkFun.setAngularUnit(AngleUnit.RADIANS);
         robot.getImu().setAngularUnit(AngleUnit.DEGREES);
 
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, -3);
-        robot.getImu.setOffset(offset);
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0.4);
+        robot.getImu().setOffset(offset);
 
-        robot.getImu().setLinearScalar(0.965);
+        robot.getImu().setLinearScalar(0.956);
         robot.getImu().setAngularScalar(0.9933);
 
         robot.getImu().calibrateImu();

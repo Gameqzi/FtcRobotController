@@ -1017,7 +1017,7 @@ public class Robot {
         }
 
         final double distThreshold = 0.5;       // Acceptable position error
-        final double angleThreshold = 2.0;      // Acceptable heading error
+        final double angleThreshold = 20;      // Acceptable heading error
 
         final double minSpeed = 0.15;           // Minimum speed the robot can drive at
         final double maxSpeed = 0.50;           // Maximum speed the robot can drive at
