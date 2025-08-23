@@ -135,49 +135,9 @@ public class StationaryShowcase extends ThreadOpMode {
         configureOtos();
 
         DisplayUtils.telemetry.log.addLine("Setup ~99% Complete: Setting Robot Defaults...");
-        
-        
-        int         INT             = 2222;
-        double      DOUBLE          = 5.55;
-        boolean     BOOLEAN         = true;
-        String      STRING          = "\n";
-        Object      OBJECT          = null;
-        
-        Telemetry   FakeTelemetry   = telemetry;
-        Gamepad     FakeGamepad1    = gamepad1;
-        Gamepad     FakeGamepad2    = gamepad2;
-        
-        DisplayUtils    .helpReference();
-        
-        DisplayUtils    .init       .initTelemetry(FakeTelemetry);
-        DisplayUtils    .init       .initGamepad1(FakeGamepad1);
-        DisplayUtils    .init       .initGamepad2(FakeGamepad2);
-        DisplayUtils    .init       .setTelemetryTransmissionRate(2222);
-        
-        DisplayUtils    .gamepad    .led    .setLED(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 5.55, 2222);
-        DisplayUtils    .gamepad    .led    .floatLED(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 5.55, 2222, 2222);
-        DisplayUtils    .gamepad    .led    .sharpBlinkLED(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 5.55, 5.55, 5.55, 5.55, 2222, DisplayUtils.BlinkType.EVEN);
-        DisplayUtils    .gamepad    .led    .softPulseLED(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 5.55, 5.55, 5.55, 5.55, 2222, 2222, DisplayUtils.BlinkType.EVEN);
-        DisplayUtils    .gamepad    .led    .rainbowLED(DisplayUtils.GamepadTarget.BOTH, 2222, 2222);
 
-        DisplayUtils    .gamepad    .rumble .advRumble(DisplayUtils.GamepadTarget.BOTH, 5.55, 5.55, 2222);
-        
-        DisplayUtils    .telemetry  .log    .setMaxLines(2222);
-        DisplayUtils    .telemetry  .log    .addLine("\n");
-        DisplayUtils    .telemetry  .log    .clearLog(true);
-        DisplayUtils    .telemetry  .log    .throwSoftError("\n", "\n", true);
-        DisplayUtils    .telemetry  .log    .throwHardError("\n", "\n", true);
-
-        DisplayUtils    .telemetry  .unstable.menu   .createMenu("\n");
-        DisplayUtils    .telemetry  .unstable.menu   .removeMenu("\n");
-        DisplayUtils    .telemetry  .unstable.menu   .addMenuItem("\n", "\n");
-        DisplayUtils    .telemetry  .unstable.menu   .addMenuItem("\n", "\n", null);
-        DisplayUtils    .telemetry  .unstable.menu   .addMenuItem("\n", "\n", null, null);
-        DisplayUtils    .telemetry  .unstable.menu   .removeMenuItem("\n", "\n");
-        DisplayUtils    .telemetry  .unstable.menu   .addMenuData("\n", "\n");
-        DisplayUtils    .telemetry  .unstable.menu   .addMenuData("\n", "\n", null);
-        DisplayUtils    .telemetry  .unstable.menu   .clearMenuData("\n");
-        DisplayUtils    .telemetry  .unstable.menu   .displayMenu("\n", FakeGamepad1);
+        DisplayUtils.telemetry.unstable.menu.createMenu("My");
+        DisplayUtils.telemetry.unstable.menu.addMenuItem("My", "test", test, 6);
 
         DisplayUtils.telemetry.unstable.menu.setOnMenuUpdate("\n", menuID -> {
             test = (int) DisplayUtils.telemetry.unstable.menu.getMenuItemValue(menuID, "\n"); // Update all of the caller's variables
@@ -188,6 +148,8 @@ public class StationaryShowcase extends ThreadOpMode {
 
             DisplayUtils.telemetry.unstable.menu.addMenuData("MyMenu", "Data For Senser6", sensor6); // Update the data
         });
+
+        DisplayUtils.telemetry.unstable.menu.displayMenu("My", gamepad1);
 
 
         // [SETUP] Defaults
@@ -358,6 +320,7 @@ public class StationaryShowcase extends ThreadOpMode {
             DisplayUtils.telemetry.unstable.menu.addMenuItem("MyMenu", "Test", test, 6);
 
             DisplayUtils.telemetry.unstable.menu.setOnMenuUpdate("MyMenu", menuID -> {
+                //noinspection DataFlowIssue
                 test = (int) DisplayUtils.telemetry.unstable.menu.getMenuItemValue(menuID, "Test"); // Update all of the caller's variables, notice that there is NO 'int'!!!
 
                 DisplayUtils.telemetry.unstable.menu.clearMenuData("MyMenu"); // Clear the data displayed at the bottom of the menu (For info & live debugging updates)

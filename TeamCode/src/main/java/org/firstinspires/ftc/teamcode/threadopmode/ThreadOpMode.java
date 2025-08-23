@@ -92,7 +92,7 @@ public abstract class ThreadOpMode extends OpMode {
     /**
      * Contains code to be ran before the OpMode is ended.
      */
-    protected abstract void onOpModeStop();
+    protected void onOpModeStop() {}
 
     /**
      * Should not be called by subclass.
