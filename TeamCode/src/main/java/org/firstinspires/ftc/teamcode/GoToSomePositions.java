@@ -51,18 +51,18 @@ public class GoToSomePositions extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        robot.goTo(0.2, "45", "100", "0");
-        sleep(1000);
+        robot.goTo(0.2, "40", "90", "0");
+        sleep(50000);
+        robot.goTo(0.2, "80", "110", "0");
+        sleep(50000);
         robot.goTo(0.2, "90", "40", "0");
-        sleep(1000);
-        robot.goTo(0.2, "18", "18", "0");
-        sleep(1000);
+        sleep(50000);
+        requestOpModeStop();
+        sleep(5000);
         robot.goTo(0.2, "72", "30", "0");
         sleep(1000);
         robot.goTo(0.2, "100", "100", "0");
         sleep(1000);
-        requestOpModeStop();
-        sleep(5000);
         robot.goTo(0.2, "72", "0", "0");
         sleep(1000);
         robot.goTo(0.2, "84", "0", "0");
