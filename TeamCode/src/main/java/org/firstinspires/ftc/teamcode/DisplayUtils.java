@@ -142,14 +142,14 @@ public class DisplayUtils {
          * <ul>
          *     <li><code>initTelemetry();</code></li>
          * </ul>
-         * @param initgamepad The first {@link Gamepad} instance to be used by DisplayUtils.
-         * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initTelemetry} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
+         * @param initGamepad The first {@link Gamepad} instance to be used by DisplayUtils.
+         * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initGamepad} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
          */
-        public static void initGamepad1(Gamepad initgamepad) { // Optional, Required for .gamepad (1) functions | REQUIRES Telemetry
-            if (initgamepad.id == Gamepad.ID_UNASSOCIATED || initgamepad.id == Gamepad.ID_SYNTHETIC) {
+        public static void initGamepad1(Gamepad initGamepad) { // Optional, Required for .gamepad (1) functions | REQUIRES Telemetry
+            if (initGamepad.id == Gamepad.ID_UNASSOCIATED || initGamepad.id == Gamepad.ID_SYNTHETIC) {
                 telemetry.log.throwSoftError("DisplayUtils.init.initGamepad1", "Gamepad1 is NOT connected to the device!", false);
             } else {
-                SysGamepad1 = initgamepad;
+                SysGamepad1 = initGamepad;
                 SysGamepad1.setLedColor(0, 0, 0, -1); // Sets to black as default
                 lastGamepad1R = 0; lastGamepad1G = 0; lastGamepad1B = 0;
             }
@@ -162,27 +162,26 @@ public class DisplayUtils {
          * <ul>
          *     <li><code>initTelemetry();</code></li>
          * </ul>
-         * @param initgamepad The first {@link Gamepad} instance to be used by DisplayUtils.
-         * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initTelemetry} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
+         * @param initGamepad The first {@link Gamepad} instance to be used by DisplayUtils.
+         * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initGamepad} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
          */
-        public static void initGamepad2(Gamepad initgamepad) { // Optional, Required for .gamepad (2) functions
-            if (initgamepad.id == Gamepad.ID_UNASSOCIATED || initgamepad.id == Gamepad.ID_SYNTHETIC) {
+        public static void initGamepad2(Gamepad initGamepad) { // Optional, Required for .gamepad (2) functions
+            if (initGamepad.id == Gamepad.ID_UNASSOCIATED || initGamepad.id == Gamepad.ID_SYNTHETIC) {
                 telemetry.log.throwSoftError("DisplayUtils.init.initGamepad2", "Gamepad2 is NOT connected to the device!", false);
             } else {
-                SysGamepad2 = initgamepad;
+                SysGamepad2 = initGamepad;
                 SysGamepad2.setLedColor(0, 0, 0, -1); // Sets to black as default
                 lastGamepad2R = 0; lastGamepad2G = 0; lastGamepad2B = 0;
             }
         }
 
         /**
-         * <strong>Sets the DisplayUtils maximum telemetry transmission rate.</strong><br>
-         * [Expanded Description]<br>
-         * Dependencies:<br>
-         * <ul>
-         *     <li></li>
-         * </ul>
-         * @param <> [Explanation]
+         * <strong>Sets the DisplayUtils telemetry transmission rate.</strong><br>
+         * <br>This method is <strong>NOT</strong> required. If this method is not called, the transmission rate default to 250ms.<br><br>
+         * <strong>Dependencies:</strong> None
+         * @param milliseconds The
+         * @return
+         * @throws
          */
         public static void setTelemetryTransmissionRate(int milliseconds) { // default: 250 ms
             SysTelemetry.setMsTransmissionInterval(milliseconds);
