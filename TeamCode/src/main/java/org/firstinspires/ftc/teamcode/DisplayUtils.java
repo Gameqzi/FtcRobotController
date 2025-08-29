@@ -176,7 +176,7 @@ public class DisplayUtils {
         }
 
         /**
-         * <strong>[Short Explanation]</strong><br>
+         * <strong>Sets the DisplayUtils maximum telemetry transmission rate.</strong><br>
          * [Expanded Description]<br>
          * Dependencies:<br>
          * <ul>
