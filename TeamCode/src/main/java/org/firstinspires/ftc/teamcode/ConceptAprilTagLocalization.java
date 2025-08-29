@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -25,7 +27,7 @@ public class ConceptAprilTagLocalization extends OpMode {
     private static final boolean USE_WEBCAM = true;
 
     // Camera pose on robot
-    private final Position           cameraPosition    = new Position(DistanceUnit.INCH, 0, 0, 0, 0);
+    private final Position           cameraPosition    = new Position(DistanceUnit.INCH, 0, 0, 13, 0);
     private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(
             AngleUnit.DEGREES, 0, -90, 0, 0);
 
@@ -37,6 +39,8 @@ public class ConceptAprilTagLocalization extends OpMode {
         telemetry.addData("Status", "Initializing camera & AprilTag...");
         telemetry.update();
         initAprilTag();
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
@@ -89,10 +93,13 @@ public class ConceptAprilTagLocalization extends OpMode {
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
+        builder.setCameraResolution(new android.util.Size(1280, 720)); // <-- Change res here
+        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
         builder.addProcessor(aprilTag);
 
         visionPortal = builder.build();
     }
+
 
     @SuppressLint("DefaultLocale")
     private void telemetryAprilTag() {
