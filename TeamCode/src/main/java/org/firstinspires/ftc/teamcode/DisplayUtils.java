@@ -162,7 +162,7 @@ public class DisplayUtils {
          * <ul>
          *     <li><code>initTelemetry();</code></li>
          * </ul>
-         * @param initGamepad The first {@link Gamepad} instance to be used by DisplayUtils.
+         * @param initGamepad The second {@link Gamepad} instance to be used by DisplayUtils.
          * @throws android.os.strictmode.CustomViolation [Custom Error] If {@code initGamepad} is {@code null} or {@code synthetic} (thrown via {@code .throwSoftError()}).<br>
          */
         public static void initGamepad2(Gamepad initGamepad) { // Optional, Required for .gamepad (2) functions
@@ -179,11 +179,9 @@ public class DisplayUtils {
          * <strong>Sets the DisplayUtils telemetry transmission rate.</strong><br>
          * <br>This method is <strong>NOT</strong> required. If this method is not called, the transmission rate default to 250ms.<br><br>
          * <strong>Dependencies:</strong> None
-         * @param milliseconds The
-         * @return
-         * @throws
+         * @param milliseconds The telemetry transmission rate, in ms, to be used by DisplayUtils.
          */
-        public static void setTelemetryTransmissionRate(int milliseconds) { // default: 250 ms
+        public static void setTelemetryTransmissionRate(int milliseconds) {
             SysTelemetry.setMsTransmissionInterval(milliseconds);
         }
 
@@ -198,13 +196,15 @@ public class DisplayUtils {
 
             // ToDo: Note: Set Duration to -1 for inf
             /**
-             * <strong>[Short Explanation]</strong><br>
-             * [Expanded Description]<br>
-             * Dependencies:<br>
+             * <strong>Sets the target gamepad</strong><br>
+             * <br><br><br>
+             * <strong>Dependencies:</strong><br>
              * <ul>
              *     <li></li>
              * </ul>
-             * @param <> [Explanation]
+             * @param
+             * @return
+             * @throws
              */
             public static void setLED(GamepadTarget Gamepad, double r, double g, double b, int Duration) {
                 if (Gamepad == GamepadTarget.GAMEPAD1 || Gamepad == GamepadTarget.BOTH) {
