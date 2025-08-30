@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
-@Config
+
 @TeleOp
 public class LiftMove extends ThreadOpMode {
     DcMotorEx lift;
@@ -23,7 +23,7 @@ public class LiftMove extends ThreadOpMode {
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         resetEncoders();
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         telemetry.clearAll();
     }
 

@@ -2,9 +2,9 @@
 package org.firstinspires.ftc.teamcode;
 
 // [IMPORT] FTC
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
-@Config
+
 @TeleOp(name="Drive LL LOCK", group="TeleOp")
 public class RobotMecanumDriveLLLock extends OpMode {
 
@@ -54,7 +54,7 @@ public class RobotMecanumDriveLLLock extends OpMode {
         // [DEBUG] ScriptStatus
         telemetry.addData("Status:", "Initialized");
         telemetry.addData("!WARNING!:", "Potential robot spazzing, as this is a test");
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
     }
 
     @Override

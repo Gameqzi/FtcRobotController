@@ -4,7 +4,7 @@ import static org.firstinspires.ftc.teamcode.Utils.sleep;
 
 import android.annotation.SuppressLint;
 
-import com.acmerobotics.dashboard.config.Config;
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-@Config
+
 @TeleOp
 public class StationaryShowcase extends ThreadOpMode {
 

@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 import java.util.concurrent.CountDownLatch;
 
-@Config
+
 @TeleOp
 public class PIDFTune extends ThreadOpMode {
 
@@ -56,7 +56,7 @@ public class PIDFTune extends ThreadOpMode {
         registerThread(new TaskThread(() -> runMotorThread(backLeft)));
         registerThread(new TaskThread(() -> runMotorThread(backRight)));
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         telemetry.clearAll();
         configureOtos();
 

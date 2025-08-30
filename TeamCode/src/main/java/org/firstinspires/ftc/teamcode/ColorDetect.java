@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
-@Config
+
 @TeleOp
 public class ColorDetect extends OpMode {
     private ColorSensor colorSensor;
@@ -21,7 +21,7 @@ public class ColorDetect extends OpMode {
         colorSensor = hardwareMap.colorSensor.get("ColorSensor");
         Servo1 = hardwareMap.get(CRServo.class, "Servo1");
         Servo2 = hardwareMap.get(CRServo.class, "Servo2");
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
     }
 
     @Override
