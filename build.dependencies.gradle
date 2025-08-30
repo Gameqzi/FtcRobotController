@@ -3,7 +3,6 @@ repositories {
     google() // Needed for androidx
     maven {
         url = 'https://mymaven.bylazar.com/releases'
-        url = 'https://maven.pedropathing.com'
     }
 }
 
@@ -18,7 +17,5 @@ dependencies {
     implementation 'org.firstinspires.ftc:Vision:10.3.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.bylazar:fullpanels:1.0.3'
-    implementation 'com.pedropathing:ftc:2.0.0'
-    implementation 'com.pedropathing:telemetry:0.0.6'
 }
 

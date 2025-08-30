@@ -2,9 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
-
-
-
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -23,7 +22,7 @@ import java.util.List;
 
 @TeleOp(name = "Concept: AprilTag Localization", group = "Concept")
 public class ConceptAprilTagLocalization extends OpMode {
-
+    private TelemetryManager panels;
     private static final boolean USE_WEBCAM = true;
 
     // Camera pose on robot
@@ -39,8 +38,9 @@ public class ConceptAprilTagLocalization extends OpMode {
         telemetry.addData("Status", "Initializing camera & AprilTag...");
         telemetry.update();
         initAprilTag();
-
-
+        panels = PanelsTelemetry.INSTANCE.getTelemetry();
+        panels.debug("init ran!");
+        panels.update(telemetry);
     }
 
     @Override
