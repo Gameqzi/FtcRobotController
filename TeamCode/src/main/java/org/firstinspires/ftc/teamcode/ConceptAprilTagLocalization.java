@@ -85,6 +85,7 @@ public class ConceptAprilTagLocalization extends OpMode {
     private void initAprilTag() {
         aprilTag = new AprilTagProcessor.Builder()
                 .setCameraPose(cameraPosition, cameraOrientation)
+                .setLensIntrinsics(481.125, 481.125, 330.919, 238.334)
                 .build();
 
         VisionPortal.Builder builder = new VisionPortal.Builder();

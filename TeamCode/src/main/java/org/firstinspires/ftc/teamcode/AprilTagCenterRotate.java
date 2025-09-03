@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
 
-
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -26,11 +31,19 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @TeleOp(name = "AprilTagCenterRotate", group = "Concept")
 public class AprilTagCenterRotate extends ThreadOpMode {
 
+    private TelemetryManager panels;
+
     // ==================== Hardware ====================
     private DcMotorEx lf, rf, lr, rr;
 
     // ==================== Tunables ====================
     private static final int    TARGET_TAG_ID = 17;          // 36h11 family
+
+    private static final boolean USE_WEBCAM = true;
+
+    private final Position cameraPosition    = new Position(DistanceUnit.INCH, 0, 0, 13, 0);
+    private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(
+            AngleUnit.DEGREES, 0, -90, 0, 0);
 
     private static final double CAM_WIDTH_PX  = 640;
     private static final double CAM_HEIGHT_PX = 480;
@@ -57,6 +70,8 @@ public class AprilTagCenterRotate extends ThreadOpMode {
 
     // -------------------- Init --------------------
     @Override public void mainInit() {
+        panels = PanelsTelemetry.INSTANCE.getTelemetry();
+
         lf = hardwareMap.get(DcMotorEx.class, "frontLeft");
         rf = hardwareMap.get(DcMotorEx.class, "frontRight");
         lr = hardwareMap.get(DcMotorEx.class, "backLeft");
@@ -66,12 +81,17 @@ public class AprilTagCenterRotate extends ThreadOpMode {
         lf.setDirection(DcMotorEx.Direction.REVERSE);
         lr.setDirection(DcMotorEx.Direction.REVERSE);
 
+        tagProcessor = new AprilTagProcessor.Builder()
+                .setCameraPose(cameraPosition, cameraOrientation)
+                .setLensIntrinsics(481.125, 481.125, 330.919, 238.334)
+                .build();
+
         tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "Webcam 1"), tagProcessor);
 
-        telemetry.addLine("Init complete – press ▶ to run");
-        telemetry.update();
+        panels.addLine("Init complete – press ▶ to run");
+        panels.update();
 
     }
 
@@ -109,12 +129,12 @@ public class AprilTagCenterRotate extends ThreadOpMode {
             // The sign flip ensures correct direction regardless of motor wiring.
             forward = clip(KP_FORWARD * widthErrPx, -MAX_DRIVE, MAX_DRIVE);
 
-            telemetry.addData("xErr", "%.1f px", xErrPx);
-            telemetry.addData("yErr", "%.1f px", yErrPx);
-            telemetry.addData("tagWidth", "%.1f px", tagWidthPx);
-            telemetry.addData("widthErr", "%.1f px", widthErrPx);
+            panels.debug("xErr", "%.1f px", xErrPx);
+            panels.debug("yErr", "%.1f px", yErrPx);
+            panels.debug("tagWidth", "%.1f px", tagWidthPx);
+            panels.debug("widthErr", "%.1f px", widthErrPx);
         } else {
-            telemetry.addLine("Target tag NOT in view – robot idle");
+            panels.addLine("Target tag NOT in view – robot idle");
         }
 
         // --------------- Mecanum mixing ---------------
@@ -131,10 +151,10 @@ public class AprilTagCenterRotate extends ThreadOpMode {
         rf.setPower(fr / max);
         rr.setPower(br / max);
 
-        telemetry.addData("forward", "%.2f", forward);
-        telemetry.addData("strafe",  "%.2f", strafe);
-        telemetry.addData("rotate",  "%.2f", rotate);
-        telemetry.update();
+        panels.debug("forward", "%.2f", forward);
+        panels.debug("strafe",  "%.2f", strafe);
+        panels.debug("rotate",  "%.2f", rotate);
+        panels.update();
     }
 
     private double clip(double v, double min, double max) {
