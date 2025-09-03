@@ -40,15 +40,15 @@ public class ConceptAprilTagLocalization extends OpMode {
         initAprilTag();
         panels = PanelsTelemetry.INSTANCE.getTelemetry();
         panels.debug("init ran!");
-        panels.update(telemetry);
+        panels.update();
     }
 
     @Override
     public void init_loop() {
         telemetry.clearAll();
-        telemetry.addData("DS preview on/off", "3 dots → Camera Stream");
-        telemetry.addData(">", "Press PLAY to start");
-        telemetry.update();
+        panels.addData("DS preview on/off", "3 dots → Camera Stream");
+        panels.addData(">", "Press PLAY to start");
+        panels.update();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ConceptAprilTagLocalization extends OpMode {
     public void loop() {
         // Show detections
         telemetryAprilTag();
-        telemetry.update();
+        panels.update();
 
         // Allow driver to pause/resume camera stream to save CPU
         if (gamepad1.dpad_down) {
@@ -104,36 +104,36 @@ public class ConceptAprilTagLocalization extends OpMode {
     @SuppressLint("DefaultLocale")
     private void telemetryAprilTag() {
         List<AprilTagDetection> detections = aprilTag.getDetections();
-        telemetry.addData("# Tags", detections.size());
+        panels.addData("# Tags", detections.size());
 
         for (AprilTagDetection det : detections) {
             if (det.id == 17) {
-                telemetry.addData("Basket in view", null);
+                panels.addLine("Basket in view");
             }
         }
 
         for (AprilTagDetection det : detections) {
             if (det.metadata != null) {
-                telemetry.addLine(String.format("ID %d : %s", det.id, det.metadata.name));
-                telemetry.addLine(String.format(
+                panels.addLine(String.format("ID %d : %s", det.id, det.metadata.name));
+                panels.addLine(String.format(
                         "Pos (in)  X=%4.1f Y=%4.1f Z=%4.1f",
                         det.robotPose.getPosition().x,
                         det.robotPose.getPosition().y,
                         det.robotPose.getPosition().z));
-                telemetry.addLine(String.format(
+                panels.addLine(String.format(
                         "Ori (deg) P=%4.1f R=%4.1f Y=%4.1f",
                         det.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
                         det.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),
                         det.robotPose.getOrientation().getYaw(AngleUnit.DEGREES)));
             } else {
-                telemetry.addLine(String.format("ID %d: Unknown", det.id));
-                telemetry.addLine(String.format(
+                panels.addLine(String.format("ID %d: Unknown", det.id));
+                panels.addLine(String.format(
                         "Center (px)  X=%4.0f Y=%4.0f",
                         det.center.x, det.center.y));
             }
         }
 
-        telemetry.addLine("XYZ = Right, Forward, Up (in)");
-        telemetry.addLine("PRY = Pitch, Roll, Yaw (deg)");
+        panels.addLine("XYZ = Right, Forward, Up (in)");
+        panels.addLine("PRY = Pitch, Roll, Yaw (deg)");
     }
 }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -8,6 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class Limelight extends OpMode {
+
+    private TelemetryManager panels;
 
     private Limelight3A limelight;
     @Override
@@ -23,30 +27,29 @@ public class Limelight extends OpMode {
          */
         limelight.start();
 
-        telemetry.addData(">", "Robot Ready.  Press Play.");
-        telemetry.update();
+        panels = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        panels.addData(">", "Robot Ready.  Press Play.");
+        panels.update();
     }
 
     @Override
     public void loop() {
         LLStatus status = limelight.getStatus();
-        telemetry.addData("Name", "%s",
-                status.getName());
-        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                status.getTemp(), status.getCpu(),(int)status.getFps());
-        telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                status.getPipelineIndex(), status.getPipelineType());
+        panels.debug("Name", "%s", status.getName());
+        panels.debug("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d", status.getTemp(), status.getCpu(),(int)status.getFps());
+        panels.debug("Pipeline", "Index: %d, Type: %s", status.getPipelineIndex(), status.getPipelineType());
 
         LLResult result = limelight.getLatestResult();
         if (result != null) {
             double tx = result.getTx();
             double ty = result.getTy();
             if (result.isValid()) {
-                telemetry.addData("tx", tx);
-                telemetry.addData("ty", ty);
+                panels.addData("tx", tx);
+                panels.addData("ty", ty);
             }
         }
-        telemetry.update();
+        panels.update();
     }
 
     @Override
