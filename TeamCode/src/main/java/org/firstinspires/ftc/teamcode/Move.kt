@@ -22,10 +22,10 @@ class Move : OpMode() {
 
     companion object {
         // P = 10, I = 3, D = 0, F = 8 (set as needed)
-        @JvmField var P = 10.toDouble()
-        @JvmField var I = 3.toDouble()
-        @JvmField var D = 0.toDouble()
-        @JvmField var F = 8.toDouble()
+        var P = 10.toDouble()
+        var I = 3.toDouble()
+        var D = 0.toDouble()
+        var F = 8.toDouble()
     }
 
     override fun init() {
