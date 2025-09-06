@@ -167,6 +167,7 @@ class MainTeleOpKotlinTest : OpMode() {
         backLeft.mode   = DcMotor.RunMode.RUN_USING_ENCODER
         backRight.mode  = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         backRight.mode  = DcMotor.RunMode.RUN_USING_ENCODER
+        lift.mode       = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
