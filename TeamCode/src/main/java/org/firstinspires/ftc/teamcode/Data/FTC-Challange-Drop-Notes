@@ -1,0 +1,41 @@
+12 Qualifiers (Held  over 6 weekends, 1 each Sat & Sun) - From Nov 22, 2025 to Feb 22, 2026 (384 slots)
+Earliest Qualifiers: Oct 27, 2025, Latest Qualifiers: Mar 15, 2026
+(Season starts 1 month earlier than last year)
+
+Even scheduling: https://www.ftcpenn.org/ftc-events/2025-2026-season (Opens: ~~~?, 8:00 am)
+
+--------------------------------------------------------------------------------------------
+12:30 - Game manuals available (https://ftc.game)
+
+ftc.game
+ftc.game/manual			<-- Game Manual
+ftc.game/calculator		<-- Game Score Calculator
+ftc-cmchatbot.firstinspires.org <-- NEW CHATBOT
+ftc.game/tu-00			<-- Changes from last year
+
+--------------------------------------------------------------------------------------------
+ToDo: Make a team avatar
+
+--------------------------------------------------------------------------------------------
+NEW: points-based advancement model, from FRC (Judged awards & Game scores)
+SEE MORE: Section 4: Advancement
+
+WIP: Make points advancement calculator
+AdvancementPoints =
+   (Qualification Performance, 16-2)
+ + (21 - Alliance #)
+ + (21 - Draft Order #)
+ + (1st: 40, 2nd: 20, 3rd: 10, 4th: 5) <-- Can be modified?
+ + (Inspire 1st: 60, Inspire 2nd: 30, Inspire 3rd: 15, Other(1st: 12, 2nd: 6, 3rd: 3) <-- More Stuff?
+
+
+
+--------------------------------------------------------------------------------------------
+CAN ONLY INCLUDE CONTENT FROM: Jan 1, 2025 or later
+
+Motivate award has been split:
+ - Sustain:	Sustaining your team, E.G: Older training younger
+ - Reach:	Outreach, Spreading STEM & FIRST
+
+Can ONLY receive ONE award per event!
+--------------------------------------------------------------------------------------------
