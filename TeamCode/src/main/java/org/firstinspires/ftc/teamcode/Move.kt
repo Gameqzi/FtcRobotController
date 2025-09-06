@@ -22,10 +22,10 @@ class Move : OpMode() {
 
     companion object {
         // P = 10, I = 3, D = 0, F = 8 (set as needed)
-        @JvmField var P = 0.0
-        @JvmField var I = 0.0
-        @JvmField var D = 0.0
-        @JvmField var F = 0.0
+        @JvmField var P = 10.toDouble()
+        @JvmField var I = 3.toDouble()
+        @JvmField var D = 0.toDouble()
+        @JvmField var F = 8.toDouble()
     }
 
     override fun init() {
@@ -58,12 +58,12 @@ class Move : OpMode() {
     }
 
     override fun loop() {
-        val frontLeftPosition = frontLeft.currentPosition
-        val frontRightPosition = frontRight.currentPosition
-        val backLeftPosition = backLeft.currentPosition
-        val backRightPosition = backRight.currentPosition
+        var frontLeftPosition = frontLeft.currentPosition
+        var frontRightPosition = frontRight.currentPosition
+        var backLeftPosition = backLeft.currentPosition
+        var backRightPosition = backRight.currentPosition
 
-        val pos: SparkFunOTOS.Pose2D = sparkFun.position
+        var pos: SparkFunOTOS.Pose2D = sparkFun.position
 
         if (gamepad1.triangle) sparkFun.resetTracking()
         if (gamepad1.square) sparkFun.calibrateImu()
@@ -108,7 +108,7 @@ class Move : OpMode() {
         sparkFun.calibrateImu()
         sparkFun.resetTracking()
 
-        val currentPosition = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
+        var currentPosition = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
         sparkFun.position = currentPosition
 
         val hwVersion = SparkFunOTOS.Version()
