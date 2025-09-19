@@ -14,7 +14,7 @@ class OutTake : OpMode() {
     private lateinit var motor1: DcMotorEx
     private lateinit var motor2: DcMotorEx
     var power = 1.toDouble()
-    var ar = arrayOf("p", "p", "g") //Test to make a array
+    var ar = arrayOf("p", "p", "g") // Test to make a array
 
     override fun init() {
         motor1 = hardwareMap.get(DcMotorEx::class.java, "motor1")
