@@ -3,14 +3,18 @@ package org.firstinspires.ftc.teamcode
 import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import org.firstinspires.ftc.teamcode.Utils.sleep
 
+@TeleOp
 class OutTake : OpMode() {
     private var panels: TelemetryManager? = null
     private lateinit var motor1: DcMotorEx
     private lateinit var motor2: DcMotorEx
-    var power = 0.toDouble()
+    var power = 1.toDouble()
+    var ar = arrayOf("p", "p", "g")
 
     override fun init() {
         motor1 = hardwareMap.get(DcMotorEx::class.java, "motor1")
@@ -22,8 +26,10 @@ class OutTake : OpMode() {
     override fun loop() {
         if (gamepad1.dpad_up) {
             power + 0.1
+            sleep(1000)
         } else if (gamepad1.dpad_down) {
             power - 0.1
+            sleep(1000)
         }
         motor1.power = power
         motor2.power = power
