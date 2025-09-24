@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import org.firstinspires.ftc.teamcode.Utils.sleep
 
 @Configurable
 @TeleOp
@@ -15,7 +14,6 @@ class OutTake : OpMode() {
     private var panels: TelemetryManager? = null
     private lateinit var motor1: DcMotorEx
     private lateinit var motor2: DcMotorEx
-    var ar = arrayOf("p", "p", "g") // Test to make a array
 
     companion object {
         @JvmField
