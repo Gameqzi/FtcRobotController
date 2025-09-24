@@ -12,15 +12,16 @@ import org.firstinspires.ftc.teamcode.Utils.sleep
 @Configurable
 @TeleOp
 class OutTake : OpMode() {
+    private var panels: TelemetryManager? = null
+    private lateinit var motor1: DcMotorEx
+    private lateinit var motor2: DcMotorEx
+    var ar = arrayOf("p", "p", "g") // Test to make a array
+
     companion object {
         @JvmField
         var power1 = 0.toDouble()
         var power2 = 0.toDouble()
     }
-    private var panels: TelemetryManager? = null
-    private lateinit var motor1: DcMotorEx
-    private lateinit var motor2: DcMotorEx
-    var ar = arrayOf("p", "p", "g") // Test to make a array
 
     override fun init() {
         motor1 = hardwareMap.get(DcMotorEx::class.java, "motor1")
