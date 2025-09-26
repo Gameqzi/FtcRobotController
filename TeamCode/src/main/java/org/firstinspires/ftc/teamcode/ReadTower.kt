@@ -16,14 +16,15 @@ class ReadTower : OpMode() {
     }
 
     override fun loop() {
-        panels?.addData("Order", read())
+        var order = read().toString()
+        panels?.addData("Order", order)
         panels?.update()
     }
 
     private fun read(): Serializable {
         val file = File(hardwareMap.appContext.filesDir, fileName)
         return if (file.exists()) {
-            file.readText().toCharArray()
+            file.readText()
         } else {
             0
         }

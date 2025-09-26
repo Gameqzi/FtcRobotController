@@ -4,6 +4,7 @@ import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -15,16 +16,21 @@ class TeleOp : OpMode() {
     private lateinit var frontRight: DcMotorEx
     private lateinit var backLeft: DcMotorEx
     private lateinit var backRight: DcMotorEx
+    private lateinit var servo1: CRServo
+    private lateinit var servo2: CRServo
     val p = 10.toDouble()
     val i = 3.toDouble()
     val d = 0.toDouble()
     val f = 8.toDouble()
     var speed = false
+    var intake = false
     override fun init() {
         frontLeft = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
         frontRight = hardwareMap.get(DcMotorEx::class.java, "frontRight")
         backLeft = hardwareMap.get(DcMotorEx::class.java, "backLeft")
         backRight = hardwareMap.get(DcMotorEx::class.java, "backRight")
+        servo1 = hardwareMap.get(CRServo::class.java, "Servo1")
+        servo2 = hardwareMap.get(CRServo::class.java, "Servo2")
         frontRight.direction = DcMotorSimple.Direction.REVERSE
         backRight.direction = DcMotorSimple.Direction.FORWARD
         frontLeft.direction = DcMotorSimple.Direction.REVERSE
@@ -52,6 +58,20 @@ class TeleOp : OpMode() {
             speed = false
         } else if (gamepad1.right_bumper) {
             speed = true
+        }
+
+        if (gamepad1.cross) {
+            intake = true
+        } else if (gamepad1.circle) {
+            intake = false
+        }
+
+        if (intake) {
+            servo1.power = 0.5
+            servo2.power = -0.5
+        } else {
+            servo1.power = 0.0
+            servo2.power = 0.0
         }
 
         if (!speed) {
