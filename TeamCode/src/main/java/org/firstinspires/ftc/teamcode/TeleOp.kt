@@ -22,7 +22,8 @@ class TeleOp : OpMode() {
     val i = 3.toDouble()
     val d = 0.toDouble()
     val f = 8.toDouble()
-    var speed = false
+    var driveSpeed = false
+    var servoSpeed = 0.0
     var intake = false
     override fun init() {
         frontLeft = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
@@ -35,12 +36,13 @@ class TeleOp : OpMode() {
         backRight.direction = DcMotorSimple.Direction.FORWARD
         frontLeft.direction = DcMotorSimple.Direction.REVERSE
         backLeft.direction = DcMotorSimple.Direction.FORWARD
+        servo2.direction = DcMotorSimple.Direction.REVERSE
         frontRight.setVelocityPIDFCoefficients(p, i, d, f)
         backRight.setVelocityPIDFCoefficients(p, i, d, f)
         frontLeft.setVelocityPIDFCoefficients(p, i, d, f)
         backLeft.setVelocityPIDFCoefficients(p, i, d, f)
-        resetEncoders()
         panels = PanelsTelemetry.telemetry
+        resetEncoders()
     }
 
     override fun loop() {
@@ -55,26 +57,28 @@ class TeleOp : OpMode() {
 
         
         if (gamepad1.left_bumper) {
-            speed = false
+            driveSpeed = false
         } else if (gamepad1.right_bumper) {
-            speed = true
+            driveSpeed = true
         }
 
         if (gamepad1.cross) {
             intake = true
+            servoSpeed = 0.5
         } else if (gamepad1.circle) {
             intake = false
+            servoSpeed = 0.0
         }
 
         if (intake) {
-            servo1.power = 0.5
-            servo2.power = -0.5
+            servo1.power = servoSpeed
+            servo2.power = servoSpeed
         } else {
-            servo1.power = 0.0
-            servo2.power = 0.0
+            servo1.power = servoSpeed
+            servo2.power = servoSpeed
         }
 
-        if (!speed) {
+        if (!driveSpeed) {
             frontLeft.velocity = -frontLeftPower * 1000
             frontRight.velocity = frontRightPower * 1000
             backLeft.velocity = backLeftPower * 1000
