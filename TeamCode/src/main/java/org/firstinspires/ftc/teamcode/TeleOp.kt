@@ -25,18 +25,19 @@ class TeleOp : OpMode() {
     var driveSpeed = false
     var servoSpeed = 0.0
     var intake = false
+
     override fun init() {
-        frontLeft = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
+        frontLeft  = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
         frontRight = hardwareMap.get(DcMotorEx::class.java, "frontRight")
-        backLeft = hardwareMap.get(DcMotorEx::class.java, "backLeft")
-        backRight = hardwareMap.get(DcMotorEx::class.java, "backRight")
-        servo1 = hardwareMap.get(CRServo::class.java, "Servo1")
-        servo2 = hardwareMap.get(CRServo::class.java, "Servo2")
+        backLeft   = hardwareMap.get(DcMotorEx::class.java, "backLeft")
+        backRight  = hardwareMap.get(DcMotorEx::class.java, "backRight")
+        servo1     = hardwareMap.get(CRServo::class.java, "Servo1")
+        servo2     = hardwareMap.get(CRServo::class.java, "Servo2")
         frontRight.direction = DcMotorSimple.Direction.REVERSE
-        backRight.direction = DcMotorSimple.Direction.FORWARD
-        frontLeft.direction = DcMotorSimple.Direction.REVERSE
-        backLeft.direction = DcMotorSimple.Direction.FORWARD
-        servo2.direction = DcMotorSimple.Direction.REVERSE
+        backRight.direction  = DcMotorSimple.Direction.FORWARD
+        frontLeft.direction  = DcMotorSimple.Direction.REVERSE
+        backLeft.direction   = DcMotorSimple.Direction.FORWARD
+        servo2.direction     = DcMotorSimple.Direction.REVERSE
         frontRight.setVelocityPIDFCoefficients(p, i, d, f)
         backRight.setVelocityPIDFCoefficients(p, i, d, f)
         frontLeft.setVelocityPIDFCoefficients(p, i, d, f)
@@ -46,14 +47,14 @@ class TeleOp : OpMode() {
     }
 
     override fun loop() {
-        var drive = gamepad1.left_stick_y.toDouble() // Forward/backward (inverted as necessary)
+        var drive  = gamepad1.left_stick_y.toDouble() // Forward/backward (inverted as necessary)
         var strafe = -gamepad1.right_stick_x.toDouble() // Left/right
         var rotate = (gamepad1.left_trigger - gamepad1.right_trigger).toDouble() // Rotation
 
-        var frontLeftPower = drive + strafe + rotate
+        var frontLeftPower  = drive + strafe + rotate
         var frontRightPower = drive - strafe - rotate
-        var backLeftPower = drive - strafe + rotate
-        var backRightPower = drive + strafe - rotate
+        var backLeftPower   = drive - strafe + rotate
+        var backRightPower  = drive + strafe - rotate
 
         
         if (gamepad1.left_bumper) {
@@ -64,7 +65,7 @@ class TeleOp : OpMode() {
 
         if (gamepad1.cross) {
             intake = true
-            servoSpeed = 0.5
+            servoSpeed = 1.0
         } else if (gamepad1.circle) {
             intake = false
             servoSpeed = 0.0
@@ -79,15 +80,15 @@ class TeleOp : OpMode() {
         }
 
         if (!driveSpeed) {
-            frontLeft.velocity = -frontLeftPower * 1000
+            frontLeft.velocity  = -frontLeftPower * 1000
             frontRight.velocity = frontRightPower * 1000
-            backLeft.velocity = backLeftPower * 1000
-            backRight.velocity =  -backRightPower * 1000
+            backLeft.velocity   = backLeftPower * 1000
+            backRight.velocity  = -backRightPower * 1000
         } else {
-            frontLeft.velocity = -frontLeftPower * 5000
-            frontRight.velocity = frontRightPower * 5000
-            backLeft.velocity = backLeftPower * 5000
-            backRight.velocity =  -backRightPower * 5000
+            frontLeft.velocity  = -frontLeftPower * 8000
+            frontRight.velocity = frontRightPower * 8000
+            backLeft.velocity   = backLeftPower * 8000
+            backRight.velocity  = -backRightPower * 8000
         }
     }
 
@@ -100,9 +101,9 @@ class TeleOp : OpMode() {
         backLeft.mode   = DcMotor.RunMode.RUN_USING_ENCODER
         backRight.mode  = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         backRight.mode  = DcMotor.RunMode.RUN_USING_ENCODER
-        frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        frontLeft.zeroPowerBehavior  = DcMotor.ZeroPowerBehavior.BRAKE
         frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        backRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        backLeft.zeroPowerBehavior   = DcMotor.ZeroPowerBehavior.BRAKE
+        backRight.zeroPowerBehavior  = DcMotor.ZeroPowerBehavior.BRAKE
     }
 }
