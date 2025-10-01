@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.threadopmode;
-import static org.firstinspires.ftc.teamcode.Utils.sleep;
+import static org.firstinspires.ftc.teamcode.OldCode.Utils.sleep;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
