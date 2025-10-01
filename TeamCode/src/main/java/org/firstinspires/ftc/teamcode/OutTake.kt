@@ -35,5 +35,6 @@ class OutTake : OpMode() {
         panels!!.addData("Power2", power2)
         panels!!.addData("Real Motor 1 Power", motor1.power)
         panels!!.addData("Real Motor 2 Power", motor2.power)
+        panels!!.update()
     }
 }

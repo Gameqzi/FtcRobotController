@@ -17,7 +17,7 @@ class ReadTower : OpMode() {
     }
 
     override fun loop() {
-
+        panels?.addData("order", order)
     }
 
     private fun read(): Int {
