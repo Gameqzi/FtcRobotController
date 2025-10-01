@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 import java.io.File
-import java.io.Serializable
 
 @Autonomous
 class SaveTower : OpMode() {
@@ -48,7 +47,7 @@ class SaveTower : OpMode() {
                     order[0] = "G"
                     order[1] = "P"
                     order[2] = "P"
-                    saveNumber(order.joinToString())
+                    saveNumber(21)
                     break
                 }
                 22 -> {
@@ -56,7 +55,7 @@ class SaveTower : OpMode() {
                     order[0] = "P"
                     order[1] = "G"
                     order[2] = "P"
-                    saveNumber(order.joinToString())
+                    saveNumber(22)
                     break
                 }
                 23 -> {
@@ -64,7 +63,7 @@ class SaveTower : OpMode() {
                     order[0] = "P"
                     order[1] = "P"
                     order[2] = "G"
-                    saveNumber(order.joinToString())
+                    saveNumber(23)
                     break
                 }
             }
@@ -74,8 +73,8 @@ class SaveTower : OpMode() {
         panels?.update()
     }
 
-    private fun saveNumber(serializable: Serializable) {
+    private fun saveNumber(num: Int) {
         val file = File(hardwareMap.appContext.filesDir, fileName)
-        file.writeText(serializable as String)
+        file.writeText(num as String)
     }
 }

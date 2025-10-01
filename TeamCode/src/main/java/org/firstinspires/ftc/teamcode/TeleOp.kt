@@ -24,7 +24,6 @@ class TeleOp : OpMode() {
     val f = 8.toDouble()
     var driveSpeed = false
     var servoSpeed = 0.0
-    var intake = false
 
     override fun init() {
         frontLeft  = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
@@ -47,7 +46,7 @@ class TeleOp : OpMode() {
     }
 
     override fun loop() {
-        var drive  = gamepad1.left_stick_y.toDouble() // Forward/backward (inverted as necessary)
+        var drive  = gamepad1.left_stick_y.toDouble() // Forward/backward
         var strafe = -gamepad1.right_stick_x.toDouble() // Left/right
         var rotate = (gamepad1.left_trigger - gamepad1.right_trigger).toDouble() // Rotation
 
@@ -64,17 +63,11 @@ class TeleOp : OpMode() {
         }
 
         if (gamepad1.cross) {
-            intake = true
             servoSpeed = 1.0
-        } else if (gamepad1.circle) {
-            intake = false
-            servoSpeed = 0.0
-        }
-
-        if (intake) {
             servo1.power = servoSpeed
             servo2.power = servoSpeed
         } else {
+            servoSpeed = 0.0
             servo1.power = servoSpeed
             servo2.power = servoSpeed
         }
