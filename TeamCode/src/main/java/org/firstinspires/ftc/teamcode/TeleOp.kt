@@ -65,6 +65,10 @@ class TeleOp : OpMode() {
             servoSpeed = 1.0
             servo1.power = servoSpeed
             servo2.power = servoSpeed
+        } else if (gamepad1.circle) {
+            servoSpeed = -1.0
+            servo1.power = servoSpeed
+            servo2.power = servoSpeed
         } else {
             servoSpeed = 0.0
             servo1.power = servoSpeed
