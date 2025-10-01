@@ -54,7 +54,7 @@ class TeleOp : OpMode() {
         var frontRightPower = drive - strafe - rotate
         var backLeftPower   = drive - strafe + rotate
         var backRightPower  = drive + strafe - rotate
-        
+
         if (gamepad1.left_bumper) {
             driveSpeed = false
         } else if (gamepad1.right_bumper) {
