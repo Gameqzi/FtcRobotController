@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.OldCode;
 
 
-
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 
+@Disabled
 @Autonomous
 public class MotorVolOutPut extends OpMode {
 

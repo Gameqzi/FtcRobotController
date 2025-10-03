@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.OldCode;
 
 
-
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 
+@Disabled
 @Autonomous
 public class RunTest extends OpMode {
     private DcMotorEx frontLeft, frontRight, backLeft, backRight;
