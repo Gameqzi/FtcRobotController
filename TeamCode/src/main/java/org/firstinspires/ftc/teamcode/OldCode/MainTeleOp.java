@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OldCode;
 
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
+@Disabled
 @TeleOp
 public class MainTeleOp extends ThreadOpMode {
     ColorSensor colorSensor;

@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
+@Disabled
 @TeleOp
 public class RotateTest extends ThreadOpMode {
     public static final double P = 10, I = 3, D = 0, F = 8;

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 
+@Disabled
 @TeleOp(name = "Concept: AprilTag Localization", group = "Concept")
 public class ConceptAprilTagLocalization extends OpMode {
     private TelemetryManager panels;

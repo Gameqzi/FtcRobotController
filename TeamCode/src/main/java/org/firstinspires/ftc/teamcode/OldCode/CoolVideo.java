@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
+@Disabled
 @TeleOp
 public class CoolVideo extends ThreadOpMode {
     DcMotorEx frontLeft, frontRight, backLeft, backRight;

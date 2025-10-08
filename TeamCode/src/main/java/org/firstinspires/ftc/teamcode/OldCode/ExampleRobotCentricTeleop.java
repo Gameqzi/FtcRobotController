@@ -3,7 +3,8 @@
 //import com.pedropathing.follower.Follower;
 //import com.pedropathing.localization.Pose;
 //import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-//import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+//import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //
 //import pedroPathing.constants.FConstants;
 //import pedroPathing.constants.LConstants;
@@ -15,7 +16,8 @@
 // * @version 2.0, 12/30/2024
 // */
 //
-//@TeleOp(name = "Example Robot-Centric Teleop", group = "Examples")
+//@Disabled
+@TeleOp(name = "Example Robot-Centric Teleop", group = "Examples")
 //public class ExampleRobotCentricTeleop extends OpMode {
 //    private Follower follower;
 //    private final Pose startPose = new Pose(0,0,0);

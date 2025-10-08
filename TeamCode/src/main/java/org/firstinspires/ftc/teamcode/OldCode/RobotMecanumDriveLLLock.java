@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.OldCode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -17,6 +18,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 
+@Disabled
 @TeleOp(name="Drive LL LOCK", group="TeleOp")
 public class RobotMecanumDriveLLLock extends OpMode {
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OldCode;
 
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
 
+@Disabled
 @TeleOp
 public class LiftMove extends ThreadOpMode {
     DcMotorEx lift;

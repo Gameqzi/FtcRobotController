@@ -4,11 +4,13 @@ package org.firstinspires.ftc.teamcode.OldCode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
 
+@Disabled
 @TeleOp
 public class ColorDetect extends OpMode {
     private ColorSensor colorSensor;

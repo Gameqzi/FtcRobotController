@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 import java.util.concurrent.ThreadLocalRandom;
 
 
+@Disabled
 @TeleOp
 public class StationaryShowcase extends ThreadOpMode {
 

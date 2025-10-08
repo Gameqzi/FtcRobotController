@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.OldCode;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import android.util.Log;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
+@Disabled
 @TeleOp(name = "MecanumStraight", group = "Drive")
 public class MecanumStraight extends OpMode {
 

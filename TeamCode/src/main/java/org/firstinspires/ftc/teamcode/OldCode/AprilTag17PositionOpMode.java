@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OldCode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+@Disabled
 @TeleOp(name = "AprilTag‑Screen‑Position", group = "Vision")
 public class AprilTag17PositionOpMode extends ThreadOpMode {
 

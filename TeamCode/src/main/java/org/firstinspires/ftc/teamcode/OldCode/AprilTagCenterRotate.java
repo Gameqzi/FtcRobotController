@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OldCode;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -28,6 +29,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  *       decrease this cap as needed.</li>
  * </ul>
  */
+@Disabled
 @TeleOp(name = "AprilTagCenterRotate", group = "Concept")
 public class AprilTagCenterRotate extends ThreadOpMode {
 

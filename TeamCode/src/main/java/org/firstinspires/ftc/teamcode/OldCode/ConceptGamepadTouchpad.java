@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.OldCode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -33,6 +34,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 
+@Disabled
 @TeleOp(name="Concept: Gamepad Touchpad", group ="Concept")
 public class ConceptGamepadTouchpad extends LinearOpMode
 {

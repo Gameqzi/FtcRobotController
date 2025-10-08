@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OldCode;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.threadopmode.TaskThread;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 
+@Disabled
 @TeleOp
 public class RobotTest extends ThreadOpMode {
 

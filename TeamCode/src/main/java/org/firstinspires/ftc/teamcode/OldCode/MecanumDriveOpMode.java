@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.OldCode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+@Disabled
 @TeleOp(name="Mecanum Drive OpMode", group="TeleOp")
 public class MecanumDriveOpMode extends OpMode {
 
