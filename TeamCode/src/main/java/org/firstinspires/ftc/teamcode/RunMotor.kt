@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode
 
 import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 
+@Disabled
 @TeleOp
 class RunMotor: OpMode() {
     private var panels: TelemetryManager? = null
