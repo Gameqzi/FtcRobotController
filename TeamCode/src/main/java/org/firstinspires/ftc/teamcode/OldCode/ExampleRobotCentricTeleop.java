@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // */
 //
 //@Disabled
-@TeleOp(name = "Example Robot-Centric Teleop", group = "Examples")
+//@TeleOp(name = "Example Robot-Centric Teleop", group = "Examples")
 //public class ExampleRobotCentricTeleop extends OpMode {
 //    private Follower follower;
 //    private final Pose startPose = new Pose(0,0,0);
