@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.Servo
 
 @TeleOp
 class TeleOp : OpMode() {
@@ -18,12 +19,16 @@ class TeleOp : OpMode() {
     private lateinit var backRight: DcMotorEx
     private lateinit var servo1: CRServo
     private lateinit var servo2: CRServo
+    private lateinit var moveServo : Servo
     val p = 10.toDouble()
     val i = 3.toDouble()
     val d = 0.toDouble()
     val f = 8.toDouble()
     var driveSpeed = false
     var servoSpeed = 0.0
+    var moveMode   = 0
+    private var lastDpadLeftState = false
+    private var lastDpadRightState = false
 
     override fun init() {
         frontLeft  = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
@@ -32,6 +37,7 @@ class TeleOp : OpMode() {
         backRight  = hardwareMap.get(DcMotorEx::class.java, "backRight")
         servo1     = hardwareMap.get(CRServo::class.java, "Servo1")
         servo2     = hardwareMap.get(CRServo::class.java, "Servo2")
+        moveServo  = hardwareMap.get(Servo::class.java, "MoveServo")
         frontRight.direction = DcMotorSimple.Direction.REVERSE
         backRight.direction  = DcMotorSimple.Direction.FORWARD
         frontLeft.direction  = DcMotorSimple.Direction.REVERSE
@@ -86,6 +92,38 @@ class TeleOp : OpMode() {
             backLeft.velocity   = backLeftPower * 8000
             backRight.velocity  = -backRightPower * 8000
         }
+
+        if (gamepad1.dpad_left && !lastDpadLeftState) {
+            moveMode -= 1
+            if (moveMode < 0) {
+                moveMode = 0
+            }
+        }
+        lastDpadLeftState = gamepad1.dpad_left
+
+        if (gamepad1.dpad_right && !lastDpadRightState) {
+            moveMode += 1
+            if (moveMode > 2) {
+                moveMode = 2
+            }
+        }
+        lastDpadRightState = gamepad1.dpad_right
+
+        when (moveMode) {
+            0 -> {
+                moveServo.position = 0.0
+            }
+            1 -> {
+                moveServo.position = 0.5
+            }
+            2 -> {
+                moveServo.position = 1.toDouble()
+            }
+        }
+
+        panels?.addData("MoveMode", moveMode)
+        panels?.addData("MoveServo", moveServo.position)
+        panels?.update()
     }
 
     fun resetEncoders() {
