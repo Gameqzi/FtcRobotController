@@ -5,7 +5,6 @@ import com.bylazar.telemetry.TelemetryManager
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Servo
 import java.lang.Thread.sleep
-import kotlin.concurrent.thread
 
 class ServoTest : OpMode() {
     private var panels: TelemetryManager? = null
