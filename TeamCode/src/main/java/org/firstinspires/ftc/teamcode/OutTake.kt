@@ -14,7 +14,6 @@ class OutTake : OpMode() {
     private var panels: TelemetryManager? = null
     private lateinit var motor1: DcMotorEx
     private lateinit var motor2: DcMotorEx
-
     companion object {
         @JvmField
         var power1 = 0.toDouble()

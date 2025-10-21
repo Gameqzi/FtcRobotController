@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
+import com.bylazar.telemetry.PanelsTelemetry
+import com.bylazar.telemetry.TelemetryManager
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.json.JSONArray
@@ -13,9 +15,10 @@ import java.util.concurrent.atomic.AtomicReference
 
 @TeleOp
 class LL3AResultsIterative : OpMode() {
+    private var panels: TelemetryManager? = null
 
     // === EDIT THIS: set your LL's IP (static IP strongly recommended) ===
-    private val llBase = "http://192.168.43.11:5807"
+    private val llBase = "http://192.168.43.1:5807"
 
     private lateinit var fetcher: ResultsFetcher
 
@@ -23,6 +26,7 @@ class LL3AResultsIterative : OpMode() {
         fetcher = ResultsFetcher("$llBase/results")
         fetcher.start()
         telemetry.addLine("Limelight fetcher starting…")
+        panels = PanelsTelemetry.telemetry
     }
 
     override fun start() {
@@ -33,7 +37,7 @@ class LL3AResultsIterative : OpMode() {
         // Grab the latest JSON snapshot (already parsed in the background)
         val json = fetcher.latest.get()
         if (json == null) {
-            telemetry.addLine("Waiting for Limelight…")
+            panels?.addLine("Waiting for Limelight…")
         } else {
             // 1) Your Python SnapScript output (array you return as llpython)
             val py: JSONArray = json.optJSONArray("PythonOut") ?: JSONArray()
@@ -44,15 +48,17 @@ class LL3AResultsIterative : OpMode() {
             val y = py.optDouble(2, 0.0)
             val size = py.optDouble(3, 0.0)
 
-            telemetry.addData("HasTarget", hasTarget)
-            telemetry.addData("x,y,size", "%.1f, %.1f, %.2f", x, y, size)
+            panels?.addData("HasTarget", hasTarget)
+            panels?.addData("x", x)
+            panels?.addData("y", y)
+            panels?.addData("size", size)
 
             // 2) (optional) show first AprilTag ID if you’re also running that pipeline
             val fid = json.optJSONArray("Fiducial")
             val firstTagId = fid?.optJSONObject(0)?.optInt("fID")
-            if (firstTagId != null) telemetry.addData("FirstTag", firstTagId)
+            if (firstTagId != null) panels?.addData("FirstTag", firstTagId)
         }
-        telemetry.update()
+        panels?.update()
     }
 
     override fun stop() {
