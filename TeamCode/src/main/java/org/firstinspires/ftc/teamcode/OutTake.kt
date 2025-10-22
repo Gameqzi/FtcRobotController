@@ -28,8 +28,8 @@ class OutTake : OpMode() {
     }
 
     override fun loop() {
-        motor1.power = power1
-        motor2.power = power2
+        motor1.power = power1 // 0.35
+        motor2.power = power2 // 0.35
         panels!!.addData("Power1", power1)
         panels!!.addData("Power2", power2)
         panels!!.addData("Real Motor 1 Power", motor1.power)
