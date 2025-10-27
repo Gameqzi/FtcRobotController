@@ -1,17 +1,22 @@
 package org.firstinspires.ftc.teamcode
 
+import com.bylazar.configurables.annotations.Configurable
 import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
-import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
+@Configurable
 @TeleOp
 class ServoTest : OpMode() {
     var panels: TelemetryManager? = null
     lateinit var servo : Servo
+    companion object {
+        @JvmField
+        var position = 0.toDouble()
+    }
     override fun init() {
         servo = hardwareMap.get(Servo::class.java, "Servo")
         panels = PanelsTelemetry.telemetry
@@ -26,19 +31,7 @@ class ServoTest : OpMode() {
     }
 
     override fun loop() {
-        servo.position = 0.0
-        sleep(4000)
-        servo.position = 0.4
-        sleep(4000)
-        servo.position = 0.8
-        sleep(4000)
-        servo.position = 1.0
-        sleep(4000)
-        servo.position = 0.6
-        sleep(4000)
-        servo.position = 0.3
-        sleep(4000)
-        stop()
+        servo.position = position // 0.1135 seems good
     }
 
     override fun stop() {
