@@ -31,6 +31,12 @@ class ServoTest : OpMode() {
     }
 
     override fun loop() {
+        val lP1 = 0.059
+        val lP2 = 0.13
+        val lP3 = 0.204
+        val fP1 = 0.02
+        val fP2 = 0.0945
+        val fP3 = 0.167
         servo.position = position // 0.1135 seems good
     }
 
