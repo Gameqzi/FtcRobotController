@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import java.lang.Thread.sleep
 
+@TeleOp
 class STEMTeleOP : OpMode() {
     val lP1 = 0.059
     val lP2 = 0.13
@@ -15,6 +17,7 @@ class STEMTeleOP : OpMode() {
     val fP2 = 0.02
     val fP3 = 0.0945
     var servoSpeed = 0.0
+    var held = 0
     private lateinit var intakeServo1: CRServo
     private lateinit var intakeServo2: CRServo
     private lateinit var outTake1: DcMotorEx
@@ -52,17 +55,29 @@ class STEMTeleOP : OpMode() {
             intakeServo2.power = servoSpeed
         }
         if (gamepad1.triangle) {
-            outTake1.power = 0.1
-            outTake2.power = 0.1
-            bowlServo.position = fP1
-            sleep(100)
-            outServo.position = 90.0
-            sleep(50)
-            outServo.position = 0.0
-            sleep(1000)
-            outTake1.power = 0.0
-            outTake2.power = 0.0
-            bowlServo.position = lP1
+            held = 1
+        }
+        when (held) {
+            0 -> {
+                // Do nothing
+            }
+            1 -> {
+                outTake1.power = 0.3
+                outTake2.power = 0.3
+                sleep(1000)
+                bowlServo.position = fP1
+                sleep(1000)
+                outServo.position = 0.25
+                sleep(500)
+                outServo.position = 0.0
+                sleep(1000)
+                outTake1.power = 0.0
+                outTake2.power = 0.0
+                bowlServo.position = lP1
+                sleep(1000)
+                held = 0
+                return
+            }
         }
     }
 }
