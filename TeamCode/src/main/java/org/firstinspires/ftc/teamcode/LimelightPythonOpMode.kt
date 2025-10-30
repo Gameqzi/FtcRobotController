@@ -16,13 +16,13 @@ class LimelightPythonOpMode : OpMode() {
     val lP1 = 0.059
     val lP2 = 0.13
     val lP3 = 0.204
-    val fP1 = 0.02
-    val fP2 = 0.0945
-    val fP3 = 0.167
+    val fP1 = 0.167
+    val fP2 = 0.02
+    val fP3 = 0.0945
     var cLP = 1
 
     val ord = arrayOf("N", "N", "N")
-    val eord = arrayOf("P", "P", "G")
+    val eord = arrayOf("P", "G", "P")
 
     lateinit var servo : Servo
 
@@ -103,21 +103,95 @@ class LimelightPythonOpMode : OpMode() {
         best?.let {
             when (purpleCount) {
                 1 -> {
-                    if (it.width >= 330 && it.height >= 220) {
-                        if (cLP == 1) {
-                            servo.position = lP2
-                            cLP = 2
-                        } else if (cLP == 2) {
-                            servo.position = lP3
-                            cLP = 3
+                    if (it.width >= 280 && it.height >= 170) {
+                        // Fill the list array similar to color sensor logic
+                        if (ord[0] == "N") {
+                            // Check if already detected
+                            if (ord[0] == "P" || ord[1] == "P" || ord[2] == "P") {
+                                return
+                            }
+                            ord[0] = "P"
+
+                            // Update servo position
+                            if (cLP == 1) {
+                                servo.position = lP2
+                                cLP = 2
+                            }
+                        } else if (ord[1] == "N") {
+                            // Check if already detected
+                            if (ord[1] == "P" || ord[2] == "P") {
+                                return
+                            }
+                            ord[1] = "P"
+
+                            // Update servo position
+                            if (cLP == 2) {
+                                servo.position = lP3
+                                cLP = 3
+                            }
+                        } else if (ord[2] == "N") {
+                            // Check if already detected
+                            if (ord[2] == "P") {
+                                return
+                            }
+                            ord[2] = "P"
+
+                            // No more servo positions (already at lP3)
+                        } else {
+                            // List is full
+                            return
                         }
+
+                        sleep(800)
                     }
-                    if (ord[0] == "N") {
-                        ord[0] = "P"
-                    }
-                    sleep(800)
                 }
             }
+            when (greenCount) {
+                1 -> {
+                    if (it.width >= 280 && it.height >= 170) {
+                        // Fill the list array for green pieces
+                        if (ord[0] == "N") {
+                            // Check if green already detected
+                            if (ord[0] == "G" || ord[1] == "G" || ord[2] == "G") {
+                                return
+                            }
+                            ord[0] = "G"
+
+                            // Update servo position
+                            if (cLP == 1) {
+                                servo.position = lP2
+                                cLP = 2
+                            }
+                        } else if (ord[1] == "N") {
+                            // Check if green already detected
+                            if (ord[0] == "G" || ord[1] == "G" || ord[2] == "G") {
+                                return
+                            }
+                            ord[1] = "G"
+
+                            // Update servo position
+                            if (cLP == 2) {
+                                servo.position = lP3
+                                cLP = 3
+                            }
+                        } else if (ord[2] == "N") {
+                            // Check if green already detected
+                            if (ord[0] == "G" || ord[1] == "G" || ord[2] == "G") {
+                                return
+                            }
+                            ord[2] = "G"
+
+                            // No more servo positions (already at lP3)
+                        } else {
+                            // List is full
+                            return
+                        }
+
+                        sleep(800)
+                    }
+                }
+            }
+
             panels?.addData("Order 1", ord[0])
             panels?.addData("Order 2", ord[1])
             panels?.addData("Order 3", ord[2])
@@ -129,6 +203,141 @@ class LimelightPythonOpMode : OpMode() {
             panels?.addData(" W", it.width)
             panels?.addData(" H", it.height)
         }
+
+        /*if (ord.contentEquals(eord)) {
+            sleep(5000)
+            servo.position = fP1
+            sleep(5000)
+            servo.position = fP2
+            sleep(5000)
+            servo.position = fP3
+            sleep(5000)
+            stop()
+        }*/
+
+        if (ord[0] != "N" && ord[1] != "N" && ord[2] != "N") {
+            if (eord[0] == "G" && eord[1] == "P" && eord[2] == "P") {
+                if (ord.contentEquals(eord)) {
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    stop()
+                }
+                if (ord[0] == "P" && ord[1] == "P" && ord[2] == "G") {
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    stop()
+                }
+                if (ord[0] == "P" && ord[1] == "G" && ord[2] == "P") {
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    stop()
+                }
+            }
+            if (eord[0] == "P" && eord[1] == "G" && eord[2] == "P") {
+                if (ord.contentEquals(eord)) {
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    stop()
+                }
+                if (ord[0] == "P" && ord[1] == "P" && ord[2] == "G") {
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    stop()
+                }
+                if (ord[0] == "G" && ord[1] == "P" && ord[2] == "P") {
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    stop()
+                }
+            }
+            if (eord[0] == "P" && eord[1] == "P" && eord[2] == "G") {
+                if (ord.contentEquals(eord)) {
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    stop()
+                }
+                if (ord[0] == "P" && ord[1] == "G" && ord[2] == "P") {
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    stop()
+                }
+                if (ord[0] == "G" && ord[1] == "P" && ord[2] == "P") {
+                    sleep(5000)
+                    servo.position = fP2
+                    sleep(5000)
+                    servo.position = fP3
+                    sleep(5000)
+                    servo.position = fP1
+                    sleep(5000)
+                    stop()
+                }
+            }
+            /*if (ord[0] == "G" && ord[1] == "P" && ord[2] == "P") {
+                sleep(5000)
+                servo.position = fP3
+                sleep(5000)
+                servo.position = fP2
+                sleep(5000)
+                servo.position = fP1
+                sleep(5000)
+                stop()
+            } else if (ord[0] == "P" && ord[1] == "G" && ord[2] == "P") {
+                sleep(5000)
+                servo.position = fP1
+                sleep(5000)
+                servo.position = fP3
+                sleep(5000)
+                servo.position = fP2
+                sleep(5000)
+                stop()
+            }*/
+        }
+
+        panels?.update()
+    }
+    override fun stop() {
+        limelight.stop()
+        panels?.addData("Status", "Stopped")
         panels?.update()
     }
 }
