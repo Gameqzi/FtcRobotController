@@ -52,14 +52,16 @@ class STEMTeleOP : OpMode() {
             intakeServo2.power = servoSpeed
         }
         if (gamepad1.triangle) {
-            bowlServo.position = fP1
             outTake1.power = 0.1
             outTake2.power = 0.1
+            bowlServo.position = fP1
+            sleep(100)
             outServo.position = 90.0
+            sleep(50)
+            outServo.position = 0.0
             sleep(1000)
             outTake1.power = 0.0
             outTake2.power = 0.0
-            outServo.position = 0.0
             bowlServo.position = lP1
         }
     }
