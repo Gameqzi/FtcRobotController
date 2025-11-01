@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.Servo
 import kotlin.concurrent.Volatile
 import kotlin.math.max
 import kotlin.math.min
@@ -21,8 +22,9 @@ class OutTake : OpMode() {
 
     //endregion
     @Volatile
-    private var velocityModeInitialized = false
-    private var velocityPowerScale = 0.85
+    var velocityModeInitialized = false
+    var velocityPowerScale = 0.85
+    lateinit var servo : Servo
     val p = 10.toDouble()
     val i = 3.toDouble()
     val d = 0.toDouble()
@@ -31,11 +33,13 @@ class OutTake : OpMode() {
         @JvmField
         var power1 = 0.toDouble()
         var power2 = 0.toDouble()
+        var position = 0.toDouble()
     }
 
     override fun init() {
         motor1 = hardwareMap.get(DcMotorEx::class.java, "motor1")
         motor2 = hardwareMap.get(DcMotorEx::class.java, "motor2")
+        servo = hardwareMap.get(Servo::class.java, "Servo")
         motor2.direction = DcMotorSimple.Direction.REVERSE
         motor1.setVelocityPIDFCoefficients(p, i, d, f)
         motor2.setVelocityPIDFCoefficients(p, i, d, f)
@@ -45,6 +49,7 @@ class OutTake : OpMode() {
     override fun loop() {
         setMotorVelocityFromPseudoPower(motor1, power1) // 0.33
         setMotorVelocityFromPseudoPower(motor2, power2) // 0.33
+        servo.position = position
         panels?.addData("Power1", power1)
         panels?.addData("Power2", power2)
         panels?.addData("Real Motor 1 Power", motor1.power)
