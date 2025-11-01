@@ -58,9 +58,7 @@ class STEMTeleOP : OpMode() {
             held = 1
         }
         when (held) {
-            0 -> {
-                // Do nothing
-            }
+            0 -> { /* Do nothing */ }
             1 -> {
                 outTake1.power = 0.3
                 outTake2.power = 0.3

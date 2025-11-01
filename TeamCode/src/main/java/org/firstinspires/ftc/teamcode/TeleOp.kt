@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import java.lang.Thread.sleep
 
 @TeleOp
 class TeleOp : OpMode() {
@@ -17,38 +18,57 @@ class TeleOp : OpMode() {
     private lateinit var frontRight: DcMotorEx
     private lateinit var backLeft: DcMotorEx
     private lateinit var backRight: DcMotorEx
+    private lateinit var outTake1: DcMotorEx
+    private lateinit var outTake2: DcMotorEx
     private lateinit var intakeServo1: CRServo
     private lateinit var intakeServo2: CRServo
-    private lateinit var camServo : Servo
+    private lateinit var bowlServo : Servo
+    private lateinit var camServo  : Servo
     val p = 10.toDouble()
     val i = 3.toDouble()
     val d = 0.toDouble()
     val f = 8.toDouble()
+    val lP1 = 0.059
+    val lP2 = 0.13
+    val lP3 = 0.204
+    val fP1 = 0.167
+    val fP2 = 0.02
+    val fP3 = 0.0945
+    var cLP = 1
     var driveSpeed = false
     var servoSpeed = 0.0
     var moveMode   = 0
+    var held = 0
     private var lastDpadLeftState = false
     private var lastDpadRightState = false
 
     override fun init() {
-        frontLeft  = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
-        frontRight = hardwareMap.get(DcMotorEx::class.java, "frontRight")
-        backLeft   = hardwareMap.get(DcMotorEx::class.java, "backLeft")
-        backRight  = hardwareMap.get(DcMotorEx::class.java, "backRight")
+        frontLeft        = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
+        frontRight       = hardwareMap.get(DcMotorEx::class.java, "frontRight")
+        backLeft         = hardwareMap.get(DcMotorEx::class.java, "backLeft")
+        backRight        = hardwareMap.get(DcMotorEx::class.java, "backRight")
+        outTake1         = hardwareMap.get(DcMotorEx::class.java, "outTake1")
+        outTake2         = hardwareMap.get(DcMotorEx::class.java, "outTake2")
         intakeServo1     = hardwareMap.get(CRServo::class.java, "intakeServo1")
         intakeServo2     = hardwareMap.get(CRServo::class.java, "intakeServo2")
-        camServo  = hardwareMap.get(Servo::class.java, "CamServo")
-        frontRight.direction = DcMotorSimple.Direction.REVERSE
-        backRight.direction  = DcMotorSimple.Direction.FORWARD
-        frontLeft.direction  = DcMotorSimple.Direction.REVERSE
-        backLeft.direction   = DcMotorSimple.Direction.FORWARD
+        bowlServo        = hardwareMap.get(Servo::class.java, "BowlServo")
+        camServo         = hardwareMap.get(Servo::class.java, "CamServo")
+        frontRight.direction       = DcMotorSimple.Direction.REVERSE
+        backRight.direction        = DcMotorSimple.Direction.FORWARD
+        frontLeft.direction        = DcMotorSimple.Direction.REVERSE
+        backLeft.direction         = DcMotorSimple.Direction.FORWARD
         intakeServo2.direction     = DcMotorSimple.Direction.REVERSE
+        outTake2.direction         = DcMotorSimple.Direction.REVERSE
         frontRight.setVelocityPIDFCoefficients(p, i, d, f)
         backRight.setVelocityPIDFCoefficients(p, i, d, f)
         frontLeft.setVelocityPIDFCoefficients(p, i, d, f)
         backLeft.setVelocityPIDFCoefficients(p, i, d, f)
         panels = PanelsTelemetry.telemetry
         resetEncoders()
+    }
+
+    override fun start() {
+        bowlServo.position = lP1
     }
 
     override fun loop() {
@@ -111,18 +131,56 @@ class TeleOp : OpMode() {
 
         when (moveMode) {
             0 -> {
-                camServo.position = 0.0
+                bowlServo.position = lP1
             }
             1 -> {
-                camServo.position = 0.5
+                bowlServo.position = lP2
             }
             2 -> {
-                camServo.position = 1.toDouble()
+                bowlServo.position = lP3
             }
         }
 
         panels?.addData("MoveMode", moveMode)
-        panels?.addData("MoveServo", camServo.position)
+        panels?.addData("MoveServo", bowlServo.position)
+
+        if (gamepad1.triangle) {
+            held = 1
+        }
+
+        when (held) {
+            0 -> { /* Do nothing */ }
+            1 -> {
+                outTake1.power = 0.3
+                outTake2.power = 0.3
+                sleep(1000)
+                bowlServo.position = fP1
+                sleep(1000)
+                camServo.position = 0.25
+                sleep(500)
+                camServo.position = 0.0
+                sleep(1000)
+                bowlServo.position = fP2
+                sleep(1000)
+                camServo.position = 0.25
+                sleep(500)
+                camServo.position = 0.0
+                sleep(1000)
+                bowlServo.position = fP3
+                sleep(1000)
+                camServo.position = 0.25
+                sleep(500)
+                camServo.position = 0.0
+                sleep(1000)
+                outTake1.power = 0.0
+                outTake2.power = 0.0
+                bowlServo.position = lP1
+                sleep(1000)
+                held = 0
+                return
+            }
+        }
+
         panels?.update()
     }
 
