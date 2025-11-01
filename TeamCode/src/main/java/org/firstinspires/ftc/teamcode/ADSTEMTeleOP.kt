@@ -8,6 +8,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServo
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
@@ -15,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 import java.lang.Thread.sleep
-import kotlin.collections.isEmpty
 
 @TeleOp
 class ADSTEMTeleOP : OpMode() {
@@ -72,6 +72,7 @@ class ADSTEMTeleOP : OpMode() {
             .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
             .build()
         panels?.addLine("Limelight init complete.")
+        resetMotors()
     }
 
     override fun start() {
@@ -150,7 +151,7 @@ class ADSTEMTeleOP : OpMode() {
 
         // Parse 6-float tuples
         val stride = 6
-        val targets = ArrayList<ADSTEMTeleOP.Target>(py.size / stride)
+        val targets = ArrayList<Target>(py.size / stride)
         var i = 0
         while (i + stride - 1 < py.size) {
             targets.add(
@@ -269,6 +270,9 @@ class ADSTEMTeleOP : OpMode() {
             panels?.addData("order 1", ord[0])
             panels?.addData("order 2", ord[1])
             panels?.addData("order 3", ord[2])
+            panels?.addData("expected order 1", eord[0])
+            panels?.addData("expected order 2", eord[1])
+            panels?.addData("expected order 3", eord[2])
             panels?.addLine("Best (by area)")
             panels?.addData(" colorId", it.colorId)
             panels?.addData(" tx(norm)", it.tx)
@@ -279,9 +283,7 @@ class ADSTEMTeleOP : OpMode() {
         }
 
         when (held) {
-            0 -> {
-                // Do nothing
-            }
+            0 -> { /* Do nothing */ }
             1 -> {
                 outTake1.power = 0.3
                 outTake2.power = 0.3
@@ -548,6 +550,15 @@ class ADSTEMTeleOP : OpMode() {
         }
 
         panels?.update()
+    }
+
+    fun resetMotors() {
+        outTake1.mode  = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        outTake1.mode  = DcMotor.RunMode.RUN_USING_ENCODER
+        outTake2.mode  = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        outTake2.mode  = DcMotor.RunMode.RUN_USING_ENCODER
+        outTake1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        outTake2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
 
     override fun stop() {

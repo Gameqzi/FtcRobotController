@@ -17,9 +17,9 @@ class TeleOp : OpMode() {
     private lateinit var frontRight: DcMotorEx
     private lateinit var backLeft: DcMotorEx
     private lateinit var backRight: DcMotorEx
-    private lateinit var servo1: CRServo
-    private lateinit var servo2: CRServo
-    private lateinit var moveServo : Servo
+    private lateinit var intakeServo1: CRServo
+    private lateinit var intakeServo2: CRServo
+    private lateinit var camServo : Servo
     val p = 10.toDouble()
     val i = 3.toDouble()
     val d = 0.toDouble()
@@ -35,14 +35,14 @@ class TeleOp : OpMode() {
         frontRight = hardwareMap.get(DcMotorEx::class.java, "frontRight")
         backLeft   = hardwareMap.get(DcMotorEx::class.java, "backLeft")
         backRight  = hardwareMap.get(DcMotorEx::class.java, "backRight")
-        servo1     = hardwareMap.get(CRServo::class.java, "Servo1")
-        servo2     = hardwareMap.get(CRServo::class.java, "Servo2")
-        moveServo  = hardwareMap.get(Servo::class.java, "MoveServo")
+        intakeServo1     = hardwareMap.get(CRServo::class.java, "intakeServo1")
+        intakeServo2     = hardwareMap.get(CRServo::class.java, "intakeServo2")
+        camServo  = hardwareMap.get(Servo::class.java, "CamServo")
         frontRight.direction = DcMotorSimple.Direction.REVERSE
         backRight.direction  = DcMotorSimple.Direction.FORWARD
         frontLeft.direction  = DcMotorSimple.Direction.REVERSE
         backLeft.direction   = DcMotorSimple.Direction.FORWARD
-        servo2.direction     = DcMotorSimple.Direction.REVERSE
+        intakeServo2.direction     = DcMotorSimple.Direction.REVERSE
         frontRight.setVelocityPIDFCoefficients(p, i, d, f)
         backRight.setVelocityPIDFCoefficients(p, i, d, f)
         frontLeft.setVelocityPIDFCoefficients(p, i, d, f)
@@ -69,16 +69,16 @@ class TeleOp : OpMode() {
 
         if (gamepad1.cross) {
             servoSpeed = 1.0
-            servo1.power = servoSpeed
-            servo2.power = servoSpeed
+            intakeServo1.power = servoSpeed
+            intakeServo2.power = servoSpeed
         } else if (gamepad1.circle) {
             servoSpeed = -1.0
-            servo1.power = servoSpeed
-            servo2.power = servoSpeed
+            intakeServo1.power = servoSpeed
+            intakeServo2.power = servoSpeed
         } else {
             servoSpeed = 0.0
-            servo1.power = servoSpeed
-            servo2.power = servoSpeed
+            intakeServo1.power = servoSpeed
+            intakeServo2.power = servoSpeed
         }
 
         if (!driveSpeed) {
@@ -111,18 +111,18 @@ class TeleOp : OpMode() {
 
         when (moveMode) {
             0 -> {
-                moveServo.position = 0.0
+                camServo.position = 0.0
             }
             1 -> {
-                moveServo.position = 0.5
+                camServo.position = 0.5
             }
             2 -> {
-                moveServo.position = 1.toDouble()
+                camServo.position = 1.toDouble()
             }
         }
 
         panels?.addData("MoveMode", moveMode)
-        panels?.addData("MoveServo", moveServo.position)
+        panels?.addData("MoveServo", camServo.position)
         panels?.update()
     }
 
