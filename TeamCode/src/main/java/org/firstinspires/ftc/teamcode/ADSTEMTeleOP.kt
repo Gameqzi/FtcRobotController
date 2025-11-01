@@ -36,7 +36,7 @@ class ADSTEMTeleOP : OpMode() {
     private lateinit var outTake1: DcMotorEx
     private lateinit var outTake2: DcMotorEx
     private lateinit var bowlServo: Servo
-    private lateinit var outServo: Servo
+    private lateinit var camServo: Servo
     private var visionPortal: VisionPortal? = null
     private var tagProcessor: AprilTagProcessor? = null
     private var anyTagSeen: Boolean = false
@@ -58,7 +58,7 @@ class ADSTEMTeleOP : OpMode() {
         outTake1 = hardwareMap.get(DcMotorEx::class.java, "outTake1")
         outTake2 = hardwareMap.get(DcMotorEx::class.java, "outTake2")
         bowlServo  = hardwareMap.get(Servo::class.java, "bowlServo")
-        outServo  = hardwareMap.get(Servo::class.java, "outServo")
+        camServo  = hardwareMap.get(Servo::class.java, "camServo")
         intakeServo2.direction = DcMotorSimple.Direction.REVERSE
         outTake2.direction = DcMotorSimple.Direction.REVERSE
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
@@ -76,8 +76,9 @@ class ADSTEMTeleOP : OpMode() {
     }
 
     override fun start() {
+        limelight.start()
         bowlServo.position = lP1
-        outServo.position = 0.0
+        camServo.position = 0.0
     }
 
     override fun loop() {
@@ -111,6 +112,10 @@ class ADSTEMTeleOP : OpMode() {
             }
         }
 
+        if (gamepad1.square) {
+            visionPortal?.resumeStreaming()
+        }
+
         if (gamepad1.cross) {
             servoSpeed = 1.0
             intakeServo1.power = servoSpeed
@@ -123,9 +128,6 @@ class ADSTEMTeleOP : OpMode() {
             servoSpeed = 0.0
             intakeServo1.power = servoSpeed
             intakeServo2.power = servoSpeed
-        }
-        if (gamepad1.triangle) {
-            held = 1
         }
 
         val result: LLResult? = limelight.latestResult
@@ -178,7 +180,7 @@ class ADSTEMTeleOP : OpMode() {
         best?.let {
             when (purpleCount) {
                 1 -> {
-                    if (it.width >= 280 && it.height >= 170) {
+                    if (it.width >= 250 && it.height >= 110 && it.ty > 0.55) {
                         // Fill the list array similar to color sensor logic
                         if (ord[0] == "N") {
                             // Check if already detected
@@ -214,6 +216,7 @@ class ADSTEMTeleOP : OpMode() {
                             // No more servo positions (already at lP3)
                         } else {
                             // List is full
+                            held = 1
                             return
                         }
 
@@ -223,7 +226,7 @@ class ADSTEMTeleOP : OpMode() {
             }
             when (greenCount) {
                 1 -> {
-                    if (it.width >= 280 && it.height >= 170) {
+                    if (it.width >= 250 && it.height >= 110 && it.ty > 0.55) {
                         // Fill the list array for green pieces
                         if (ord[0] == "N") {
                             // Check if green already detected
@@ -259,6 +262,7 @@ class ADSTEMTeleOP : OpMode() {
                             // No more servo positions (already at lP3)
                         } else {
                             // List is full
+                            held = 1
                             return
                         }
 
@@ -285,30 +289,30 @@ class ADSTEMTeleOP : OpMode() {
         when (held) {
             0 -> { /* Do nothing */ }
             1 -> {
-                outTake1.power = 0.3
-                outTake2.power = 0.3
+                outTake1.power = 0.2
+                outTake2.power = 0.2
                 sleep(1000)
                 if (ord[0] != "N" && ord[1] != "N" && ord[2] != "N") {
                     if (eord[0] == "G" && eord[1] == "P" && eord[2] == "P") {
                         if (ord.contentEquals(eord)) {
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -316,26 +320,28 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                         if (ord[0] == "P" && ord[1] == "P" && ord[2] == "G") {
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -343,26 +349,28 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                         if (ord[0] == "P" && ord[1] == "G" && ord[2] == "P") {
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -370,28 +378,30 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                     }
                     if (eord[0] == "P" && eord[1] == "G" && eord[2] == "P") {
                         if (ord.contentEquals(eord)) {
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -399,26 +409,28 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                         if (ord[0] == "P" && ord[1] == "P" && ord[2] == "G") {
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -426,26 +438,28 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                         if (ord[0] == "G" && ord[1] == "P" && ord[2] == "P") {
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -453,28 +467,30 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                     }
                     if (eord[0] == "P" && eord[1] == "P" && eord[2] == "G") {
                         if (ord.contentEquals(eord)) {
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -482,26 +498,28 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                         if (ord[0] == "P" && ord[1] == "G" && ord[2] == "P") {
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -509,26 +527,28 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                         if (ord[0] == "G" && ord[1] == "P" && ord[2] == "P") {
                             sleep(5000)
                             bowlServo.position = fP2
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP3
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             bowlServo.position = fP1
-                            sleep(1000)
-                            outServo.position = 0.25
+                            sleep(1500)
+                            camServo.position = 0.5
                             sleep(500)
-                            outServo.position = 0.0
+                            camServo.position = 0.0
                             sleep(5000)
                             eord[0] = ""
                             eord[1] = ""
@@ -536,6 +556,8 @@ class ADSTEMTeleOP : OpMode() {
                             ord[0] = "N"
                             ord[1] = "N"
                             ord[2] = "N"
+                            cLP = 1
+                            return
                         }
                     }
                 }
