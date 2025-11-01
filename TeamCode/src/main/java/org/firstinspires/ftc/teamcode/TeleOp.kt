@@ -141,9 +141,6 @@ class TeleOp : OpMode() {
             }
         }
 
-        panels?.addData("MoveMode", moveMode)
-        panels?.addData("MoveServo", bowlServo.position)
-
         if (gamepad1.triangle) {
             held = 1
         }
@@ -180,7 +177,8 @@ class TeleOp : OpMode() {
                 return
             }
         }
-
+        panels?.addData("MoveMode", moveMode)
+        panels?.addData("MoveServo", bowlServo.position)
         panels?.update()
     }
 
