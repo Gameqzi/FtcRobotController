@@ -4,11 +4,13 @@ import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
 import com.qualcomm.hardware.limelightvision.LLResult
 import com.qualcomm.hardware.limelightvision.Limelight3A
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
 import java.lang.Thread.sleep
 
+@Disabled
 @TeleOp(name = "Limelight 3A — Python Output (OpMode)", group = "Vision")
 class LimelightPythonOpMode : OpMode() {
     private var panels: TelemetryManager? = null

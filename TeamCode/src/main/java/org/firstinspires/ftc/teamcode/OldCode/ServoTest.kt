@@ -1,14 +1,14 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.OldCode
 
-import com.bylazar.configurables.annotations.Configurable
 import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
 import kotlin.concurrent.thread
 
-@Configurable
+@Disabled
 @TeleOp
 class ServoTest : OpMode() {
     var panels: TelemetryManager? = null

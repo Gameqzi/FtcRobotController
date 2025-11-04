@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.OldCode
 
 import com.bylazar.telemetry.PanelsTelemetry
 import com.bylazar.telemetry.TelemetryManager
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.json.JSONArray
@@ -13,6 +14,7 @@ import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
+@Disabled
 @TeleOp
 class LL3AResultsIterative : OpMode() {
     private var panels: TelemetryManager? = null

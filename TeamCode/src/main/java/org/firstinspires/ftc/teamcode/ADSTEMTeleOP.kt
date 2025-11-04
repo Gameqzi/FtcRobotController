@@ -16,6 +16,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 import java.lang.Thread.sleep
+import kotlin.math.max
+import kotlin.math.min
 
 @TeleOp
 class ADSTEMTeleOP : OpMode() {
@@ -51,6 +53,13 @@ class ADSTEMTeleOP : OpMode() {
     )
     private lateinit var limelight: Limelight3A
     private val stride = 6
+    @Volatile
+    var velocityModeInitialized = false
+    var velocityPowerScale = 0.85
+    val p = 10.toDouble()
+    val i = 3.toDouble()
+    val d = 0.toDouble()
+    val f = 8.toDouble()
     override fun init() {
         panels = PanelsTelemetry.telemetry
         intakeServo1 = hardwareMap.get(CRServo::class.java, "intakeServo1")
@@ -61,6 +70,8 @@ class ADSTEMTeleOP : OpMode() {
         camServo  = hardwareMap.get(Servo::class.java, "camServo")
         intakeServo2.direction = DcMotorSimple.Direction.REVERSE
         outTake2.direction = DcMotorSimple.Direction.REVERSE
+        outTake1.setVelocityPIDFCoefficients(p, i, d, f)
+        outTake2.setVelocityPIDFCoefficients(p, i, d, f)
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
         limelight.setPollRateHz(100)     // fast polling
         limelight.pipelineSwitch(0)      // <- change to your pipeline slot
@@ -289,8 +300,8 @@ class ADSTEMTeleOP : OpMode() {
         when (held) {
             0 -> { /* Do nothing */ }
             1 -> {
-                outTake1.power = 0.2
-                outTake2.power = 0.2
+                setMotorVelocityFromPseudoPower(outTake1, 0.2)
+                setMotorVelocityFromPseudoPower(outTake2, 0.2)
                 sleep(1000)
                 if (ord[0] != "N" && ord[1] != "N" && ord[2] != "N") {
                     if (eord[0] == "G" && eord[1] == "P" && eord[2] == "P") {
@@ -562,8 +573,8 @@ class ADSTEMTeleOP : OpMode() {
                     }
                 }
                 sleep(1000)
-                outTake1.power = 0.0
-                outTake2.power = 0.0
+                setMotorVelocityFromPseudoPower(outTake1, 0.0)
+                setMotorVelocityFromPseudoPower(outTake2, 0.0)
                 bowlServo.position = lP1
                 sleep(1000)
                 held = 0
@@ -581,6 +592,28 @@ class ADSTEMTeleOP : OpMode() {
         outTake2.mode  = DcMotor.RunMode.RUN_USING_ENCODER
         outTake1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         outTake2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+    }
+
+    private fun ensureVelocityMode() {
+        if (!velocityModeInitialized) {
+            outTake1.mode = DcMotor.RunMode.RUN_USING_ENCODER
+            outTake2.mode = DcMotor.RunMode.RUN_USING_ENCODER
+            velocityModeInitialized = true
+        }
+    }
+
+    private fun powerToTicksPerSecond(motor: DcMotorEx, power: Double): Double {
+        val clipped = max(-1.0, min(1.0, power))
+        val maxRpm = motor.motorType.maxRPM // no-load
+        val tpr = motor.motorType.ticksPerRev
+        val maxTicksPerSec = (maxRpm * tpr) / 60.0
+        return clipped * velocityPowerScale * maxTicksPerSec
+    }
+
+    private fun setMotorVelocityFromPseudoPower(motor: DcMotorEx, power: Double) {
+        ensureVelocityMode()
+        val tps = powerToTicksPerSecond(motor, power)
+        motor.velocity = tps
     }
 
     override fun stop() {
