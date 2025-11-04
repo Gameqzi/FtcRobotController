@@ -19,7 +19,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @TeleOp
-class TeleOp : OpMode() {
+class CleanTeleOpTest : OpMode() {
     // ========== HARDWARE ==========
     private var panels: TelemetryManager? = null
     private lateinit var frontLeft: DcMotorEx
