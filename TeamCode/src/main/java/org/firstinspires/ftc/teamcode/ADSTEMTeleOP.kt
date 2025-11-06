@@ -191,7 +191,7 @@ class ADSTEMTeleOP : OpMode() {
         best?.let {
             when (purpleCount) {
                 1 -> {
-                    if (it.width >= 250 && it.height >= 110 && it.ty > 0.55) {
+                    if (it.width >= 250 && it.height >= 110 && it.ty > 0.48) {
                         // Fill the list array similar to color sensor logic
                         if (ord[0] == "N") {
                             // Check if already detected
@@ -239,7 +239,7 @@ class ADSTEMTeleOP : OpMode() {
             }
             when (greenCount) {
                 1 -> {
-                    if (it.width >= 250 && it.height >= 110 && it.ty > 0.55) {
+                    if (it.width >= 250 && it.height >= 110 && it.ty > 0.48) {
                         // Fill the list array for green pieces
                         if (ord[0] == "N") {
                             // Check if green already detected
