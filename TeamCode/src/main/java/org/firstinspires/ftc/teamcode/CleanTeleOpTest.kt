@@ -290,7 +290,6 @@ class CleanTeleOpTest : OpMode() {
     }
 
     // ========== VISION DETECTION ==========
-
     private fun parsePythonOutput(py: DoubleArray): List<Target> {
         val stride = 6
         val targets = ArrayList<Target>()
@@ -371,6 +370,9 @@ class CleanTeleOpTest : OpMode() {
             2 -> {
                 bowlServo.position = ServoPositions.LOAD_P3
                 currentLoadPosition = 3
+            }
+            3 -> {
+                bowlServo.position = ServoPositions.FIRE_P2
             }
         }
     }
