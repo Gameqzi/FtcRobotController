@@ -184,7 +184,7 @@ class ForwardTuner extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(72,72));
+        follower.setStartingPose(new Pose(72,32.5, Math.toRadians(90)));
         follower.update();
         drawOnlyCurrent();
     }
@@ -232,7 +232,7 @@ class LateralTuner extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(72,72));
+        follower.setStartingPose(new Pose(56.02,34.25, Math.toRadians(90)));
         follower.update();
         drawOnlyCurrent();
     }

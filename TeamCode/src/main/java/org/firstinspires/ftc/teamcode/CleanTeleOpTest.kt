@@ -177,8 +177,8 @@ class CleanTeleOpTest : OpMode() {
         outTake2 = hardwareMap.get(DcMotorEx::class.java, "outTake2")
         intakeServo1 = hardwareMap.get(CRServo::class.java, "intakeServo1")
         intakeServo2 = hardwareMap.get(CRServo::class.java, "intakeServo2")
-        bowlServo = hardwareMap.get(Servo::class.java, "BowlServo")
-        camServo = hardwareMap.get(Servo::class.java, "CamServo")
+        bowlServo = hardwareMap.get(Servo::class.java, "bowlServo")
+        camServo = hardwareMap.get(Servo::class.java, "camServo")
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
     }
 
