@@ -6,7 +6,7 @@ import com.bylazar.telemetry.TelemetryManager
 import com.pedropathing.follower.Follower
 import com.pedropathing.geometry.BezierLine
 import com.pedropathing.geometry.Pose
-import com.pedropathing.paths.PathChain
+import com.pedropathing.paths.Path
 import com.pedropathing.util.Timer
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants
 
 @Autonomous(name = "Example Auto", group = "Examples")
 class PedroTest : OpMode() {
+
     @IgnoreConfigurable
     var panels: TelemetryManager? = null
 
@@ -24,15 +25,14 @@ class PedroTest : OpMode() {
 
     private var pathState: Int = 0
 
-    // Step Two: Initializing poses
     private val startPose   = Pose(84.7, 8.0, Math.toRadians(90.0))
-    private val pickup1Pose = Pose(84.7, 8.0, Math.toRadians(90.0))
+    private val pickup1Pose = Pose(96.7, 20.0, Math.toRadians(90.0))
 
-    // Step Three: Path Initializing
-    private lateinit var grabPickup1: PathChain
+    private lateinit var grabPickup1: Path
 
     override fun init() {
         panels = PanelsTelemetry.telemetry
+
         pathTimer = Timer()
         actionTimer = Timer()
         opmodeTimer = Timer()
@@ -55,25 +55,31 @@ class PedroTest : OpMode() {
         autonomousPathUpdate()
 
         val pose = follower.pose
-        panels?.addData("path state", pathState)
-        panels?.addData("x", pose.x)
-        panels?.addData("y", pose.y)
-        panels?.addData("heading", pose.heading)
-        panels?.update()
+
+        // Optional numeric telemetry to Panels
+        panels?.debug("path state", pathState)
+        panels?.debug("x", pose.x)
+        panels?.debug("y", pose.y)
+        panels?.debug("heading", Math.toDegrees(pose.heading))
+        panels?.debug("StartPose heading", Math.toDegrees(startPose.heading))
+        panels?.debug("PickupPose heading", Math.toDegrees(pickup1Pose.heading))
+        panels?.update(telemetry)
     }
 
     private fun buildPaths() {
-
-        grabPickup1 = follower.pathBuilder()
-            .addPath(BezierLine(startPose, pickup1Pose))
-            .setLinearHeadingInterpolation(startPose.heading, pickup1Pose.heading)
-            .build()
+        grabPickup1 = Path(BezierLine(startPose, pickup1Pose))
+        // End the turn ~80% of the way down the path
+        grabPickup1.setLinearHeadingInterpolation(
+            startPose.heading,
+            pickup1Pose.heading,
+            0.8
+        )
     }
 
     private fun autonomousPathUpdate() {
         when (pathState) {
             0 -> {
-                follower.followPath(grabPickup1, true)
+                follower.followPath(grabPickup1)
                 setPathState(1)
             }
         }
