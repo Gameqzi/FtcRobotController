@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -16,19 +18,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(8.89041)
+            .forwardZeroPowerAcceleration(-25.9346931313679598)
+            .lateralZeroPowerAcceleration(-67.342491844080064)
 
             // Primary XY position control
-            //.translationalPIDFCoefficients(new PIDFCoefficients(0.12, 0.0, 0.0007, 0.0))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.12, 0.0, 0.0007, 0.0))
+            .translationalPIDFSwitch(4)
             // Secondary translational PIDF (for finer correction)
-            //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
             // Primary heading control (rotation)
-            //.headingPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
             // Secondary heading control
-            //.secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.009, 0.0, 0.0005, 0.0))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.009, 0.0, 0.0005, 0.0))
             // Drive PIDF (helps keep velocity smooth)
-            //.drivePIDFCoefficients(new FilteredPIDFCoefficients(0.009, 0.0, 0.0005, 0.6, 0.0))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.009, 0.0, 0.0005, 0.6, 0.0))
             // Secondary drive PIDF
-            //.secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(.008, 0.0, 0.0004, 0.6, 0.0))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(.008, 0.0, 0.0004, 0.6, 0.0))
+            .drivePIDFSwitch(15)
 
 
             // Enable the secondary loops (these help smooth out motion)
@@ -37,7 +43,16 @@ public class Constants {
             .useSecondaryDrivePIDF(true);
 
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0.8, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(
+            0.995,
+            0.1,
+            0.1,
+            0.009,
+            50,
+            1.25,
+            10,
+            1
+    );
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(0.8)
@@ -48,7 +63,9 @@ public class Constants {
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .xVelocity(78.261926752421046666666666666667)
+            .yVelocity(61.494551922189565);
 
 
     /*public static DriveEncoderConstants localizerConstants = new DriveEncoderConstants()
@@ -72,7 +89,7 @@ public class Constants {
             .hardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
-            .offset(offset)
+            //.offset(offset)
             .linearScalar(0.9571582267593028)
             .angularScalar(0.9962755890624266);
 
