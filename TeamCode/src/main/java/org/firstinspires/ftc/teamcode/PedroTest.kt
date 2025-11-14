@@ -27,7 +27,7 @@ class PedroTest : OpMode() {
     private var pathState: Int = 0
 
     private val startPose =  Pose(72.0, 0.0, Math.toRadians(90.0))
-    private val pickup1 =    Pose(116.0, 35.0, Math.toRadians(360.0))
+    private val pickup1 =    Pose(116.0, 35.0, Math.toRadians(0.0))
     private val scoreBack =  Pose(70.0, 8.6, Math.toRadians(90.0))
 
     private lateinit var pickupPose1: Path
