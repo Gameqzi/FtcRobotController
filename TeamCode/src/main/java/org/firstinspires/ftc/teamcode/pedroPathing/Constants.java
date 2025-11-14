@@ -27,9 +27,9 @@ public class Constants {
             // Secondary translational PIDF (for finer correction)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
             // Primary heading control (rotation)
-            .headingPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.05, 0.0, 0.002, 0.0))
             // Secondary heading control
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.009, 0.0, 0.0005, 0.0))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.04, 0.0, 0.0015, 0.0))
             // Drive PIDF (helps keep velocity smooth)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.009, 0.0, 0.0005, 0.6, 0.0))
             // Secondary drive PIDF
