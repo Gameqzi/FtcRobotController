@@ -6,7 +6,7 @@ import com.bylazar.telemetry.TelemetryManager
 import com.pedropathing.follower.Follower
 import com.pedropathing.geometry.BezierCurve
 import com.pedropathing.geometry.Pose
-import com.pedropathing.paths.Path
+import com.pedropathing.paths.PathChain
 import com.pedropathing.util.Timer
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
@@ -28,10 +28,11 @@ class PedroTest : OpMode() {
 
     private val startPose =  Pose(72.0, 0.0, Math.toRadians(90.0))
     private val pickup1 =    Pose(116.0, 35.0, Math.toRadians(0.0))
+    //private val pickup1 =    Pose(72.0, 0.0, Math.toRadians(0.0))
     private val scoreBack =  Pose(70.0, 8.6, Math.toRadians(90.0))
 
-    private lateinit var pickupPose1: Path
-    private lateinit var returnPose: Path
+    private lateinit var pickupPose1: PathChain
+    private lateinit var returnPose: PathChain
 
     override fun init() {
         panels = PanelsTelemetry.telemetry
@@ -71,25 +72,22 @@ class PedroTest : OpMode() {
     }
 
     private fun buildPaths() {
-        /*pickupPose1 = follower.pathBuilder()
+        pickupPose1 = follower.pathBuilder()
             .addPath(BezierCurve(startPose, pickup1))
             .setLinearHeadingInterpolation(startPose.heading, pickup1.heading)
             .build()
+
         returnPose = follower.pathBuilder()
             .addPath(BezierCurve(pickup1, scoreBack))
             .setLinearHeadingInterpolation(pickup1.heading, scoreBack.heading)
-            .build()*/
-        pickupPose1 = Path(BezierCurve(startPose, pickup1))
-        pickupPose1.setLinearHeadingInterpolation(startPose.heading, pickup1.heading)
-        returnPose = Path(BezierCurve(pickup1, scoreBack))
-        returnPose.setLinearHeadingInterpolation(pickup1.heading, scoreBack.heading)
+            .build()
     }
 
     private fun autonomousPathUpdate() {
         when (pathState) {
             0 -> {
                 follower.followPath(pickupPose1, true)
-                setPathState(1)
+                //setPathState(1)
             }
             1 -> {
                 if (!follower.isBusy) {

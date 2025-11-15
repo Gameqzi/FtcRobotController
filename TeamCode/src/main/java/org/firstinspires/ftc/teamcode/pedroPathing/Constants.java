@@ -22,19 +22,52 @@ public class Constants {
             .lateralZeroPowerAcceleration(-67.342491844080064)
 
             // Primary XY position control
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.12, 0.0, 0.0007, 0.0))
+            .translationalPIDFCoefficients(new PIDFCoefficients(
+                    0.12,
+                    0.0,
+                    0.0007,
+                    0.0
+            ))
             .translationalPIDFSwitch(4)
             // Secondary translational PIDF (for finer correction)
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.010, 0.0, 0.0006, 0.0))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
+                    0.010,
+                    0.0,
+                    0.0008,
+                    0.0
+            ))
             // Primary heading control (rotation)
-            .headingPIDFCoefficients(new PIDFCoefficients(0.05, 0.0, 0.002, 0.0))
+            .headingPIDFCoefficients(new PIDFCoefficients(
+                    1.5,
+                    0.0,
+                    0.05,
+                    0.02
+            ))
             // Secondary heading control
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.04, 0.0, 0.0015, 0.0))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
+                    2.5,
+                    0.0,
+                    0.05,
+                    0.02
+            ))
             // Drive PIDF (helps keep velocity smooth)
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.009, 0.0, 0.0005, 0.6, 0.0))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(
+                    0.009,
+                    0.0,
+                    0.0005,
+                    0.6,
+                    0.0
+            ))
             // Secondary drive PIDF
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(.008, 0.0, 0.0004, 0.6, 0.0))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
+                    0.008,
+                    0.0,
+                    0.0004,
+                    0.6,
+                    0.0
+            ))
             .drivePIDFSwitch(15)
+            .headingPIDFSwitch(Math.toRadians(15))
 
 
             // Enable the secondary loops (these help smooth out motion)
