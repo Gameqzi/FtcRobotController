@@ -23,50 +23,29 @@ public class Constants {
 
             // Primary XY position control
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.12,
-                    0.0,
-                    0.0007,
-                    0.0
+                    0.08, 0.0, 0.0, 0.01
             ))
-            .translationalPIDFSwitch(4)
             // Secondary translational PIDF (for finer correction)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-                    0.010,
-                    0.0,
-                    0.0008,
-                    0.0
+                    0.12, 0.0, 0.013, 0.01
             ))
             // Primary heading control (rotation)
             .headingPIDFCoefficients(new PIDFCoefficients(
-                    1.5,
-                    0.0,
-                    0.05,
-                    0.02
+                    1.0, 0.1, 0.1, 0.01
             ))
-            // Secondary heading control
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
-                    2.5,
-                    0.0,
-                    0.05,
-                    0.02
+                    3.0, 0.0, 0.1, 0.01
             ))
             // Drive PIDF (helps keep velocity smooth)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.009,
-                    0.0,
-                    0.0005,
-                    0.6,
-                    0.0
+                    0.2, 0.0, 0.009, 0.0, 0.01
             ))
             // Secondary drive PIDF
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.008,
-                    0.0,
-                    0.0004,
-                    0.6,
-                    0.0
+                    0.5, 0.0, 0.12, 0.0, 0.01
             ))
-            .drivePIDFSwitch(15)
+            .drivePIDFSwitch(8)
+            .translationalPIDFSwitch(5)
             .headingPIDFSwitch(Math.toRadians(15))
 
 
@@ -88,7 +67,7 @@ public class Constants {
     );
 
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(0.8)
+            .maxPower(0.7)
             .rightFrontMotorName("frontRight")
             .rightRearMotorName("backRight")
             .leftRearMotorName("backLeft")

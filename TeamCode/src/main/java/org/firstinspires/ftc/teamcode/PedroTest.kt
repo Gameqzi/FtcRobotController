@@ -27,7 +27,7 @@ class PedroTest : OpMode() {
     private var pathState: Int = 0
 
     private val startPose =  Pose(72.0, 0.0, Math.toRadians(90.0))
-    private val pickup1 =    Pose(116.0, 35.0, Math.toRadians(0.0))
+    private val pickup1 =    Pose(86.5, 20.5, Math.toRadians(9.0))
     //private val pickup1 =    Pose(72.0, 0.0, Math.toRadians(0.0))
     private val scoreBack =  Pose(70.0, 8.6, Math.toRadians(90.0))
 
@@ -45,6 +45,7 @@ class PedroTest : OpMode() {
         follower = Constants.createFollower(hardwareMap)
         buildPaths()
         follower.setStartingPose(startPose)
+        follower.activateAllPIDFs()
     }
 
     override fun init_loop() {}
@@ -68,6 +69,7 @@ class PedroTest : OpMode() {
         panels?.debug("pathTimer", pathTimer.elapsedTimeSeconds)
         panels?.debug("actionTimer", actionTimer.elapsedTimeSeconds)
         panels?.debug("opmodeTimer", opmodeTimer.elapsedTimeSeconds)
+        panels?.debug("Heading error", follower.headingError)
         panels?.update(telemetry)
     }
 
@@ -87,7 +89,7 @@ class PedroTest : OpMode() {
         when (pathState) {
             0 -> {
                 follower.followPath(pickupPose1, true)
-                //setPathState(1)
+                setPathState(1)
             }
             1 -> {
                 if (!follower.isBusy) {
