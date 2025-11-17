@@ -28,7 +28,6 @@ class PedroTest : OpMode() {
 
     private val startPose =  Pose(72.0, 0.0, Math.toRadians(90.0))
     private val pickup1 =    Pose(86.5, 20.5, Math.toRadians(9.0))
-    //private val pickup1 =    Pose(72.0, 0.0, Math.toRadians(0.0))
     private val scoreBack =  Pose(70.0, 8.6, Math.toRadians(90.0))
 
     private lateinit var pickupPose1: PathChain
@@ -43,12 +42,10 @@ class PedroTest : OpMode() {
         opmodeTimer.resetTimer()
 
         follower = Constants.createFollower(hardwareMap)
-        buildPaths()
         follower.setStartingPose(startPose)
         follower.activateAllPIDFs()
+        buildPaths()
     }
-
-    override fun init_loop() {}
 
     override fun start() {
         opmodeTimer.resetTimer()
@@ -105,6 +102,4 @@ class PedroTest : OpMode() {
         pathState = pState
         pathTimer.resetTimer()
     }
-
-    override fun stop() {}
 }
