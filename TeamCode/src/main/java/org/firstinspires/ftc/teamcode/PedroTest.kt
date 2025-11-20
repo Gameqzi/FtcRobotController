@@ -25,7 +25,7 @@ import java.lang.Thread.sleep
 import kotlin.math.max
 import kotlin.math.min
 
-@Autonomous(name = "Example Auto", group = "Examples")
+@Autonomous(name = "Auto", group = "Main")
 class PedroTest : OpMode() {
 
     @IgnoreConfigurable
@@ -74,9 +74,9 @@ class PedroTest : OpMode() {
 
     object ServoPositions {
         // Loading positions
-        const val LOAD_P1 = 0.059
-        const val LOAD_P2 = 0.13
-        const val LOAD_P3 = 0.204
+        const val LOAD_P1 = 0.064
+        const val LOAD_P2 = 0.18
+        const val LOAD_P3 = 0.209
 
         // Firing/dispensing positions
         const val FIRE_P1 = 0.167
@@ -91,7 +91,7 @@ class PedroTest : OpMode() {
     object DetectionThresholds {
         const val MIN_WIDTH = 250.0
         const val MIN_HEIGHT = 110.0
-        const val MIN_Y_POSITION = 0.55
+        const val MIN_Y_POSITION = 0.44
     }
 
     object Timing {
@@ -172,9 +172,9 @@ class PedroTest : OpMode() {
         val height: Double
     ) {
         fun meetsDetectionThreshold() =
-            width >= CleanTeleOpTest.DetectionThresholds.MIN_WIDTH &&
-                    height >= CleanTeleOpTest.DetectionThresholds.MIN_HEIGHT &&
-                    ty > CleanTeleOpTest.DetectionThresholds.MIN_Y_POSITION
+            width >= DetectionThresholds.MIN_WIDTH &&
+                    height >= DetectionThresholds.MIN_HEIGHT &&
+                    ty > DetectionThresholds.MIN_Y_POSITION
     }
 
     private val currentOrder = GamePieceOrder()
@@ -226,6 +226,8 @@ class PedroTest : OpMode() {
         panels?.debug("actionTimer", actionTimer.elapsedTimeSeconds)
         panels?.debug("opmodeTimer", opmodeTimer.elapsedTimeSeconds)
         panels?.debug("Heading error", follower.headingError)
+        panels?.debug("EORD", expectedOrder)
+        panels?.debug("ORD", currentOrder)
         panels?.update(telemetry)
     }
 
@@ -375,6 +377,7 @@ class PedroTest : OpMode() {
                 panels?.addData(" area(px)", best.ta)
                 panels?.addData(" W", best.width)
                 panels?.addData(" H", best.height)
+                panels?.update(telemetry)
             }
         }
     }
@@ -419,7 +422,7 @@ class PedroTest : OpMode() {
         // Raise outtake
         setMotorVelocityFromPseudoPower(outTake1, 0.2)
         setMotorVelocityFromPseudoPower(outTake2, 0.2)
-        sleep(CleanTeleOpTest.Timing.OUTTAKE_DELAY)
+        sleep(Timing.OUTTAKE_DELAY)
 
         if (currentOrder.isFull() && !expectedOrder.isEmpty()) {
             val dispenseSequence = calculateDispenseSequence()
@@ -429,11 +432,11 @@ class PedroTest : OpMode() {
         }
 
         // Lower outtake and reset
-        sleep(CleanTeleOpTest.Timing.OUTTAKE_DELAY)
+        sleep(Timing.OUTTAKE_DELAY)
         setMotorVelocityFromPseudoPower(outTake1, 0.0)
         setMotorVelocityFromPseudoPower(outTake2, 0.0)
-        bowlServo.position = CleanTeleOpTest.ServoPositions.LOAD_P1
-        sleep(CleanTeleOpTest.Timing.OUTTAKE_DELAY)
+        bowlServo.position = ServoPositions.LOAD_P1
+        sleep(Timing.OUTTAKE_DELAY)
 
         dispensingState = 0
         currentLoadPosition = 1
@@ -528,6 +531,7 @@ class PedroTest : OpMode() {
         bowlServo = hardwareMap.get(Servo::class.java, "bowlServo")
         camServo = hardwareMap.get(Servo::class.java, "camServo")
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
+        bowlServo.position = ServoPositions.LOAD_P1
     }
 
     private fun setupMotorDirections() {
