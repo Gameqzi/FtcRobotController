@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.OldCode;
+package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.OldCode.Utils.sleep;
+import static org.firstinspires.ftc.teamcode.Utils.sleep;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+// !!!IMPORTANT!!! ::: THIS LIBRARY IS NOT FINISHED OR FULLY TESTED!!!
 
 //@SuppressWarnings("unused") // If a function is not used in any other code, the compiler labels if as "unused"
 public class DisplayUtils {
