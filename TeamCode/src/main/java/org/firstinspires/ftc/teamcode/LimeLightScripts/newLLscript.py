@@ -1,13 +1,15 @@
 import cv2
 import numpy as np
 
-# Optional: tune these on the Limelight (Values tab ➝ Numbers)
-GREEN_LOWER = np.array([60,  60,  60])
+# HSV color ranges for Limelight 3A
+# Green: H 40-80, S 60-255, V 60-200
+# Purple: H 125-155, S 20-200, V 180-255
+GREEN_LOWER = np.array([40,  60,  60])
 GREEN_UPPER = np.array([80, 255, 200])
-PURPLE_LOWER = np.array([85,  20,  180]) #225 40 255
-PURPLE_UPPER = np.array([145, 200, 200]) # 99 40 255
+PURPLE_LOWER = np.array([108, 66, 144])
+PURPLE_UPPER = np.array([148, 255, 202])
 
-MIN_AREA = 10000.0  # ignore tiny blobs
+MIN_AREA = 5000.0  # ignore tiny blobs
 
 def _append_target(flat_list, norm_x, norm_y, area, color_id, width, height):
     """Push six floats onto the llpython list."""

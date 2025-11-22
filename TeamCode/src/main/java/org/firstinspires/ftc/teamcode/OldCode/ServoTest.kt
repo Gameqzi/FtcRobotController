@@ -18,7 +18,7 @@ class ServoTest : OpMode() {
         var position = 0.toDouble()
     }
     override fun init() {
-        servo = hardwareMap.get(Servo::class.java, "Servo")
+        servo = hardwareMap.get(Servo::class.java, "bowlServo")
         panels = PanelsTelemetry.telemetry
         var t = thread(start = true, name = "ServoTelemetryThread") {
             while (!Thread.currentThread().isInterrupted) {

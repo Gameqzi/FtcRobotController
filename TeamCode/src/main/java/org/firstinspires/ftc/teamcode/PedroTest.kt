@@ -49,12 +49,12 @@ class PedroTest : OpMode() {
     private var pathState: Int = 0
 
     private val startPose    = Pose(72.0, 0.0, Math.toRadians(90.0))
-    private val pickupPoint5 = Pose(82.0, 19.5, Math.toRadians(9.0))
+    private val pickupPoint5 = Pose(82.0, 17.5, Math.toRadians(9.0))
     private val pickup1      = Pose(86.5, 24.0, Math.toRadians(0.0))
     private val pickup1Ball1 = Pose(92.8, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball2 = Pose(97.8, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball3 = Pose(102.8, 24.0, Math.toRadians(0.0))
-    private val scoreBack    = Pose(70.0, 8.6, Math.toRadians(90.0))
+    private val pickup1Ball2 = Pose(95.8, 24.0, Math.toRadians(0.0))
+    private val pickup1Ball3 = Pose(103.8, 24.0, Math.toRadians(0.0))
+    private val scoreBack    = Pose(74.0, 6.0, Math.toRadians(90.0))
 
     private lateinit var pickupPosePoint5: PathChain
     private lateinit var pickupPose1: PathChain
@@ -74,14 +74,14 @@ class PedroTest : OpMode() {
 
     object ServoPositions {
         // Loading positions
-        const val LOAD_P1 = 0.064
-        const val LOAD_P2 = 0.18
-        const val LOAD_P3 = 0.209
+        const val LOAD_P1 = 0.0
+        const val LOAD_P2 = 0.075
+        const val LOAD_P3 = 0.148
 
         // Firing/dispensing positions
-        const val FIRE_P1 = 0.167
-        const val FIRE_P2 = 0.02
-        const val FIRE_P3 = 0.0945
+        const val FIRE_P1 = 0.114
+        const val FIRE_P2 = 0.1845
+        const val FIRE_P3 = 0.258
 
         // Camera servo positions
         const val CAM_OPEN = 0.5
@@ -89,8 +89,8 @@ class PedroTest : OpMode() {
     }
 
     object DetectionThresholds {
-        const val MIN_WIDTH = 250.0
-        const val MIN_HEIGHT = 110.0
+        const val MIN_WIDTH = 200.0
+        const val MIN_HEIGHT = 90.0
         const val MIN_Y_POSITION = 0.44
     }
 
@@ -99,7 +99,7 @@ class PedroTest : OpMode() {
         const val BOWL_MOVE_DELAY = 1500L
         const val CAM_OPEN_DELAY = 500L
         const val CAM_CLOSE_DELAY = 5000L
-        const val DETECTION_COOLDOWN = 800L
+        const val DETECTION_COOLDOWN = 1300L
         const val OUTTAKE_DELAY = 1000L
     }
 
@@ -205,12 +205,9 @@ class PedroTest : OpMode() {
         setPathState(0)
     }
 
-    override fun init_loop() {
-        processAprilTags()
-    }
-
     override fun loop() {
         follower.update()
+        processAprilTags()
         autonomousPathUpdate()
         handleIntake()
         processVisionDetection()
@@ -222,12 +219,13 @@ class PedroTest : OpMode() {
         panels?.debug("x", pose.x)
         panels?.debug("y", pose.y)
         panels?.debug("heading", Math.toDegrees(pose.heading))
-        panels?.debug("pathTimer", pathTimer.elapsedTimeSeconds)
+        /*panels?.debug("pathTimer", pathTimer.elapsedTimeSeconds)
         panels?.debug("actionTimer", actionTimer.elapsedTimeSeconds)
         panels?.debug("opmodeTimer", opmodeTimer.elapsedTimeSeconds)
-        panels?.debug("Heading error", follower.headingError)
+        panels?.debug("Heading error", follower.headingError)*/
         panels?.debug("EORD", expectedOrder)
         panels?.debug("ORD", currentOrder)
+        panels?.debug("CLP", currentLoadPosition)
         panels?.update(telemetry)
     }
 
@@ -268,43 +266,50 @@ class PedroTest : OpMode() {
             0 -> {
                 follower.followPath(pickupPosePoint5, true)
                 setPathState(1)
+                sleep(5000)
             }
             1-> {
                 if (!follower.isBusy) {
                     follower.setMaxPower(0.2)
-                    sleep(2500)
                     follower.followPath(pickupPose1, true)
                     setPathState(2)
+                    sleep(5000)
                 }
             }
             2 -> {
-                intake = 1
                 if (!follower.isBusy) {
+                    intake = 1
                     follower.setMaxPower(0.2)
-                    sleep(2500)
                     follower.followPath(pickupPose1Ball1, true)
                     setPathState(3)
+                    sleep(5000)
                 }
             }
             3 -> {
                 if (!follower.isBusy) {
                     follower.setMaxPower(0.2)
-                    sleep(2500)
                     follower.followPath(pickupPose1Ball2, true)
                     setPathState(4)
+                    sleep(5000)
                 }
             }
             4 -> {
                 if (!follower.isBusy) {
                     follower.setMaxPower(0.2)
-                    sleep(2500)
                     follower.followPath(pickupPose1Ball3, true)
                     setPathState(5)
+                    sleep(5500)
                 }
             }
             5 -> {
-                sleep(5000)
-                intake = 0
+                if (!follower.isBusy) {
+                    follower.setMaxPower(0.6)
+                    follower.followPath(returnPose, true)
+                    setPathState(6)
+                }
+            }
+            6 -> {
+                /* Do nothing */
             }
         }
     }
@@ -345,7 +350,7 @@ class PedroTest : OpMode() {
     private fun processVisionDetection() {
         val result = limelight.latestResult ?: return
 
-        panels?.addData("Data age (ms)", result.staleness)
+        panels?.debug("Data age (ms)", result.staleness)
 
         val py = result.pythonOutput
         if (py == null || py.isEmpty()) {
@@ -357,9 +362,9 @@ class PedroTest : OpMode() {
         val greenCount = targets.count { it.colorId == ColorIds.GREEN }
         val purpleCount = targets.count { it.colorId == ColorIds.PURPLE }
 
-        panels?.addData("Targets", targets.size)
-        panels?.addData("Green", greenCount)
-        panels?.addData("Purple", purpleCount)
+        panels?.debug("Targets", targets.size)
+        panels?.debug("Green", greenCount)
+        panels?.debug("Purple", purpleCount)
 
         // Process best target
         targets.maxByOrNull { it.ta }?.let { best ->
@@ -371,12 +376,12 @@ class PedroTest : OpMode() {
 
                 // Display best target info
                 panels?.addLine("Best (by area)")
-                panels?.addData(" colorId", best.colorId)
-                panels?.addData(" tx(norm)", best.tx)
-                panels?.addData(" ty(norm)", best.ty)
-                panels?.addData(" area(px)", best.ta)
-                panels?.addData(" W", best.width)
-                panels?.addData(" H", best.height)
+                panels?.debug(" colorId", best.colorId)
+                panels?.debug(" tx(norm)", best.tx)
+                panels?.debug(" ty(norm)", best.ty)
+                panels?.debug(" area(px)", best.ta)
+                panels?.debug(" W", best.width)
+                panels?.debug(" H", best.height)
                 panels?.update(telemetry)
             }
         }
@@ -505,19 +510,22 @@ class PedroTest : OpMode() {
                     expectedOrder.slot1 = PieceColor.GREEN
                     expectedOrder.slot2 = PieceColor.PURPLE
                     expectedOrder.slot3 = PieceColor.PURPLE
-                    panels?.addLine("Detected Tag 21: GPP")
+                    panels?.debug("Detected Tag 21: GPP")
+                    panels?.update(telemetry)
                 }
                 AprilTagIds.PGP_ORDER -> {
                     expectedOrder.slot1 = PieceColor.PURPLE
                     expectedOrder.slot2 = PieceColor.GREEN
                     expectedOrder.slot3 = PieceColor.PURPLE
-                    panels?.addLine("Detected Tag 22: PGP")
+                    panels?.debug("Detected Tag 22: PGP")
+                    panels?.update(telemetry)
                 }
                 AprilTagIds.PPG_ORDER -> {
                     expectedOrder.slot1 = PieceColor.PURPLE
                     expectedOrder.slot2 = PieceColor.PURPLE
                     expectedOrder.slot3 = PieceColor.GREEN
-                    panels?.addLine("Detected Tag 23: PPG")
+                    panels?.debug("Detected Tag 23: PPG")
+                    panels?.update(telemetry)
                 }
             }
         }
