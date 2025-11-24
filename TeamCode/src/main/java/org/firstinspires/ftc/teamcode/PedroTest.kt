@@ -22,6 +22,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 import java.lang.Thread.sleep
+import kotlin.math.abs
+import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 
@@ -49,12 +51,12 @@ class PedroTest : OpMode() {
     private var pathState: Int = 0
 
     private val startPose    = Pose(72.0, 0.0, Math.toRadians(90.0))
-    private val pickupPoint5 = Pose(82.0, 17.5, Math.toRadians(9.0))
+    private val pickupPoint5 = Pose(80.0, 17.5, Math.toRadians(9.0))
     private val pickup1      = Pose(86.5, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball1 = Pose(92.8, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball2 = Pose(95.8, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball3 = Pose(103.8, 24.0, Math.toRadians(0.0))
-    private val scoreBack    = Pose(74.0, 6.0, Math.toRadians(90.0))
+    private val pickup1Ball1 = Pose(93.3, 24.0, Math.toRadians(0.0))
+    private val pickup1Ball2 = Pose(96.3, 24.0, Math.toRadians(0.0))
+    private val pickup1Ball3 = Pose(104.8, 24.0, Math.toRadians(0.0))
+    private val scoreBack    = Pose(74.0, 6.0, Math.toRadians(80.0))
 
     private lateinit var pickupPosePoint5: PathChain
     private lateinit var pickupPose1: PathChain
@@ -112,6 +114,16 @@ class PedroTest : OpMode() {
         const val GPP_ORDER = 21
         const val PGP_ORDER = 22
         const val PPG_ORDER = 23
+        const val RED_DEPO =  24
+    }
+
+    object DepoCenter {
+        const val DESIRED_TAG_WIDTH_PX = 110
+        const val ROTATE_POWER = 0.2
+        const val CAM_WIDTH_PX = 1280
+        const val CAM_HEIGHT_PX = 720
+        const val CENTER_DEADZONE = 15
+        const val KP_ROTATE = 0.003
     }
 
     private enum class PieceColor(val symbol: String) {
@@ -141,7 +153,7 @@ class PedroTest : OpMode() {
         fun contains(color: PieceColor) = slot1 == color || slot2 == color || slot3 == color
 
         fun addPiece(color: PieceColor): Boolean {
-            if (contains(color)) return false
+            //if (contains(color)) return false
 
             when {
                 slot1 == PieceColor.NONE -> { slot1 = color; return true }
@@ -264,41 +276,38 @@ class PedroTest : OpMode() {
     private fun autonomousPathUpdate() {
         when (pathState) {
             0 -> {
-                follower.followPath(pickupPosePoint5, true)
+                follower.followPath(pickupPosePoint5, false)
                 setPathState(1)
-                sleep(5000)
+                sleep(500)
             }
             1-> {
                 if (!follower.isBusy) {
                     follower.setMaxPower(0.2)
                     follower.followPath(pickupPose1, true)
                     setPathState(2)
-                    sleep(5000)
+                    sleep(500)
                 }
             }
             2 -> {
                 if (!follower.isBusy) {
                     intake = 1
-                    follower.setMaxPower(0.2)
                     follower.followPath(pickupPose1Ball1, true)
                     setPathState(3)
-                    sleep(5000)
+                    sleep(500)
                 }
             }
             3 -> {
                 if (!follower.isBusy) {
-                    follower.setMaxPower(0.2)
                     follower.followPath(pickupPose1Ball2, true)
                     setPathState(4)
-                    sleep(5000)
+                    sleep(1000)
                 }
             }
             4 -> {
                 if (!follower.isBusy) {
-                    follower.setMaxPower(0.2)
                     follower.followPath(pickupPose1Ball3, true)
                     setPathState(5)
-                    sleep(5500)
+                    sleep(1500)
                 }
             }
             5 -> {
@@ -306,10 +315,16 @@ class PedroTest : OpMode() {
                     follower.setMaxPower(0.6)
                     follower.followPath(returnPose, true)
                     setPathState(6)
+                    sleep(2000)
                 }
             }
             6 -> {
-                /* Do nothing */
+                intake = 0
+                centerDepo()
+            }
+            7 -> {
+                dispensingState = 1
+                handleDispensingStateMachine()
             }
         }
     }
@@ -411,12 +426,13 @@ class PedroTest : OpMode() {
             }
             3 -> {
                 bowlServo.position = ServoPositions.FIRE_P2
+                handleDispensingStateMachine()
             }
         }
     }
 
     // ========== DISPENSING STATE MACHINE ==========
-    /*private fun handleDispensingStateMachine() {
+    private fun handleDispensingStateMachine() {
         when (dispensingState) {
             0 -> { /* Idle - collecting pieces */ }
             1 -> executeDispensing()
@@ -424,9 +440,10 @@ class PedroTest : OpMode() {
     }
 
     private fun executeDispensing() {
+        lockRobot()
         // Raise outtake
-        setMotorVelocityFromPseudoPower(outTake1, 0.2)
-        setMotorVelocityFromPseudoPower(outTake2, 0.2)
+        setMotorVelocityFromPseudoPower(outTake1, 0.325)
+        setMotorVelocityFromPseudoPower(outTake2, 0.325)
         sleep(Timing.OUTTAKE_DELAY)
 
         if (currentOrder.isFull() && !expectedOrder.isEmpty()) {
@@ -447,7 +464,8 @@ class PedroTest : OpMode() {
         currentLoadPosition = 1
         currentOrder.reset()
         expectedOrder.reset()
-    }*/
+        unlockRobot(0.6)
+    }
 
     private fun calculateDispenseSequence(): List<Double>? {
         // Map: Expected pattern -> Current pattern -> Dispense sequence
@@ -531,6 +549,86 @@ class PedroTest : OpMode() {
         }
     }
 
+    private fun centerDepo() {
+        val detections = tagProcessor?.detections.orEmpty()
+
+        // Find the RED_DEPO tag
+        val target = detections.firstOrNull { it.id == AprilTagIds.RED_DEPO }
+
+        if (target == null) {
+            panels?.debug("RED_DEPO tag not in view")
+            panels?.update(telemetry)
+            return
+        }
+
+        println("Function is running")
+        panels?.debug("function is running")
+
+        // Horizontal pixel error from image center
+        val xErrPx: Double = target.center.x - (DepoCenter.CAM_WIDTH_PX / 2.0)
+
+        // Tag width in pixels (you can use this later for distance control)
+        val tagWidthPx = hypot(
+            target.corners[1].x - target.corners[0].x,
+            target.corners[1].y - target.corners[0].y
+        )
+        val widthErrPx = DepoCenter.DESIRED_TAG_WIDTH_PX - tagWidthPx
+
+        // If we're close enough to the center, don't command any more turns
+        if (abs(xErrPx) <= DepoCenter.CENTER_DEADZONE) {
+            panels?.debug("Centered on tag")
+            panels?.debug("xErrPx", xErrPx)
+            panels?.debug("tagWidthPx", tagWidthPx)
+            panels?.debug("widthErrPx", widthErrPx)
+            panels?.update(telemetry)
+            setPathState(7)
+            return
+        }
+
+        // --- Pixel error -> angle error ---
+
+        // Approximate horizontal FOV of your webcam (tune this if needed)
+        val hFovDeg = 70.0
+        val hFovRad = Math.toRadians(hFovDeg)
+
+        // How many radians of angle correspond to 1 pixel of x error
+        val pixelsToRad = hFovRad / DepoCenter.CAM_WIDTH_PX
+
+        // Angle error in radians (how far off-center the tag is)
+        val angleError = xErrPx * pixelsToRad
+
+        // Limit how aggressively we change the target heading each loop
+        val maxTurnStepDeg = 10.0
+        val maxTurnStepRad = Math.toRadians(maxTurnStepDeg)
+
+        val turnStep = clip(
+            angleError,
+            -maxTurnStepRad,
+            maxTurnStepRad
+        )
+
+        val currentHeading = follower.pose.heading
+
+        // If the tag is to the right (xErrPx > 0), we want to turn right (negative angle),
+        // so we SUBTRACT the step from the current heading.
+        val targetHeading = currentHeading - turnStep
+
+        follower.turnTo(targetHeading)
+
+        panels?.debug("Tag in view")
+        panels?.debug("xErrPx", xErrPx)
+        panels?.debug("tagWidthPx", tagWidthPx)
+        panels?.debug("widthErrPx", widthErrPx)
+        panels?.debug("angleErrorRad", angleError)
+        panels?.debug("turnStepRad", turnStep)
+        panels?.debug("targetHeading", targetHeading)
+        panels?.update(telemetry)
+    }
+
+    private fun clip(v: Double, min: Double, max: Double): Double {
+        return max(min, min(max, v))
+    }
+
     private fun initializeHardware() {
         outTake1 = hardwareMap.get(DcMotorEx::class.java, "outTake1")
         outTake2 = hardwareMap.get(DcMotorEx::class.java, "outTake2")
@@ -572,6 +670,17 @@ class PedroTest : OpMode() {
         ensureVelocityMode()
         motor.velocity = powerToTicksPerSecond(motor, power)
     }
+
+    private fun lockRobot() {
+        follower.pausePathFollowing()
+        follower.setMaxPower(0.0)
+    }
+
+    private fun unlockRobot(maxPower: Double) {
+        follower.setMaxPower(maxPower)
+        follower.resumePathFollowing()
+    }
+
 
     private fun setPathState(pState: Int) {
         pathState = pState
