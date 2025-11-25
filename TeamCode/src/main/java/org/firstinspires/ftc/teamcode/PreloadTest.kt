@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode
-
 import android.util.Size
 import com.bylazar.configurables.annotations.IgnoreConfigurable
 import com.bylazar.telemetry.PanelsTelemetry
@@ -10,8 +9,8 @@ import com.pedropathing.geometry.Pose
 import com.pedropathing.paths.PathChain
 import com.pedropathing.util.Timer
 import com.qualcomm.hardware.limelightvision.Limelight3A
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -26,18 +25,14 @@ import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
-
-@Autonomous(name = "Auto", group = "Main")
-class PedroTest : OpMode() {
-
+@TeleOp
+class PreloadTest : OpMode() {
     @IgnoreConfigurable
     var panels: TelemetryManager? = null
-
     private lateinit var follower: Follower
     private lateinit var pathTimer: Timer
     private lateinit var actionTimer: Timer
     private lateinit var opmodeTimer: Timer
-
     private lateinit var outTake1: DcMotorEx
     private lateinit var outTake2: DcMotorEx
     private lateinit var intakeServo1: CRServo
@@ -45,26 +40,12 @@ class PedroTest : OpMode() {
     private lateinit var bowlServo: Servo
     private lateinit var camServo: Servo
     private lateinit var limelight: Limelight3A
+    private val startPose = Pose(72.0, 0.0, Math.toRadians(90.0))
+    private val preloadPose = Pose(74.0, 6.0, Math.toRadians(80.0))
+    private lateinit var preloadPose1: PathChain
     private var visionPortal: VisionPortal? = null
     private var tagProcessor: AprilTagProcessor? = null
-
     private var pathState: Int = 0
-
-    private val startPose    = Pose(72.0, 0.0, Math.toRadians(90.0))
-    private val pickupPoint5 = Pose(80.0, 17.5, Math.toRadians(9.0))
-    private val pickup1      = Pose(86.5, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball1 = Pose(93.3, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball2 = Pose(96.3, 24.0, Math.toRadians(0.0))
-    private val pickup1Ball3 = Pose(104.8, 24.0, Math.toRadians(0.0))
-    private val scoreBack    = Pose(74.0, 10.0, Math.toRadians(73.0))
-
-    private lateinit var pickupPosePoint5: PathChain
-    private lateinit var pickupPose1: PathChain
-    private lateinit var pickupPose1Ball1: PathChain
-    private lateinit var pickupPose1Ball2: PathChain
-    private lateinit var pickupPose1Ball3: PathChain
-    private lateinit var returnPose: PathChain
-
     private var dispensingState = 0
     private val pidP = 10.0
     private val pidI = 3.0
@@ -73,29 +54,21 @@ class PedroTest : OpMode() {
     private var velocityModeInitialized = false
     private var velocityPowerScale = 0.95
     private var intake = 0
-
     object ServoPositions {
-        // Loading positions
         const val LOAD_P1 = 0.0
         const val LOAD_P2 = 0.075
         const val LOAD_P3 = 0.148
-
-        // Firing/dispensing positions
         const val FIRE_P1 = 0.114
         const val FIRE_P2 = 0.1845
         const val FIRE_P3 = 0.258
-
-        // Camera servo positions
         const val CAM_OPEN = 0.5
         const val CAM_CLOSED = 0.0
     }
-
     object DetectionThresholds {
         const val MIN_WIDTH = 200.0
         const val MIN_HEIGHT = 90.0
         const val MIN_Y_POSITION = 0.44
     }
-
     object Timing {
         const val DISPENSE_INITIAL_DELAY = 3000L
         const val BOWL_MOVE_DELAY = 1300L
@@ -104,19 +77,16 @@ class PedroTest : OpMode() {
         const val DETECTION_COOLDOWN = 1300L
         const val OUTTAKE_DELAY = 1000L
     }
-
     object ColorIds {
         const val GREEN = 1
         const val PURPLE = 2
     }
-
     object AprilTagIds {
         const val GPP_ORDER = 21
         const val PGP_ORDER = 22
         const val PPG_ORDER = 23
         const val RED_DEPO =  24
     }
-
     object DepoCenter {
         const val DESIRED_TAG_WIDTH_PX = 110
         const val ROTATE_POWER = 0.2
@@ -126,18 +96,15 @@ class PedroTest : OpMode() {
         const val KP_ROTATE = 0.003
         const val OUTTAKE_SPEED = 0.308
     }
-
     private enum class PieceColor(val symbol: String) {
         NONE("N"),
         GREEN("G"),
         PURPLE("P");
-
         companion object {
             fun fromString(s: String): PieceColor =
-                entries.find { it.symbol == s } ?: NONE  // Changed from values() to entries
+                entries.find { it.symbol == s } ?: NONE
         }
     }
-
     private data class GamePieceOrder(
         var slot1: PieceColor = PieceColor.NONE,
         var slot2: PieceColor = PieceColor.NONE,
@@ -146,15 +113,11 @@ class PedroTest : OpMode() {
         fun isFull() = slot1 != PieceColor.NONE &&
                 slot2 != PieceColor.NONE &&
                 slot3 != PieceColor.NONE
-
         fun isEmpty() = slot1 == PieceColor.NONE &&
                 slot2 == PieceColor.NONE &&
                 slot3 == PieceColor.NONE
-
         fun contains(color: PieceColor) = slot1 == color || slot2 == color || slot3 == color
-
         fun addPiece(color: PieceColor): Boolean {
-            //if (contains(color)) return false
 
             when {
                 slot1 == PieceColor.NONE -> { slot1 = color; return true }
@@ -163,19 +126,15 @@ class PedroTest : OpMode() {
             }
             return false
         }
-
         fun reset() {
             slot1 = PieceColor.NONE
             slot2 = PieceColor.NONE
             slot3 = PieceColor.NONE
         }
-
         fun matches(expected: GamePieceOrder) =
             slot1 == expected.slot1 && slot2 == expected.slot2 && slot3 == expected.slot3
-
         override fun toString() = "${slot1.symbol}${slot2.symbol}${slot3.symbol}"
     }
-
     data class Target(
         val tx: Double,
         val ty: Double,
@@ -189,147 +148,105 @@ class PedroTest : OpMode() {
                     height >= DetectionThresholds.MIN_HEIGHT &&
                     ty > DetectionThresholds.MIN_Y_POSITION
     }
-
     private val currentOrder = GamePieceOrder()
     private val expectedOrder = GamePieceOrder()
     private var currentLoadPosition = 1
-
     override fun init() {
         initializeHardware()
         initializePedroPathing()
     }
-
     override fun start() {
         limelight.start()
         opmodeTimer.resetTimer()
         setPathState(0)
     }
-
     override fun loop() {
         follower.update()
         processAprilTags()
-        autonomousPathUpdate()
-        handleIntake()
-        processVisionDetection()
-
-        val pose = follower.pose
-
-        // Optional numeric telemetry to Panels
-        panels?.debug("path state", pathState)
-        panels?.debug("x", pose.x)
-        panels?.debug("y", pose.y)
-        panels?.debug("heading", Math.toDegrees(pose.heading))
-        /*panels?.debug("pathTimer", pathTimer.elapsedTimeSeconds)
-        panels?.debug("actionTimer", actionTimer.elapsedTimeSeconds)
-        panels?.debug("opmodeTimer", opmodeTimer.elapsedTimeSeconds)
-        panels?.debug("Heading error", follower.headingError)*/
-        panels?.debug("EORD", expectedOrder)
-        panels?.debug("ORD", currentOrder)
-        panels?.debug("CLP", currentLoadPosition)
-        panels?.update(telemetry)
+        advanceRun()
     }
-
     private fun buildPaths() {
-        pickupPosePoint5 = follower.pathBuilder()
-            .addPath(BezierCurve(startPose, pickupPoint5))
-            .setLinearHeadingInterpolation(startPose.heading, pickupPoint5.heading)
-            .build()
-
-        pickupPose1 = follower.pathBuilder()
-            .addPath(BezierCurve(pickupPoint5, pickup1))
-            .setLinearHeadingInterpolation(pickupPoint5.heading, pickup1.heading)
-            .build()
-
-        pickupPose1Ball1 = follower.pathBuilder()
-            .addPath(BezierCurve(pickup1, pickup1Ball1))
-            .setLinearHeadingInterpolation(pickup1.heading, pickup1Ball1.heading)
-            .build()
-
-        pickupPose1Ball2 = follower.pathBuilder()
-            .addPath(BezierCurve(pickup1Ball1, pickup1Ball2))
-            .setLinearHeadingInterpolation(pickup1Ball1.heading, pickup1Ball2.heading)
-            .build()
-
-        pickupPose1Ball3 = follower.pathBuilder()
-            .addPath(BezierCurve(pickup1Ball2, pickup1Ball3))
-            .setLinearHeadingInterpolation(pickup1Ball2.heading, pickup1Ball3.heading)
-            .build()
-
-        returnPose = follower.pathBuilder()
-            .addPath(BezierCurve(pickup1Ball3, scoreBack))
-            .setLinearHeadingInterpolation(pickup1Ball3.heading, scoreBack.heading)
+        preloadPose1 = follower.pathBuilder()
+            .addPath(BezierCurve(startPose, preloadPose))
+            .setLinearHeadingInterpolation(startPose.heading, preloadPose.heading)
             .build()
     }
-
-    private fun autonomousPathUpdate() {
+    private fun advanceRun() {
         when (pathState) {
             0 -> {
-                follower.followPath(pickupPosePoint5, false)
+                follower.followPath(preloadPose1, true)
                 setPathState(1)
-                sleep(500)
             }
-            1-> {
+            1 -> {
                 if (!follower.isBusy) {
-                    follower.setMaxPower(0.2)
-                    follower.followPath(pickupPose1, true)
                     setPathState(2)
-                    sleep(500)
                 }
             }
             2 -> {
-                if (!follower.isBusy) {
-                    intake = 1
-                    follower.followPath(pickupPose1Ball1, true)
+                if (pathTimer.elapsedTimeSeconds > 0.5) {
                     setPathState(3)
-                    sleep(500)
                 }
             }
             3 -> {
-                if (!follower.isBusy) {
-                    follower.followPath(pickupPose1Ball2, true)
-                    setPathState(4)
-                    sleep(1000)
-                }
-            }
-            4 -> {
-                if (!follower.isBusy) {
-                    follower.followPath(pickupPose1Ball3, true)
-                    setPathState(5)
-                    sleep(1500)
-                }
-            }
-            5 -> {
-                if (!follower.isBusy) {
-                    follower.setMaxPower(0.6)
-                    follower.followPath(returnPose, true)
-                    setPathState(6)
-                    sleep(2000)
-                }
-            }
-            6 -> {
-                intake = 0
                 centerDepo()
             }
-            7 -> {
+            4 -> {
                 dispensingState = 1
                 handleDispensingStateMachine()
             }
         }
     }
-
-    private fun handleIntake() {
-        when (intake) {
-            0 -> {
-                intakeServo1.power = 0.0
-                intakeServo2.power = 0.0
-            }
-            1 -> {
-                intakeServo1.power = 1.0
-                intakeServo2.power = 1.0
-            }
+    private fun centerDepo() {
+        val detections = tagProcessor?.detections.orEmpty()
+        val target = detections.firstOrNull { it.id == AprilTagIds.RED_DEPO }
+        if (target == null) {
+            panels?.debug("RED_DEPO tag not in view")
+            panels?.update(telemetry)
+            return
         }
+        println("Function is running")
+        panels?.debug("function is running")
+        val xErrPx: Double = target.center.x - (DepoCenter.CAM_WIDTH_PX / 2.0)
+        val tagWidthPx = hypot(
+            target.corners[1].x - target.corners[0].x,
+            target.corners[1].y - target.corners[0].y
+        )
+        val widthErrPx = DepoCenter.DESIRED_TAG_WIDTH_PX - tagWidthPx
+        if (abs(xErrPx) <= DepoCenter.CENTER_DEADZONE) {
+            panels?.debug("Centered on tag")
+            panels?.debug("xErrPx", xErrPx)
+            panels?.debug("tagWidthPx", tagWidthPx)
+            panels?.debug("widthErrPx", widthErrPx)
+            panels?.update(telemetry)
+            setPathState(4)
+            return
+        }
+        val hFovDeg = 70.0
+        val hFovRad = Math.toRadians(hFovDeg)
+        val pixelsToRad = hFovRad / DepoCenter.CAM_WIDTH_PX
+        val angleError = xErrPx * pixelsToRad
+        val maxTurnStepDeg = 10.0
+        val maxTurnStepRad = Math.toRadians(maxTurnStepDeg)
+        val turnStep = clip(
+            angleError,
+            -maxTurnStepRad,
+            maxTurnStepRad
+        )
+        val currentHeading = follower.pose.heading
+        val targetHeading = currentHeading - turnStep
+        follower.turnTo(targetHeading)
+        panels?.debug("Tag in view")
+        panels?.debug("xErrPx", xErrPx)
+        panels?.debug("tagWidthPx", tagWidthPx)
+        panels?.debug("widthErrPx", widthErrPx)
+        panels?.debug("angleErrorRad", angleError)
+        panels?.debug("turnStepRad", turnStep)
+        panels?.debug("targetHeading", targetHeading)
+        panels?.update(telemetry)
     }
-
+    private fun clip(v: Double, min: Double, max: Double): Double {
+        return max(min, min(max, v))
+    }
     private fun parsePythonOutput(py: DoubleArray): List<Target> {
         val stride = 6
         val targets = ArrayList<Target>()
@@ -349,35 +266,26 @@ class PedroTest : OpMode() {
         }
         return targets
     }
-
     private fun processVisionDetection() {
         val result = limelight.latestResult ?: return
-
         panels?.debug("Data age (ms)", result.staleness)
-
         val py = result.pythonOutput
         if (py == null || py.isEmpty()) {
             panels?.addLine("Python output empty")
             return
         }
-
         val targets = parsePythonOutput(py)
         val greenCount = targets.count { it.colorId == ColorIds.GREEN }
         val purpleCount = targets.count { it.colorId == ColorIds.PURPLE }
-
         panels?.debug("Targets", targets.size)
         panels?.debug("Green", greenCount)
         panels?.debug("Purple", purpleCount)
-
-        // Process best target
         targets.maxByOrNull { it.ta }?.let { best ->
             if (best.meetsDetectionThreshold()) {
                 when (best.colorId) {
                     ColorIds.GREEN -> attemptAddPiece(PieceColor.GREEN)
                     ColorIds.PURPLE -> attemptAddPiece(PieceColor.PURPLE)
                 }
-
-                // Display best target info
                 panels?.addLine("Best (by area)")
                 panels?.debug(" colorId", best.colorId)
                 panels?.debug(" tx(norm)", best.tx)
@@ -389,19 +297,16 @@ class PedroTest : OpMode() {
             }
         }
     }
-
     private fun attemptAddPiece(color: PieceColor) {
         if (currentOrder.isFull()) {
             dispensingState = 1
             return
         }
-
         if (currentOrder.addPiece(color)) {
             advanceBowlPosition()
             sleep(Timing.DETECTION_COOLDOWN)
         }
     }
-
     private fun advanceBowlPosition() {
         when (currentLoadPosition) {
             1 -> {
@@ -418,45 +323,35 @@ class PedroTest : OpMode() {
             }
         }
     }
-
-    // ========== DISPENSING STATE MACHINE ==========
     private fun handleDispensingStateMachine() {
         when (dispensingState) {
-            0 -> { /* Idle - collecting pieces */ }
+            0 -> {}
             1 -> executeDispensing()
         }
     }
-
     private fun executeDispensing() {
         lockRobot()
-        // Raise outtake
         setMotorVelocityFromPseudoPower(outTake1, DepoCenter.OUTTAKE_SPEED)
         setMotorVelocityFromPseudoPower(outTake2, DepoCenter.OUTTAKE_SPEED)
         sleep(Timing.OUTTAKE_DELAY)
-
         if (currentOrder.isFull() && !expectedOrder.isEmpty()) {
             val dispenseSequence = calculateDispenseSequence()
             if (dispenseSequence != null) {
                 executeDispenseSequence(dispenseSequence)
             }
         }
-
-        // Lower outtake and reset
         sleep(Timing.OUTTAKE_DELAY)
         setMotorVelocityFromPseudoPower(outTake1, 0.0)
         setMotorVelocityFromPseudoPower(outTake2, 0.0)
         bowlServo.position = ServoPositions.LOAD_P1
         sleep(Timing.OUTTAKE_DELAY)
-
         dispensingState = 0
         currentLoadPosition = 1
         currentOrder.reset()
         expectedOrder.reset()
         unlockRobot(0.6)
     }
-
     private fun calculateDispenseSequence(): List<Double>? {
-        // Map: Expected pattern -> Current pattern -> Dispense sequence
         val sequenceMap = mapOf(
             "GPP" to mapOf(
                 "GPP" to listOf(ServoPositions.FIRE_P1, ServoPositions.FIRE_P2, ServoPositions.FIRE_P3),
@@ -474,42 +369,22 @@ class PedroTest : OpMode() {
                 "GPP" to listOf(ServoPositions.FIRE_P2, ServoPositions.FIRE_P3, ServoPositions.FIRE_P1)
             )
         )
-
         return sequenceMap[expectedOrder.toString()]?.get(currentOrder.toString())
     }
-
     private fun executeDispenseSequence(positions: List<Double>) {
         sleep(Timing.DISPENSE_INITIAL_DELAY)
-
         positions.forEach { position ->
             bowlServo.position = position
             sleep(Timing.BOWL_MOVE_DELAY)
-
-            // Trigger cam servo
             camServo.position = ServoPositions.CAM_OPEN
             sleep(Timing.CAM_OPEN_DELAY)
             camServo.position = ServoPositions.CAM_CLOSED
             sleep(Timing.CAM_CLOSE_DELAY)
         }
     }
-
-    private fun setupVision() {
-        limelight.setPollRateHz(100)
-        limelight.pipelineSwitch(0)
-
-        tagProcessor = AprilTagProcessor.easyCreateWithDefaults()
-        visionPortal = VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
-            .addProcessor(tagProcessor)
-            .setCameraResolution(Size(1280, 720))
-            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-            .build()
-    }
-
     private fun processAprilTags() {
         val detections = tagProcessor?.detections.orEmpty()
         val tagIds = detections.map { it.id }
-
         tagIds.firstOrNull()?.let { id ->
             when (id) {
                 AprilTagIds.GPP_ORDER -> {
@@ -530,87 +405,6 @@ class PedroTest : OpMode() {
             }
         }
     }
-
-    private fun centerDepo() {
-        val detections = tagProcessor?.detections.orEmpty()
-
-        // Find the RED_DEPO tag
-        val target = detections.firstOrNull { it.id == AprilTagIds.RED_DEPO }
-
-        if (target == null) {
-            panels?.debug("RED_DEPO tag not in view")
-            panels?.update(telemetry)
-            return
-        }
-
-        println("Function is running")
-        panels?.debug("function is running")
-
-        // Horizontal pixel error from image center
-        val xErrPx: Double = target.center.x - (DepoCenter.CAM_WIDTH_PX / 2.0)
-
-        // Tag width in pixels (you can use this later for distance control)
-        val tagWidthPx = hypot(
-            target.corners[1].x - target.corners[0].x,
-            target.corners[1].y - target.corners[0].y
-        )
-        val widthErrPx = DepoCenter.DESIRED_TAG_WIDTH_PX - tagWidthPx
-
-        // If we're close enough to the center, don't command any more turns
-        if (abs(xErrPx) <= DepoCenter.CENTER_DEADZONE) {
-            panels?.debug("Centered on tag")
-            panels?.debug("xErrPx", xErrPx)
-            panels?.debug("tagWidthPx", tagWidthPx)
-            panels?.debug("widthErrPx", widthErrPx)
-            panels?.update(telemetry)
-            setPathState(7)
-            return
-        }
-
-        // --- Pixel error -> angle error ---
-
-        // Approximate horizontal FOV of your webcam (tune this if needed)
-        val hFovDeg = 70.0
-        val hFovRad = Math.toRadians(hFovDeg)
-
-        // How many radians of angle correspond to 1 pixel of x error
-        val pixelsToRad = hFovRad / DepoCenter.CAM_WIDTH_PX
-
-        // Angle error in radians (how far off-center the tag is)
-        val angleError = xErrPx * pixelsToRad
-
-        // Limit how aggressively we change the target heading each loop
-        val maxTurnStepDeg = 10.0
-        val maxTurnStepRad = Math.toRadians(maxTurnStepDeg)
-
-        val turnStep = clip(
-            angleError,
-            -maxTurnStepRad,
-            maxTurnStepRad
-        )
-
-        val currentHeading = follower.pose.heading
-
-        // If the tag is to the right (xErrPx > 0), we want to turn right (negative angle),
-        // so we SUBTRACT the step from the current heading.
-        val targetHeading = currentHeading - turnStep
-
-        follower.turnTo(targetHeading)
-
-        panels?.debug("Tag in view")
-        panels?.debug("xErrPx", xErrPx)
-        panels?.debug("tagWidthPx", tagWidthPx)
-        panels?.debug("widthErrPx", widthErrPx)
-        panels?.debug("angleErrorRad", angleError)
-        panels?.debug("turnStepRad", turnStep)
-        panels?.debug("targetHeading", targetHeading)
-        panels?.update(telemetry)
-    }
-
-    private fun clip(v: Double, min: Double, max: Double): Double {
-        return max(min, min(max, v))
-    }
-
     private fun initializeHardware() {
         outTake1 = hardwareMap.get(DcMotorEx::class.java, "outTake1")
         outTake2 = hardwareMap.get(DcMotorEx::class.java, "outTake2")
@@ -626,38 +420,45 @@ class PedroTest : OpMode() {
         resetEncoders()
         setupVision()
     }
-
     private fun setupMotorDirections() {
         listOf(intakeServo2, outTake2)
             .forEach { it.direction = DcMotorSimple.Direction.REVERSE }
     }
-
     private fun setupPIDFCoefficients() {
         listOf(outTake1, outTake2)
             .forEach { it.setVelocityPIDFCoefficients(pidP, pidI, pidD, pidF) }
     }
-
     private fun resetEncoders() {
         listOf(outTake1, outTake2).forEach { motor ->
             motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
             motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE }
     }
-
+    private fun setupVision() {
+        limelight.setPollRateHz(100)
+        limelight.pipelineSwitch(0)
+        tagProcessor = AprilTagProcessor.easyCreateWithDefaults()
+        visionPortal = VisionPortal.Builder()
+            .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
+            .addProcessor(tagProcessor)
+            .setCameraResolution(Size(1280, 720))
+            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+            .build()
+    }
     private fun initializePedroPathing() {
         panels = PanelsTelemetry.telemetry
-
         pathTimer = Timer()
         actionTimer = Timer()
         opmodeTimer = Timer()
         opmodeTimer.resetTimer()
-
         follower = Constants.createFollower(hardwareMap)
         follower.setStartingPose(startPose)
         follower.activateAllPIDFs()
+        currentOrder.slot1 = PieceColor.PURPLE
+        currentOrder.slot2 = PieceColor.GREEN
+        currentOrder.slot3 = PieceColor.PURPLE
         buildPaths()
     }
-
     private fun ensureVelocityMode() {
         if (!velocityModeInitialized) {
             outTake1.mode = DcMotor.RunMode.RUN_USING_ENCODER
@@ -665,7 +466,6 @@ class PedroTest : OpMode() {
             velocityModeInitialized = true
         }
     }
-
     private fun powerToTicksPerSecond(motor: DcMotorEx, power: Double): Double {
         val clipped = max(-1.0, min(1.0, power))
         val maxRpm = motor.motorType.maxRPM
@@ -673,23 +473,18 @@ class PedroTest : OpMode() {
         val maxTicksPerSec = (maxRpm * tpr) / 60.0
         return clipped * velocityPowerScale * maxTicksPerSec
     }
-
     private fun setMotorVelocityFromPseudoPower(motor: DcMotorEx, power: Double) {
         ensureVelocityMode()
         motor.velocity = powerToTicksPerSecond(motor, power)
     }
-
     private fun lockRobot() {
         follower.pausePathFollowing()
         follower.setMaxPower(0.0)
     }
-
     private fun unlockRobot(maxPower: Double) {
         follower.setMaxPower(maxPower)
         follower.resumePathFollowing()
     }
-
-
     private fun setPathState(pState: Int) {
         pathState = pState
         pathTimer.resetTimer()

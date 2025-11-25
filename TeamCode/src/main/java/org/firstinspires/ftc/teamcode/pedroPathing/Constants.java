@@ -34,7 +34,7 @@ public class Constants {
                     1.0, 0.1, 0.1, 0.01
             ))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
-                    3.0, 0.0, 0.1, 0.01
+                    3.05, 0.2, 0.1, 0.01
             ))
             // Drive PIDF (helps keep velocity smooth)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
